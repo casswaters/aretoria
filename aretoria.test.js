@@ -106,7 +106,7 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
 }
 
 {
-  console.log('\n--- Standalone shell + SW aretoria-v12 ---');
+  console.log('\n--- Standalone shell + SW aretoria-v13 ---');
   const html = src('./index.html');
   const sw = src('./sw.js');
   const boot = src('./boot.js');
@@ -114,12 +114,12 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('apple-mobile-web-app-title is Aretoria', /apple-mobile-web-app-title" content="Aretoria"/.test(html));
   assert('no MEC calendar / CaptainLog UI on page', !/month-grid|captains-log|panel-calendar|Modern Era Calendar/.test(html));
   assert('Irishnu mentioned as the Guide on landing', /Irishnu the Guide/.test(html));
-  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=12/.test(boot));
-  assert('SW is aretoria-v12', /aretoria-v12/.test(sw) && !/aretoria-v11/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
+  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=13/.test(boot));
+  assert('SW is aretoria-v13', /aretoria-v13/.test(sw) && !/aretoria-v12/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
   assert('SW precaches Aretoria code + shell', ['aretoria.js', 'aretoria-data.js', 'aretoria-art.js', 'aretoria.css', 'boot.js', 'shell.css'].every((f) => sw.includes(`./${f}`)));
   assert('SW does not precache portraits/guardians/realms', !/assets\/aretoria\/[^']*\.jpg/.test(noComments(sw)) && !/guardians\//.test(noComments(sw)) && !/realms\//.test(noComments(sw)));
-  assert('aretoria.js VERSION = 12', /const VERSION = 12;/.test(src('./aretoria.js')));
-  assert('asset queries use ?v=12', /\?v=12/.test(html) && /\?v=12/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
+  assert('aretoria.js VERSION = 13', /const VERSION = 13;/.test(src('./aretoria.js')));
+  assert('asset queries use ?v=13', /\?v=13/.test(html) && /\?v=13/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
   assert('manifest name Aretoria, scope /aretoria/', /"name": "Aretoria"/.test(src('./manifest.webmanifest')) && /"scope": "\/aretoria\/"/.test(src('./manifest.webmanifest')));
   assert('link back to Captain’s Log present', /modern-era-calendar/.test(html));
 }
@@ -136,14 +136,29 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
 }
 
 {
-  console.log('\n--- Axial hub v12: art-anchored gates (no colour coding) ---');
+  console.log('\n--- Axial hub v13: desktop ellipse arc on the bridges, phone grid above the painting ---');
   const ajA = noComments(src('./aretoria.js'));
   const ids = ['courage', 'justice', 'humanity', 'temperance', 'wisdom', 'transcendence', 'shadow'];
-  assert('HUB_ART has desk + mob anchors for all 7 gates', ['desk', 'mob'].every((k) => ids.every((id) => Array.isArray(HUB_ART[k].gates[id]) && HUB_ART[k].gates[id].length === 2)));
-  assert('HUB_ART art sizes match the shipped JPEGs (1280×720 / 576×1024)', HUB_ART.desk.w === 1280 && HUB_ART.desk.h === 720 && HUB_ART.mob.w === 576 && HUB_ART.mob.h === 1024);
-  assert('desktop anchors run left→right Courage…Transcendence', ids.slice(0, 6).every((id, i, a) => i === 0 || HUB_ART.desk.gates[id][0] > HUB_ART.desk.gates[a[i - 1]][0]));
-  assert('mobile anchors run left→right Courage…Transcendence', ids.slice(0, 6).every((id, i, a) => i === 0 || HUB_ART.mob.gates[id][0] > HUB_ART.mob.gates[a[i - 1]][0]));
-  assert('layoutHub maps gates by realm name, Shadow on x = cx, orb on the rune', /art\.gates\[id\]/.test(ajA) && /id === 'shadow'\) x = w \/ 2/.test(ajA) && /toScreen\(art\.rune\)/.test(ajA));
+  const D = HUB_ART.desk.gates;
+  assert('HUB_ART.desk has an arch point for all 7 gates', ids.every((id) => Array.isArray(D[id]) && D[id].length === 2));
+  assert('HUB_ART art sizes match the shipped JPEGs (1280×720 / 576×1248)', HUB_ART.desk.w === 1280 && HUB_ART.desk.h === 720 && HUB_ART.mob.w === 576 && HUB_ART.mob.h === 1248);
+  assert('desktop gates run left→right Courage…Transcendence', ids.slice(0, 6).every((id, i, a) => i === 0 || D[id][0] > D[a[i - 1]][0]));
+  const pairs = [['courage', 'transcendence'], ['justice', 'wisdom'], ['humanity', 'temperance']];
+  assert('desktop arc is mirrored about the centre (x pairs sum to 1280, equal y)', pairs.every(([l, r]) => Math.abs(D[l][0] + D[r][0] - 1280) <= 2 && Math.abs(D[l][1] - D[r][1]) <= 2));
+  assert('desktop arc sweeps: outer pair lowest, inner pair highest', D.courage[1] > D.justice[1] && D.justice[1] > D.humanity[1]);
+  // all six on one ellipse centred on the plaza (cx 640): fit a, b from the outer + inner pair, the middle pair must lie on it
+  const e = (() => { const [x1, y1] = [D.humanity[0] - 640, D.humanity[1]], [x3, y3] = [D.courage[0] - 640, D.courage[1]]; const cy = 372;
+    const A1 = x1 * x1, B1 = (cy - y1) ** 2, A3 = x3 * x3, B3 = (cy - y3) ** 2; const v = (A3 - A1) / (A3 * B1 - A1 * B3), u = (1 - B1 * v) / A1; return { u, v, cy }; })();
+  const onE = ([x, y]) => (x - 640) ** 2 * e.u + (e.cy - y) ** 2 * e.v;
+  assert('justice/wisdom lie on the same plaza ellipse (±6%)', Math.abs(onE(D.justice) - 1) < 0.06 && Math.abs(onE(D.wisdom) - 1) < 0.06);
+  assert('gates slid back toward the plaza (not at the archways): Courage x ≥ 280, Transcendence x ≤ 1000, inner pair y ≥ 250', D.courage[0] >= 280 && D.transcendence[0] <= 1000 && D.humanity[1] >= 250 && D.temperance[1] >= 250);
+  assert('Shadow centred on the front bridge, orb on the rune', D.shadow[0] === 640 && D.shadow[1] > HUB_ART.desk.rune[1] + 100 && HUB_ART.desk.rune[0] === 640);
+  assert('mobile hub is a grid with a painting band rect', HUB_ART.mob.layout === 'grid' && Array.isArray(HUB_ART.mob.band) && HUB_ART.mob.band.length === 4 && HUB_ART.mob.band[3] > HUB_ART.mob.rune[1] && HUB_ART.mob.band[1] < HUB_ART.mob.rune[1]);
+  assert('phone grid order is the six realms left→right; Shadow the centred 7th tile', /const HUB_GRID_ORDER = \['courage', 'justice', 'humanity', 'temperance', 'wisdom', 'transcendence'\]/.test(src('./aretoria.js')) && /id === 'shadow' \? 2 : Math\.floor\(k \/ 3\)/.test(ajA) && /id === 'shadow' \? 1 : k % 3/.test(ajA));
+  assert('grid sits between the header and the painting band top', /\.ar-top'\)/.test(ajA) && /toScreen\(\[0, art\.band\[1\]\]\)/.test(ajA) && /classList\.toggle\('ar-hubgrid', mobile\)/.test(ajA));
+  assert('layoutHub maps desktop gates by realm name, Shadow on x = cx, orb on the rune', /art\.gates\[id\]/.test(ajA) && /id === 'shadow'\) x = w \/ 2/.test(ajA) && /toScreen\(art\.rune\)/.test(ajA));
+  const cssG = noComments(src('./aretoria.css'));
+  assert('phone grid tiles: ≥ 44px tap target, no bob, guardian names hidden ≤ 380px', /\.ar-hubgrid \.ar-gate \{ width: min\(31vw, 116px\); animation: none;/.test(cssG) && /@media \(max-width: 380px\), \(max-width: 699px\) and \(max-height: 720px\) \{[\s\S]*?\.ar-hubgrid \.ar-gate-sub \{ display: none; \}/.test(cssG));
   assert('no gold centre thread element in the hub', !/ar-thread|gold-thread|center-thread/.test(ajA + src('./aretoria.css')));
   const mobAx = new URL('./assets/aretoria/realms/mobile/axial.jpg', import.meta.url);
   assert('mobile axial backdrop exists and is < 200 KB', existsSync(mobAx) && statSync(mobAx).size < 200000);
