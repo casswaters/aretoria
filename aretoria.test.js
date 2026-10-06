@@ -106,7 +106,7 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
 }
 
 {
-  console.log('\n--- Standalone shell + SW aretoria-v13 ---');
+  console.log('\n--- Standalone shell + SW aretoria-v14 ---');
   const html = src('./index.html');
   const sw = src('./sw.js');
   const boot = src('./boot.js');
@@ -114,12 +114,12 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('apple-mobile-web-app-title is Aretoria', /apple-mobile-web-app-title" content="Aretoria"/.test(html));
   assert('no MEC calendar / CaptainLog UI on page', !/month-grid|captains-log|panel-calendar|Modern Era Calendar/.test(html));
   assert('Irishnu mentioned as the Guide on landing', /Irishnu the Guide/.test(html));
-  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=13/.test(boot));
-  assert('SW is aretoria-v13', /aretoria-v13/.test(sw) && !/aretoria-v12/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
+  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=14/.test(boot));
+  assert('SW is aretoria-v14', /aretoria-v14/.test(sw) && !/aretoria-v13/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
   assert('SW precaches Aretoria code + shell', ['aretoria.js', 'aretoria-data.js', 'aretoria-art.js', 'aretoria.css', 'boot.js', 'shell.css'].every((f) => sw.includes(`./${f}`)));
   assert('SW does not precache portraits/guardians/realms', !/assets\/aretoria\/[^']*\.jpg/.test(noComments(sw)) && !/guardians\//.test(noComments(sw)) && !/realms\//.test(noComments(sw)));
-  assert('aretoria.js VERSION = 13', /const VERSION = 13;/.test(src('./aretoria.js')));
-  assert('asset queries use ?v=13', /\?v=13/.test(html) && /\?v=13/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
+  assert('aretoria.js VERSION = 14', /const VERSION = 14;/.test(src('./aretoria.js')));
+  assert('asset queries use ?v=14', /\?v=14/.test(html) && /\?v=14/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
   assert('manifest name Aretoria, scope /aretoria/', /"name": "Aretoria"/.test(src('./manifest.webmanifest')) && /"scope": "\/aretoria\/"/.test(src('./manifest.webmanifest')));
   assert('link back to Captain’s Log present', /modern-era-calendar/.test(html));
 }
@@ -162,6 +162,19 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('no gold centre thread element in the hub', !/ar-thread|gold-thread|center-thread/.test(ajA + src('./aretoria.css')));
   const mobAx = new URL('./assets/aretoria/realms/mobile/axial.jpg', import.meta.url);
   assert('mobile axial backdrop exists and is < 200 KB', existsSync(mobAx) && statSync(mobAx).size < 200000);
+}
+
+{
+  console.log('\n--- Hall of Virtues: uniform cards (v14) ---');
+  const cssH = noComments(src('./aretoria.css')); const jsH = noComments(src('./aretoria.js'));
+  const rule = (sel) => { const m = cssH.match(new RegExp('(?:^|\\n)' + sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' \\{([^}]*)\\}')); return m ? m[1] : ''; };
+  assert('grid rows are uniform (grid-auto-rows: 1fr)', /grid-auto-rows: 1fr/.test(rule('.ar-vgrid')));
+  assert('art frame is a fixed 3:4 box that clips (aspect-ratio, overflow hidden, flex: none)', /aspect-ratio: 3 \/ 4/.test(rule('.ar-vart')) && /overflow: hidden/.test(rule('.ar-vart')) && /flex: none/.test(rule('.ar-vart')));
+  assert('portrait is absolutely placed + object-fit: cover (its own aspect cannot grow the frame)', /position: absolute/.test(rule('.ar-vart img')) && /object-fit: cover/.test(rule('.ar-vart img')) && /height: calc\(100% - 2 \* var\(--vp\)\)/.test(rule('.ar-vart img')));
+  assert('names are one fixed-height line (nowrap + ellipsis), realm line nowrap', /white-space: nowrap/.test(rule('.ar-vname')) && /text-overflow: ellipsis/.test(rule('.ar-vname')) && /height: 1\.3em/.test(rule('.ar-vname')) && /white-space: nowrap/.test(rule('.ar-vrealm')));
+  assert('essence is an overlay inside the art frame (never grows the card)', /position: absolute/.test(rule('.ar-vess')) && /<span class="ar-vart\$\{[^}]*\}">\$\{art\}<span class="ar-vess">/.test(jsH));
+  assert('long names are scaled to fit (fitHallNames on render, open and resize)', /function fitHallNames\(\)/.test(jsH) && (jsH.match(/fitHallNames\(\);/g) || []).length >= 2 && /layoutHub\(\); fitHallNames\(\);/.test(jsH));
+  assert('no hyphenated wrapping of names on phones', !/\.ar-vname \{[^}]*hyphens/.test(cssH));
 }
 
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`);
