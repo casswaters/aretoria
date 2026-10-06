@@ -27,8 +27,8 @@ html.ar-lock, html.ar-lock body { overflow: hidden; height: 100%; }
   background:
     radial-gradient(ellipse 80% 60% at 50% 30%, rgba(169, 220, 255, 0.12), transparent 55%),
     radial-gradient(ellipse 70% 50% at 50% 80%, rgba(217, 181, 106, 0.1), transparent 50%),
-    url("assets/aretoria/shrine.jpg") center / cover no-repeat;
-  filter: saturate(0.9) brightness(0.55);
+    url("assets/aretoria/shrine.jpg") 50% 42% / cover no-repeat;
+  filter: saturate(0.92) brightness(0.58);
 }
 .landing-veil {
   position: absolute; inset: 0;
