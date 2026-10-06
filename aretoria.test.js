@@ -8,7 +8,7 @@ import {
   advisorsFor, advisorDialogue, advisorKey, slugify, PORTRAIT_DIR, SHRINE_IMAGE,
   GP, GPm, GUARDIAN_DIR, RP, RPm, REALM_DIR, IRISHNU_PORTRAIT,
   SHRINE_IMAGE_MOBILE, ART_MOBILE_MQ, mobileArtPath, pickArtPath,
-  guardianRole, guardianLine, guardianPortraitPath, irishnuPortraitPath, realmBackdropPath,
+  guardianRole, guardianLine, guardianPortraitPath, irishnuPortraitPath, realmBackdropPath, HUB_ART,
   readMs, READ_BASE_MS, READ_PER_CHAR_MS
 } from './aretoria-data.js';
 
@@ -106,7 +106,7 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
 }
 
 {
-  console.log('\n--- Standalone shell + SW aretoria-v11 ---');
+  console.log('\n--- Standalone shell + SW aretoria-v12 ---');
   const html = src('./index.html');
   const sw = src('./sw.js');
   const boot = src('./boot.js');
@@ -114,14 +114,39 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('apple-mobile-web-app-title is Aretoria', /apple-mobile-web-app-title" content="Aretoria"/.test(html));
   assert('no MEC calendar / CaptainLog UI on page', !/month-grid|captains-log|panel-calendar|Modern Era Calendar/.test(html));
   assert('Irishnu mentioned as the Guide on landing', /Irishnu the Guide/.test(html));
-  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=11/.test(boot));
-  assert('SW is aretoria-v11', /aretoria-v11/.test(sw) && !/aretoria-v3/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
+  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=12/.test(boot));
+  assert('SW is aretoria-v12', /aretoria-v12/.test(sw) && !/aretoria-v11/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
   assert('SW precaches Aretoria code + shell', ['aretoria.js', 'aretoria-data.js', 'aretoria-art.js', 'aretoria.css', 'boot.js', 'shell.css'].every((f) => sw.includes(`./${f}`)));
   assert('SW does not precache portraits/guardians/realms', !/assets\/aretoria\/[^']*\.jpg/.test(noComments(sw)) && !/guardians\//.test(noComments(sw)) && !/realms\//.test(noComments(sw)));
-  assert('aretoria.js VERSION = 11', /const VERSION = 11;/.test(src('./aretoria.js')));
-  assert('asset queries use ?v=11', /\?v=11/.test(html) && /\?v=11/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
+  assert('aretoria.js VERSION = 12', /const VERSION = 12;/.test(src('./aretoria.js')));
+  assert('asset queries use ?v=12', /\?v=12/.test(html) && /\?v=12/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
   assert('manifest name Aretoria, scope /aretoria/', /"name": "Aretoria"/.test(src('./manifest.webmanifest')) && /"scope": "\/aretoria\/"/.test(src('./manifest.webmanifest')));
   assert('link back to Captain’s Log present', /modern-era-calendar/.test(html));
+}
+
+{
+  console.log('\n--- No realm colour coding (shared ivory/gold palette) ---');
+  const ajNC = noComments(src('./aretoria.js'));
+  const cssNC = src('./aretoria.css');
+  assert('aretoria.js never reads r.color (no per-realm colour coding)', !/\br\.color\b/.test(ajNC) && /SHARED_ACCENT/.test(ajNC));
+  assert('gates/filters/cards carry no inline --c realm colour', !/style="--c:/.test(ajNC));
+  assert('CSS pins --c to one shared gold', /\.ar-gate, \.ar-filter, \.ar-vcard \{ --c: #f1d58e; \}/.test(cssNC));
+  assert('hub orb ring + hub particles are gold, not rainbow', !/rgba\(158,240,200/.test(cssNC) && !/'#9ef0c8', '#7fb8ff'/.test(ajNC));
+  assert('Shadow gate is deep bronze/marble, not violet', !/#b9a6e8/.test(cssNC));
+}
+
+{
+  console.log('\n--- Axial hub v12: art-anchored gates (no colour coding) ---');
+  const ajA = noComments(src('./aretoria.js'));
+  const ids = ['courage', 'justice', 'humanity', 'temperance', 'wisdom', 'transcendence', 'shadow'];
+  assert('HUB_ART has desk + mob anchors for all 7 gates', ['desk', 'mob'].every((k) => ids.every((id) => Array.isArray(HUB_ART[k].gates[id]) && HUB_ART[k].gates[id].length === 2)));
+  assert('HUB_ART art sizes match the shipped JPEGs (1280×720 / 576×1024)', HUB_ART.desk.w === 1280 && HUB_ART.desk.h === 720 && HUB_ART.mob.w === 576 && HUB_ART.mob.h === 1024);
+  assert('desktop anchors run left→right Courage…Transcendence', ids.slice(0, 6).every((id, i, a) => i === 0 || HUB_ART.desk.gates[id][0] > HUB_ART.desk.gates[a[i - 1]][0]));
+  assert('mobile anchors run left→right Courage…Transcendence', ids.slice(0, 6).every((id, i, a) => i === 0 || HUB_ART.mob.gates[id][0] > HUB_ART.mob.gates[a[i - 1]][0]));
+  assert('layoutHub maps gates by realm name, Shadow on x = cx, orb on the rune', /art\.gates\[id\]/.test(ajA) && /id === 'shadow'\) x = w \/ 2/.test(ajA) && /toScreen\(art\.rune\)/.test(ajA));
+  assert('no gold centre thread element in the hub', !/ar-thread|gold-thread|center-thread/.test(ajA + src('./aretoria.css')));
+  const mobAx = new URL('./assets/aretoria/realms/mobile/axial.jpg', import.meta.url);
+  assert('mobile axial backdrop exists and is < 200 KB', existsSync(mobAx) && statSync(mobAx).size < 200000);
 }
 
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`);
