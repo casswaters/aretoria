@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Aretoria fountain">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="45%" r="60%"><stop offset="0%" stop-color="#1a2240"/><stop offset="100%" stop-color="#080a16"/></radialGradient>
+    <linearGradient id="marble" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f2ece2"/><stop offset="100%" stop-color="#c6beb0"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f5d26e"/><stop offset="100%" stop-color="#c9a227"/></linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c8ebff" stop-opacity="0.95"/><stop offset="100%" stop-color="#6aaad0" stop-opacity="0.85"/></linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="210" fill="none" stroke="#d4af5a" stroke-opacity="0.28" stroke-width="6"/>
+  <rect x="145" y="400" width="222" height="48" rx="10" fill="url(#marble)" stroke="#d4af5a" stroke-width="4"/>
+  <ellipse cx="256" cy="370" rx="150" ry="55" fill="url(#gold)"/>
+  <ellipse cx="256" cy="370" rx="140" ry="48" fill="url(#marble)"/>
+  <ellipse cx="256" cy="368" rx="105" ry="30" fill="#3c6490"/>
+  <ellipse cx="230" cy="360" rx="50" ry="14" fill="#64a0c8" opacity="0.55"/>
+  <rect x="230" y="210" width="52" height="145" rx="10" fill="url(#marble)"/>
+  <rect x="224" y="268" width="64" height="14" rx="3" fill="url(#gold)"/>
+  <ellipse cx="256" cy="210" rx="90" ry="36" fill="url(#gold)"/>
+  <ellipse cx="256" cy="210" rx="82" ry="30" fill="url(#marble)"/>
+  <ellipse cx="256" cy="208" rx="58" ry="16" fill="#4678a0"/>
+  <rect x="244" y="110" width="24" height="90" rx="6" fill="url(#marble)"/>
+  <circle cx="256" cy="100" r="28" fill="url(#gold)"/>
+  <circle cx="256" cy="100" r="12" fill="#fff5c8"/>
+  <path d="M220 205 Q160 160 130 330" fill="none" stroke="url(#water)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M292 205 Q352 160 382 330" fill="none" stroke="url(#water)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M256 195 Q256 150 256 118" fill="none" stroke="url(#water)" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="150" cy="290" r="6" fill="#c8ebff"/><circle cx="370" cy="300" r="6" fill="#c8ebff"/><circle cx="240" cy="150" r="5" fill="#c8ebff"/>
+</svg>

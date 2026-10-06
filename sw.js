@@ -1,5 +1,5 @@
-/* Aretoria standalone service worker — network-first app shell (aretoria-v5) */
-const CACHE = 'aretoria-v5';
+/* Aretoria standalone service worker — network-first app shell (aretoria-v6) */
+const CACHE = 'aretoria-v6';
 /* Portrait/shrine/guardian/realm images (assets/aretoria/) are deliberately NOT precached;
    they are fetched only when the portal is entered, then kept by the runtime cache. */
 const ASSETS = [
@@ -13,7 +13,11 @@ const ASSETS = [
   './aretoria.css',
   './manifest.webmanifest',
   './icons/icon-192.png',
-  './icons/icon-512.png'
+  './icons/icon-512.png',
+  './icons/favicon.svg',
+  './icons/favicon.ico',
+  './icons/favicon-32.png',
+  './icons/favicon-16.png'
 ];
 
 self.addEventListener('install', (event) => {
