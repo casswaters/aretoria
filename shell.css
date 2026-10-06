@@ -1,0 +1,85 @@
+/* Aretoria standalone shell — landing shrine before the portal opens */
+:root {
+  --bg: #0b0d1a;
+  --text: #f3ecdc;
+  --muted: #b3ad9f;
+  --pearl: #e9e4f2;
+  --gold: #d9b56a;
+  --gold-bright: #f1d58e;
+  --serif: "Cormorant Garamond", "Iowan Old Style", Palatino, Georgia, serif;
+  --display: "Cinzel", "Trajan Pro", "Cormorant Garamond", Georgia, serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body {
+  margin: 0; min-height: 100%;
+  background: var(--bg); color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+html.ar-lock, html.ar-lock body { overflow: hidden; height: 100%; }
+.landing {
+  position: relative; min-height: 100dvh;
+  display: grid; place-items: center;
+  padding: 32px 20px;
+}
+.landing[hidden] { display: none; }
+.landing-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(169, 220, 255, 0.12), transparent 55%),
+    radial-gradient(ellipse 70% 50% at 50% 80%, rgba(217, 181, 106, 0.1), transparent 50%),
+    url("assets/aretoria/shrine.jpg") center / cover no-repeat;
+  filter: saturate(0.9) brightness(0.55);
+}
+.landing-veil {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(7,8,20,0.55), rgba(7,8,20,0.82) 55%, rgba(7,8,20,0.92));
+}
+.landing-card {
+  position: relative; z-index: 1;
+  max-width: 420px; width: 100%;
+  text-align: center;
+  padding: 36px 28px 28px;
+  border-radius: 20px;
+  background: rgba(18, 21, 42, 0.72);
+  border: 1px solid rgba(214, 184, 120, 0.28);
+  box-shadow: 0 18px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,240,210,0.06);
+  backdrop-filter: blur(10px);
+}
+.landing-mark {
+  font-size: 1.6rem; color: var(--gold-bright);
+  text-shadow: 0 0 24px rgba(241, 213, 142, 0.55);
+  margin-bottom: 8px;
+}
+.landing-card h1 {
+  margin: 0; font-family: var(--display);
+  font-weight: 600; letter-spacing: 0.18em;
+  font-size: 1.85rem; color: var(--gold-bright);
+  text-transform: uppercase;
+}
+.landing-sub {
+  margin: 6px 0 0; font-family: var(--serif);
+  font-style: italic; color: var(--pearl); font-size: 1.15rem;
+}
+.landing-blurb {
+  margin: 18px 0 0; font-family: var(--serif);
+  font-size: 1.05rem; line-height: 1.45; color: var(--muted);
+}
+.enter-btn {
+  margin-top: 22px; appearance: none; cursor: pointer;
+  border: 1px solid rgba(214, 184, 120, 0.45);
+  background: linear-gradient(180deg, rgba(217,181,106,0.28), rgba(169,130,60,0.18));
+  color: var(--gold-bright);
+  font-family: var(--display); letter-spacing: 0.14em;
+  font-size: 0.85rem; text-transform: uppercase;
+  padding: 12px 26px; border-radius: 999px;
+  transition: border-color .2s, background .2s, transform .15s;
+}
+.enter-btn:hover { border-color: var(--gold-bright); transform: translateY(-1px); }
+.enter-btn:disabled { opacity: 0.6; cursor: wait; }
+.landing-foot {
+  margin: 18px 0 0; font-size: 0.82rem; color: var(--muted);
+}
+.landing-foot a { color: var(--gold); text-underline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .enter-btn { transition: none; }
+}
