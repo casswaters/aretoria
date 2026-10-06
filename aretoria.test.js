@@ -6,7 +6,8 @@ import {
   REALMS, REALM_IDS, GUIDE, HUB, CREED, OPENING, CLOSING, VIRTUES,
   reflectionKey, ritualFor, tokenContext, fillTokens, validateAll, validateTree,
   advisorsFor, advisorDialogue, advisorKey, slugify, PORTRAIT_DIR, SHRINE_IMAGE,
-  GP, GUARDIAN_DIR, RP, REALM_DIR, IRISHNU_PORTRAIT,
+  GP, GPm, GUARDIAN_DIR, RP, RPm, REALM_DIR, IRISHNU_PORTRAIT,
+  SHRINE_IMAGE_MOBILE, ART_MOBILE_MQ, mobileArtPath, pickArtPath,
   guardianRole, guardianLine, guardianPortraitPath, irishnuPortraitPath, realmBackdropPath,
   readMs, READ_BASE_MS, READ_PER_CHAR_MS
 } from './aretoria-data.js';
@@ -80,15 +81,32 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('HUB.realmBackdrop is RP(axial)', HUB.realmBackdrop === RP('axial') && existsSync(new URL(HUB.realmBackdrop, import.meta.url)));
   assert('axial backdrop web-sized (<200 KB)', statSync(new URL(HUB.realmBackdrop, import.meta.url)).size < 200000);
   const aj = noComments(src('./aretoria.js'));
-  assert('hub prefers painted axial; shrine only for entry / fallback', /realmBackdropPath\(HUB\)/.test(aj) && /hub \? SCENES\.axial\(SHRINE_IMAGE\)/.test(aj));
-  assert('entry cinematic still uses SHRINE_IMAGE', /url\('\$\{SHRINE_IMAGE\}'\)/.test(aj));
+  assert('hub prefers painted axial; shrine fallback via resolveArt', /realmBackdropPath\(HUB\)/.test(aj) && /SCENES\.axial\(shrine\)/.test(aj) && /resolveArt\(SHRINE_IMAGE\)/.test(aj));
+  assert('entry cinematic uses resolveArt(SHRINE_IMAGE)', /resolveArt\(SHRINE_IMAGE\)/.test(aj) && /url\('\$\{shrine\}'\)/.test(aj));
   assert('readMs holds narration', readMs(OPENING) >= 4000 + 60 * OPENING.length && READ_BASE_MS >= 4000 && READ_PER_CHAR_MS >= 60);
   assert('GP / RP dirs', GP('valorix') === 'assets/aretoria/guardians/valorix.jpg' && GUARDIAN_DIR === 'assets/aretoria/guardians/' && REALM_DIR === 'assets/aretoria/realms/');
   assert('irishnuPortraitPath / guardianPortraitPath / realmBackdropPath', irishnuPortraitPath() === IRISHNU_PORTRAIT && guardianPortraitPath({ guardianPortrait: null }) === null && realmBackdropPath(HUB) === RP('axial'));
 }
 
 {
-  console.log('\n--- Standalone shell + SW aretoria-v1 ---');
+  console.log('\n--- Responsive mobile portrait art (v28) ---');
+  const GUARDIAN_SLUG = { courage: 'valorix', justice: 'justar', humanity: 'amara', temperance: 'moder', wisdom: 'sophia', transcendence: 'auria', shadow: 'shadow' };
+  assert('ART_MOBILE_MQ is max-width 699px', ART_MOBILE_MQ === '(max-width: 699px)');
+  assert('GPm / RPm scheme', GPm('valorix') === 'assets/aretoria/guardians/mobile/valorix.jpg' && RPm('courage') === 'assets/aretoria/realms/mobile/courage.jpg');
+  assert('mobileArtPath inserts /mobile/', mobileArtPath(RP('courage')) === RPm('courage') && mobileArtPath(GP('valorix')) === GPm('valorix'));
+  assert('mobileArtPath shrine → mobile/shrine', mobileArtPath(SHRINE_IMAGE) === SHRINE_IMAGE_MOBILE && SHRINE_IMAGE_MOBILE === 'assets/aretoria/mobile/shrine.jpg');
+  assert('pickArtPath desktop vs mobile', pickArtPath(RP('axial'), false) === RP('axial') && pickArtPath(RP('axial'), true) === RPm('axial'));
+  assert('all 8 realm mobile backdrops exist (7 + axial)', ['axial', ...REALMS.map((r) => r.id)].every((id) => existsSync(new URL(RPm(id), import.meta.url))));
+  assert('all 8 guardian mobile portraits exist (7 + irishnu)', [...Object.values(GUARDIAN_SLUG), 'irishnu'].every((s) => existsSync(new URL(GPm(s), import.meta.url))));
+  assert('mobile shrine exists', existsSync(new URL(SHRINE_IMAGE_MOBILE, import.meta.url)));
+  assert('mobile files are portrait-ish web JPEGs (<220 KB)', [...['axial', ...REALMS.map((r) => r.id)].map(RPm), ...[...Object.values(GUARDIAN_SLUG), 'irishnu'].map(GPm), SHRINE_IMAGE_MOBILE].every((p) => statSync(new URL(p, import.meta.url)).size < 220000));
+  const aj = noComments(src('./aretoria.js'));
+  assert('picker uses ART_MOBILE_MQ + resolveArt + refresh on resize/orientation', /ART_MOBILE_MQ/.test(aj) && /resolveArt/.test(aj) && /refreshArtIfBreakpointChanged/.test(aj) && /artMQ\.addEventListener|artMQ\.addListener/.test(aj));
+  assert('virtue advisor thumbs stay shared (no mobile/ in portrait paths)', VIRTUES.filter((v) => v.portrait).every((v) => !v.portrait.includes('/mobile/')));
+}
+
+{
+  console.log('\n--- Standalone shell + SW aretoria-v2 ---');
   const html = src('./index.html');
   const sw = src('./sw.js');
   const boot = src('./boot.js');
@@ -96,12 +114,12 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('apple-mobile-web-app-title is Aretoria', /apple-mobile-web-app-title" content="Aretoria"/.test(html));
   assert('no MEC calendar / CaptainLog UI on page', !/month-grid|captains-log|panel-calendar|Modern Era Calendar/.test(html));
   assert('Irishnu mentioned as the Guide on landing', /Irishnu the Guide/.test(html));
-  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=1/.test(boot));
-  assert('SW is aretoria-v1', /aretoria-v1/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
+  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=2/.test(boot));
+  assert('SW is aretoria-v2', /aretoria-v2/.test(sw) && !/aretoria-v1/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
   assert('SW precaches Aretoria code + shell', ['aretoria.js', 'aretoria-data.js', 'aretoria-art.js', 'aretoria.css', 'boot.js', 'shell.css'].every((f) => sw.includes(`./${f}`)));
   assert('SW does not precache portraits/guardians/realms', !/assets\/aretoria\/[^']*\.jpg/.test(noComments(sw)) && !/guardians\//.test(noComments(sw)) && !/realms\//.test(noComments(sw)));
-  assert('aretoria.js VERSION = 1', /const VERSION = 1;/.test(src('./aretoria.js')));
-  assert('asset queries use ?v=1', /\?v=1/.test(html) && /\?v=1/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
+  assert('aretoria.js VERSION = 2', /const VERSION = 2;/.test(src('./aretoria.js')));
+  assert('asset queries use ?v=2', /\?v=2/.test(html) && /\?v=2/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
   assert('manifest name Aretoria, scope /aretoria/', /"name": "Aretoria"/.test(src('./manifest.webmanifest')) && /"scope": "\/aretoria\/"/.test(src('./manifest.webmanifest')));
   assert('link back to Captain’s Log present', /modern-era-calendar/.test(html));
 }
