@@ -524,7 +524,7 @@ function sceneShadow() {
   };
 }
 
-/** The Axial hub: Cassidy's island shrine at sunset, deepened into a starlit nebula above. */
+/** The Axial hub: the island shrine at sunset, deepened into a starlit nebula above. */
 function sceneHub(img) {
   const r = rng(97);
   const sky = 'linear-gradient(180deg, #05061a 0%, #1a1440 40%, #3a2350 70%, #0b0a1f 100%)';
@@ -547,7 +547,7 @@ export const SCENES = {
 
 /* ========================================================================== */
 /* Realm hosts (guardians) — drawn figures, viewBox 0 0 240 480               */
-/* Cassidy's own portraits are used for the virtue advisors; these drawn      */
+/* The author's own portraits are used for the virtue advisors; these drawn  */
 /* figures stand in for the realm Guardians until a guardian portrait is set  */
 /* (realm.guardianPortrait in aretoria-data.js), and remain the fallback.     */
 /* ========================================================================== */

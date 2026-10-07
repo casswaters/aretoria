@@ -1,9 +1,12 @@
 /**
  * Aretoria v1 — the enterable portal (lazy-loaded from portal.js on "Enter the Realms").
- * Full-screen overlay #aretoria: cinematic entry over Cassidy's island shrine, the Axial
+ * Full-screen overlay #aretoria: cinematic entry over the island shrine, the Axial
  * hub (Welcome to Aretoria), seven realm environments, each hosted by its
  * Guardian (drawn figure, or a portrait from assets/aretoria/guardians/ once one is set),
- * Cassidy's own portraits as virtue advisors, a Hall of Virtues and his Creed.
+ * the author's own portraits as virtue advisors, a Hall of Virtues and the Creed.
+ * v37: no person is hard-coded. A short first-visit prompt asks what Aretoria should call the visitor (kept in
+ * this browser only, changeable from the Hall of Virtues); dialogue fills {name}/{Name} at render time, falling
+ * back to "traveler". The guide's name ({guide}) and pictures (GUIDE_ART) are swappable config.
  * All dialogue is scripted (no AI, no network beyond loading images from this site).
  *
  * v25: the opening and closing narration lines stay up for readMs(text) (≈4 s + 60 ms per
@@ -24,12 +27,27 @@ import {
   reflectionKey, isoDate, tokenContext, fillTokens, readMs,
   advisorsFor, advisorDialogue, advisorTitle, advisorKey, virtueBySlug,
   guardianRole, guardianLine, guardianPortraitPath, irishnuPortraitPath, realmBackdropPath, HUB_ART, IRISHNU_AVATAR,
-  mobileArtPath, pickArtPath, ART_MOBILE_MQ, ARRIVAL, arrivalWindow
-} from './aretoria-data.js?v=36';
-import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=36';
+  mobileArtPath, pickArtPath, ART_MOBILE_MQ, ARRIVAL, arrivalWindow,
+  NAME_KEY, NAME_ASKED_KEY, NAME_MAX, NAME_FALLBACK, cleanName, nameForms, guideName, GUIDE_ART
+} from './aretoria-data.js?v=37';
+import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=37';
 
-const VERSION = 36;
+const VERSION = 37;
 const MET_KEY = 'mec-aretoria:met-irishnu';
+
+/* ---------- the visitor's name (localStorage only; never sent anywhere) ---------- */
+function storedName() { try { return cleanName(localStorage.getItem(NAME_KEY) || ''); } catch { return ''; } }
+function nameAsked() { try { return !!localStorage.getItem(NAME_ASKED_KEY) || !!storedName(); } catch { return !!S.nameAskedHere; } }
+function saveName(raw) {
+  const n = cleanName(raw);
+  S.nameAskedHere = true;
+  try { if (n) localStorage.setItem(NAME_KEY, n); else localStorage.removeItem(NAME_KEY); localStorage.setItem(NAME_ASKED_KEY, '1'); } catch { /* private mode: this visit only */ }
+  S.nameHere = n;
+  return n;
+}
+function clearName() { S.nameHere = ''; S.nameAskedHere = true; try { localStorage.removeItem(NAME_KEY); localStorage.setItem(NAME_ASKED_KEY, '1'); } catch { /* ignore */ } }
+const visitorName = () => storedName() || S.nameHere || '';
+const hubHint = () => `Tap a gate to travel · tap ${guideName()} to talk`;
 const reducedMQ = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
 const reduced = () => reducedMQ.matches;
 const artMQ = window.matchMedia ? window.matchMedia(ART_MOBILE_MQ) : { matches: false };
@@ -145,6 +163,17 @@ function build() {
       <div class="ar-narr-hint" aria-hidden="true"></div>
       <button type="button" class="ar-btn ar-narr-x" aria-label="Leave Aretoria">✕</button>
     </div>
+    <section class="ar-name" hidden role="dialog" aria-modal="true" aria-labelledby="ar-name-h">
+      <form class="ar-name-card" novalidate>
+        <div class="ar-name-mark" aria-hidden="true">✦</div>
+        <h2 id="ar-name-h">What should Aretoria call you?</h2>
+        <p class="ar-name-why">Your first name works best: guidance lands closer when it is spoken to you.</p>
+        <input class="ar-name-input" type="text" name="name" maxlength="${NAME_MAX}" autocomplete="given-name" autocapitalize="words" spellcheck="false" enterkeyhint="go" aria-label="Your name">
+        <div class="ar-name-row"><button type="submit" class="ar-name-go">Continue</button></div>
+        <div class="ar-name-row ar-name-minor"><button type="button" class="ar-name-skip">Skip for now</button><button type="button" class="ar-name-clear" hidden>Forget my name</button></div>
+        <p class="ar-name-note">Kept only in this browser. Change it anytime in the Hall of Virtues.</p>
+      </form>
+    </section>
     <div class="ar-outro" hidden>
       <p aria-live="polite"></p>
       <div class="ar-narr-hint" aria-hidden="true"></div>
@@ -153,6 +182,7 @@ function build() {
   document.body.appendChild(root);
 
   $('.ar-x').addEventListener('click', () => close());
+  wireNamePrompt();
   $('.ar-back').addEventListener('click', () => travel('axial'));
   $('.ar-dlg-close').addEventListener('click', () => closeDialogue());
   $('.ar-dlg-text').addEventListener('click', () => finishTyping());
@@ -225,12 +255,14 @@ function action(act, el) {
   else if (act === 'guide') openDialogue({ kind: 'guide' });
   else if (act === 'host') openDialogue({ kind: 'host', realm: S.view });
   else if (act === 'panel-close') closePanels();
+  else if (act === 'name') openNamePrompt({ edit: true, done: () => { if (!$('.ar-hall').hidden) renderHallName(); } });
 }
 
 const isAdvanceKey = (e) => e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar';
 const narrating = (sel) => { const el = $(sel); return !el.hidden && !el.classList.contains('done'); };
 
 function onKey(e) {
+  if (!$('.ar-name').hidden) return; // the name prompt handles its own keys (Enter submits, Esc skips)
   // Opening / closing narration: Enter or Space advances, Esc leaves at once.
   if (narrating('.ar-outro')) {
     if (e.key === 'Escape') { e.preventDefault(); return finishOutro(); }
@@ -360,13 +392,13 @@ function runePortalHtml() {
 /** Hub Guide host: painted Irishnu when present, else the drawn Guide figure. */
 function guideHostHtml() {
   const photo = irishnuPhoto();
-  const fig = `${figureSvg('irishnu', 'irs')}<span class="ar-host-name">Irishnu</span>`;
+  const fig = `${figureSvg('irishnu', 'irs')}<span class="ar-host-name">${esc(guideName())}</span>`;
   if (!photo) {
-    return `<button type="button" class="ar-host ar-guide" data-act="guide" aria-label="Speak with Irishnu, ${esc(GUIDE.title)}">${fig}</button>`;
+    return `<button type="button" class="ar-host ar-guide" data-act="guide" aria-label="Speak with ${esc(guideName())}, ${esc(GUIDE.title)}">${fig}</button>`;
   }
   const desk = irishnuPortraitPath();
-  return `<button type="button" class="ar-host ar-guide ar-host-photo" data-act="guide" aria-label="Speak with Irishnu, ${esc(GUIDE.title)}">` +
-    `<span class="ar-gframe" style="position:relative"><img src="${esc(photo)}" alt="" loading="lazy" decoding="async"${desk ? ` data-ar-desk="${esc(desk)}"` : ''}></span><span class="ar-host-name">Irishnu</span></button>`;
+  return `<button type="button" class="ar-host ar-guide ar-host-photo" data-act="guide" aria-label="Speak with ${esc(guideName())}, ${esc(GUIDE.title)}">` +
+    `<span class="ar-gframe" style="position:relative"><img src="${esc(photo)}" alt="" loading="lazy" decoding="async"${desk ? ` data-ar-desk="${esc(desk)}"` : ''}></span><span class="ar-host-name">${esc(guideName())}</span></button>`;
 }
 function irishnuPhoto() {
   return resolveArt(irishnuPortraitPath());
@@ -386,7 +418,7 @@ function wireIrishnuPortraitFallback() {
     }
     const b = $('.ar-guide.ar-host-photo'); if (!b) return;
     b.classList.remove('ar-host-photo');
-    b.innerHTML = `${figureSvg('irishnu', 'irs')}<span class="ar-host-name">Irishnu</span>`;
+    b.innerHTML = `${figureSvg('irishnu', 'irs')}<span class="ar-host-name">${esc(guideName())}</span>`;
   });
 }
 
@@ -512,7 +544,7 @@ function showView(id) {
     $('.ar-lore').hidden = true;
     setTitle(HUB.name, 'Welcome to Aretoria');
     renderHub();
-    hint('Tap a gate to travel · tap Irishnu to talk');
+    hint(hubHint());
   } else {
     const r = realmById(id);
     setTitle(`The ${r.name} Realm`, `${r.temple} · ${guardianSub(r)}`);
@@ -700,7 +732,7 @@ function speakerFor(opts) {
     const deskAttr = desk ? ` data-ar-desk="${esc(desk)}"` : '';
     return {
       name: GUIDE.name, title: GUIDE.title, tree: GUIDE.dialogue, key: null, el: '.ar-guide',
-      portrait: photo ? `<img src="${esc(IRISHNU_AVATAR)}" alt="" class="ar-gport" style="object-position:50% 40%" onerror="this.onerror=null;this.src='${esc(photo)}'">` : figureSvg('irishnu', 'pirs', true),
+      portrait: photo ? `<img src="${esc(GUIDE_ART.avatar)}" alt="" class="ar-gport" style="object-position:50% 40%" onerror="this.onerror=null;this.src='${esc(photo)}'">` : figureSvg('irishnu', 'pirs', true),
       stage: photo ? { src: photo, label: `${GUIDE.name} ${GUIDE.title}`, wide: true, desk } : null,
       guide: true
     };
@@ -726,7 +758,7 @@ function openDialogue(opts) {
   rememberFocus();
   const sp = speakerFor(opts);
   const first = opts.arrival && sp.tree.arrivalStart && sp.tree.nodes[sp.tree.arrivalStart] ? sp.tree.arrivalStart : sp.tree.start;
-  S.dlg = { ...sp, opts, ctx: tokenContext(new Date()), node: first };
+  S.dlg = { ...sp, opts, ctx: tokenContext(new Date(), undefined, visitorName()), node: first };
   const d = $('.ar-dlg');
   d.classList.toggle('ar-dlg-photo', !!sp.virtue);
   $('.ar-dlg-portrait').innerHTML = sp.portrait;
@@ -797,7 +829,7 @@ function closeDialogue(silent) {
   const wasOpen = !!S.dlg;
   S.dlg = null;
   if (wasOpen) restoreFocus();
-  if (wasOpen && !silent) hint(S.view === 'axial' ? 'Tap a gate to travel · tap Irishnu to talk' : 'Tap the Guardian or an advisor to speak');
+  if (wasOpen && !silent) hint(S.view === 'axial' ? hubHint() : 'Tap the Guardian or an advisor to speak');
   if (wasOpen && S.arrival && S.arrival.phase === 'frame') endArrival(!silent);
 }
 
@@ -881,6 +913,7 @@ function renderHall(filter) {
     `<div class="ar-panel-inner"><h2>Hall of Virtues</h2>` +
     `<p class="ar-hall-lead">The virtues I seek to compound within myself:</p>` +
     `<p class="ar-hall-count">${VIRTUES.length} virtues · ${revealed} advisors revealed</p>` +
+    `<p class="ar-hall-you"><span class="ar-hall-you-t"></span> <button type="button" class="ar-linkbtn" data-act="name">Change</button></p>` +
     `<div class="ar-filters"><button type="button" class="ar-filter${filter === 'all' ? ' on' : ''}" data-realm="all">All</button>` +
     realmsIn.map((r) => `<button type="button" class="ar-filter${filter === r.id ? ' on' : ''}" data-realm="${r.id}"><i></i>${esc(r.name)}</button>`).join('') + `</div>` +
     `<div class="ar-vgrid">` + list.map((v) => {
@@ -893,7 +926,14 @@ function renderHall(filter) {
         `<span class="ar-vart${v.portrait ? '' : ' ar-vveil'}">${art}<span class="ar-vess">${esc(v.essence)}</span></span>` +
         `<span class="ar-vname">${esc(v.name)}</span><span class="ar-vrealm"><i></i>${esc(r.name)}</span></button>`;
     }).join('') + `</div></div>`;
+  renderHallName();
   fitHallNames();
+}
+/** "Aretoria calls you Ada" (textContent: the stored name is never parsed as HTML). */
+function renderHallName() {
+  const t = root && $('.ar-hall-you-t'); if (!t) return;
+  const n = visitorName();
+  t.textContent = n ? `Aretoria calls you ${n}.` : `Aretoria calls you ${NAME_FALLBACK}.`;
 }
 
 /** Uniform Hall cards: a name that would overflow its one line is scaled down to fit (card size never changes). */
@@ -1152,7 +1192,7 @@ function finishArrival() {
   if (!root) return;
   resetArrivalStage();
   if (S.dlg && S.dlg.opts && S.dlg.opts.arrival) closeDialogue(true);
-  if (S.open && S.view === 'axial') { layoutHub(); refreshHubArt(); if (!S.dlg) hint('Tap a gate to travel · tap Irishnu to talk'); }
+  if (S.open && S.view === 'axial') { layoutHub(); refreshHubArt(); if (!S.dlg) hint(hubHint()); }
 }
 
 /** The final hub state, set explicitly (never left to animation/transition events): arrival layer hidden and its art
@@ -1196,6 +1236,39 @@ function exitNow() {
   close({ immediate: true });
 }
 
+/* ---------- name prompt (first visit; later from the Hall of Virtues) ---------- */
+function wireNamePrompt() {
+  const box = $('.ar-name'), form = $('.ar-name-card'), input = $('.ar-name-input');
+  const finish = () => {
+    box.hidden = true; box.classList.remove('first', 'edit');
+    const done = S.nameDone; S.nameDone = null;
+    if (done) done();
+  };
+  form.addEventListener('submit', (e) => { e.preventDefault(); e.stopPropagation(); saveName(input.value); finish(); });
+  $('.ar-name-skip').addEventListener('click', (e) => { e.stopPropagation(); if (!box.classList.contains('edit')) saveName(''); finish(); });
+  $('.ar-name-clear').addEventListener('click', (e) => { e.stopPropagation(); clearName(); input.value = ''; finish(); });
+  box.addEventListener('click', (e) => e.stopPropagation()); // never reaches the hub / intro click handlers
+  box.addEventListener('keydown', (e) => {
+    e.stopPropagation();
+    if (e.key === 'Escape') { e.preventDefault(); $('.ar-name-skip').click(); }
+  });
+  // keep the field to what will be kept: letters (any script), spaces, hyphens, apostrophes
+  input.addEventListener('input', () => {
+    const v = input.value, c = v.replace(/[^\p{L}\p{M}\s'’-]/gu, '');
+    if (c !== v) input.value = c;
+  });
+}
+function openNamePrompt({ edit = false, done = null } = {}) {
+  const box = $('.ar-name'), input = $('.ar-name-input');
+  S.nameDone = done;
+  box.classList.toggle('edit', edit);
+  $('.ar-name-skip').textContent = edit ? 'Cancel' : 'Skip for now';
+  $('.ar-name-clear').hidden = !(edit && visitorName());
+  input.value = edit ? visitorName() : '';
+  box.hidden = false;
+  requestAnimationFrame(() => input.focus({ preventScroll: true }));
+}
+
 export async function openAretoria(opts = {}) {
   await ensureCss();
   if (!root) build();
@@ -1203,6 +1276,7 @@ export async function openAretoria(opts = {}) {
   S.open = true;
   S.artMobile = preferMobileArt();
   S.returnFocus = opts.returnFocus || document.activeElement;
+  if (!nameAsked()) { $('.ar-name').hidden = false; $('.ar-name').classList.add('first'); } // same frame as the root: no flash
   root.hidden = false;
   $('.ar-outro').hidden = true;
   document.documentElement.classList.add('ar-lock');
@@ -1211,6 +1285,12 @@ export async function openAretoria(opts = {}) {
   showView('axial');
   startLoop();
   if (!opts.realm && arrivalDue()) preloadArrival();
+  if (!nameAsked()) {
+    // first visit (or an existing visitor who has never been asked): the prompt sits on opaque night above
+    // everything, so neither the hub nor the shrine shows through; the entrance plays once it is answered
+    openNamePrompt({ done: () => { if (S.open) { startIntro(opts.realm); $('.ar-intro').focus({ preventScroll: true }); } } });
+    return;
+  }
   startIntro(opts.realm);
   $('.ar-intro').focus({ preventScroll: true });
 }
