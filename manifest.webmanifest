@@ -1,7 +1,7 @@
 {
   "name": "Aretoria",
   "short_name": "Aretoria",
-  "description": "The Seven Realms — shrine, Axial hub, warrior Guardians, Irishnu the Guide.",
+  "description": "The Seven Realms: shrine, Axial hub, warrior Guardians, Irishnu the Guide.",
   "start_url": "/aretoria/",
   "scope": "/aretoria/",
   "display": "standalone",

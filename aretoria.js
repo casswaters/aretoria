@@ -28,11 +28,11 @@ import {
   advisorsFor, advisorDialogue, advisorTitle, advisorKey, virtueBySlug,
   guardianRole, guardianLine, guardianPortraitPath, irishnuPortraitPath, realmBackdropPath, HUB_ART, IRISHNU_AVATAR,
   mobileArtPath, pickArtPath, ART_MOBILE_MQ, ARRIVAL, arrivalWindow,
-  NAME_KEY, NAME_ASKED_KEY, FIRST_VISIT_KEY, NAME_MAX, NAME_FALLBACK, cleanName, nameForms, guideName, GUIDE_ART
-} from './aretoria-data.js?v=41';
-import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=41';
+  NAME_KEY, NAME_ASKED_KEY, FIRST_VISIT_KEY, REALM_ORDER, NAME_MAX, NAME_FALLBACK, cleanName, nameForms, guideName, GUIDE_ART
+} from './aretoria-data.js?v=42';
+import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=42';
 
-const VERSION = 41;
+const VERSION = 42;
 const MET_KEY = 'mec-aretoria:met-irishnu';
 const FIRST_SESSION_KEY = 'mec-aretoria:first-visit-session'; // sessionStorage: this visit (browser session) began as the first
 
@@ -242,6 +242,7 @@ function build() {
   // On document (capture) so Esc still works after focus falls back to <body>.
   document.addEventListener('keydown', (e) => { if (S.open) { onKey(e); if (e.key === 'Escape') e.stopPropagation(); } }, true);
   root.addEventListener('pointermove', (e) => {
+    if (e.pointerType && e.pointerType !== 'mouse') return; // v67 (A14): a finger tap must not leave the scene (and the card) offset
     S.tx = (e.clientX / window.innerWidth) * 2 - 1;
     S.ty = (e.clientY / window.innerHeight) * 2 - 1;
   });
@@ -462,7 +463,7 @@ function wireIrishnuPortraitFallback() {
 }
 
 /** Phone hub grid order (3×2), left→right, top→bottom; Shadow is the centred 7th tile. */
-const HUB_GRID_ORDER = ['courage', 'justice', 'humanity', 'temperance', 'wisdom', 'transcendence'];
+const HUB_GRID_ORDER = REALM_ORDER; // hub painting order, left to right (v67)
 
 function layoutHub() {
   if (!root || S.view !== 'axial') return;
@@ -634,7 +635,13 @@ function applyParallax(force) {
     el.style.transform = flat ? `translate(${x}px, ${y}px) scale(1.06)` : `translate3d(${x}px, ${y}px, 0) scale(1.06)`;
   });
   const host = root.querySelectorAll('.ar-host, .ar-advisors');
-  host.forEach((el) => { el.style.translate = `${(-S.px * 30 * k).toFixed(1)}px ${(-S.py * 10 * k).toFixed(1)}px`; });
+  // v67 (A14): the hub Guide card is pinned near the right edge, so it drifts only a little sideways on desktop
+  // (never past its 32px margin) and not at all on phones, where it sits 2vw from the edge.
+  const narrow = window.innerWidth < 700;
+  host.forEach((el) => {
+    const gx = el.classList.contains('ar-guide') ? (narrow ? 0 : 8) : 30;
+    el.style.translate = `${(-S.px * gx * k).toFixed(1)}px ${(-S.py * 10 * k).toFixed(1)}px`;
+  });
 }
 
 function startLoop() {
