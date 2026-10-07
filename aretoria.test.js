@@ -9,7 +9,7 @@ import {
   GP, GPm, GUARDIAN_DIR, RP, RPm, REALM_DIR, IRISHNU_PORTRAIT, IRISHNU_AVATAR,
   SHRINE_IMAGE_MOBILE, ART_MOBILE_MQ, mobileArtPath, pickArtPath,
   guardianRole, guardianLine, guardianPortraitPath, irishnuPortraitPath, realmBackdropPath, HUB_ART,
-  readMs, READ_BASE_MS, READ_PER_CHAR_MS
+  readMs, READ_BASE_MS, READ_PER_CHAR_MS, ARRIVAL, arrivalWindow
 } from './aretoria-data.js';
 
 let passed = 0, failed = 0;
@@ -130,10 +130,10 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('no MEC calendar / CaptainLog UI on page', !/month-grid|captains-log|panel-calendar|Modern Era Calendar/.test(html));
   assert('Irishnu mentioned as the Guide on landing', /Irishnu the Guide/.test(html));
   assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=18/.test(boot));
-  assert('SW is aretoria-v33', /aretoria-v33/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
+  assert('SW is aretoria-v34', /aretoria-v34/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
   assert('SW precaches Aretoria code + shell', ['aretoria.js', 'aretoria-data.js', 'aretoria-art.js', 'aretoria.css', 'boot.js', 'shell.css'].every((f) => sw.includes(`./${f}`)));
   assert('SW does not precache portraits/guardians/realms', !/assets\/aretoria\/[^']*\.jpg/.test(noComments(sw)) && !/guardians\//.test(noComments(sw)) && !/realms\//.test(noComments(sw)));
-  assert('aretoria.js VERSION = 19', /const VERSION = 19;/.test(src('./aretoria.js')));
+  assert('aretoria.js VERSION = 34 and imports data/art ?v=34; boot imports aretoria.js?v=34', /const VERSION = 34;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=34'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=34'/.test(src('./aretoria.js')) && /aretoria\.js\?v=34'/.test(src('./boot.js')));
   assert('asset queries use ?v=18', /\?v=18/.test(html) && /\?v=18/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
   assert('manifest name Aretoria, scope /aretoria/', /"name": "Aretoria"/.test(src('./manifest.webmanifest')) && /"scope": "\/aretoria\/"/.test(src('./manifest.webmanifest')));
   assert('link back to Captain’s Log present', /modern-era-calendar/.test(html));
@@ -185,6 +185,36 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('essence is an overlay inside the art frame (never grows the card)', /position: absolute/.test(rule('.ar-vess')) && /<span class="ar-vart\$\{[^}]*\}">\$\{art\}<span class="ar-vess">/.test(jsH));
   assert('long names are scaled to fit (fitHallNames on render, open and resize)', /function fitHallNames\(\)/.test(jsH) && (jsH.match(/fitHallNames\(\);/g) || []).length >= 2 && /layoutHub\(\); fitHallNames\(\);/.test(jsH));
   assert('no hyphenated wrapping of names on phones', !/\.ar-vname \{[^}]*hyphens/.test(cssH));
+}
+
+{
+  console.log('\n--- v34 Axial arrival (first hub entry per session) + Irishnu card bottom-right ---');
+  const aj = noComments(src('./aretoria.js')), css = src('./aretoria.css');
+  const f = (u) => new URL(u, import.meta.url);
+  assert('arrival art + Irishnu layer + wisp overlays exist', [ARRIVAL.image, ARRIVAL.irishnu.src, ARRIVAL.wisps.desk, ARRIVAL.wisps.phone].every((u) => existsSync(f(u))));
+  assert('arrival art is web-sized (<320 KB) and the overlays small (<120 KB)', statSync(f(ARRIVAL.image)).size < 320000 && [ARRIVAL.irishnu.src, ARRIVAL.wisps.desk, ARRIVAL.wisps.phone].every((u) => statSync(f(u)).size < 120000));
+  assert('frame bottom at source y 590: the swirl centre (y 652) is never in view', ARRIVAL.h === 590 && ARRIVAL.w === 1280);
+  const d = arrivalWindow(1024, 576);
+  assert('desktop 16:9 window = approved v10-b590 crop (x 115.6–1164.4, full height, no pan)', !d.pan && Math.abs(d.x0 - 115.56) < 0.1 && Math.abs(d.w - 1048.9) < 0.1 && d.h === 590 && d.y0 === 0 && d.x1 === d.x0);
+  const p = arrivalWindow(576, 1024);
+  assert('phone 9:16 pan: 331.9 px window, x0 130 → x1 535.9 (Irishnu at 60%)', p.pan && Math.abs(p.w - 331.875) < 0.01 && p.x0 === 130 && Math.abs(p.x1 - 535.875) < 0.01 && Math.abs((ARRIVAL.irishnu.feet[0] - p.x1) / p.w - 0.6) < 1e-9);
+  const q = arrivalWindow(390, 844);
+  assert('pan end is computed from the real aspect (390×844 → x1 571.4)', Math.abs(q.x1 - (735 - 0.6 * 590 * 390 / 844)) < 1e-6);
+  const wide = arrivalWindow(2560, 900);
+  assert('ultra-wide screens keep the bottom edge at 590 (crop from the top)', !wide.pan && wide.w === 1280 && Math.abs(wide.y0 + wide.h - 590) < 1e-9);
+  assert('phone pan timing: 0.6 s hold, 4.5 s sine ease-in-out', ARRIVAL.phone.holdMs === 600 && ARRIVAL.phone.panMs === 4500 && /0\.37, 0, 0\.63, 1/.test(ARRIVAL.phone.ease));
+  assert('pull-back 1.6–2 s; reduced motion is a 300 ms cross-fade', ARRIVAL.pullMs >= 1600 && ARRIVAL.pullMs <= 2000 && ARRIVAL.fadeMs === 300 && /if \(reduced\(\)\) \{\s*root\.classList\.remove\('ar-arriving'\)/.test(aj));
+  assert('reduced motion: no pan (camera placed at the end framing)', /const still = reduced\(\);\s*placeArrival\(still\);/.test(aj) && /W\.pan && !still/.test(aj));
+  assert('plays on the first hub entry per session only (sessionStorage), never for realm deep links', /sessionStorage\.getItem\(ARRIVAL\.sessionKey\)/.test(aj) && /sessionStorage\.setItem\(ARRIVAL\.sessionKey/.test(aj) && /if \(t && realmById\(t\)\) \{ showView\(t\); return; \}\s*if \(arrivalDue\(\)\) \{ startArrival\(\); return; \}/.test(aj));
+  assert('greeting reuses Irishnu\'s guide dialogue, without the stage portrait (he stands in the scene)', /openDialogue\(\{ kind: 'guide', arrival: true \}\)/.test(aj) && /sp\.stage && !opts\.arrival/.test(aj));
+  assert('closing the greeting pulls back; a tap skips; Irishnu flies into his card', /if \(wasOpen && S\.arrival && S\.arrival\.phase === 'frame'\) endArrival\(!silent\);/.test(aj) && /addEventListener\('click', \(\) => skipArrival\(\)\)/.test(aj) && /ar-arrive-fly/.test(aj) && /\$\('\.ar-guide'\)/.test(aj));
+  assert('no flash: the arrival layer is opaque night and sits above the hub, under the dialogue', /\.ar-arrive \{[^}]*z-index: 20;[^}]*background: #05040e/.test(css) && /\.ar-arriving \.ar-hubui/.test(css));
+  assert('camera sized in dvh (vh fallback)', /CSS\.supports\('height', '100dvh'\)\) \? 'dvh' : 'vh'/.test(aj));
+  assert('no extra people: the arrival uses only the Irishnu layer', (aj.match(/<img class="ar-arrive-irs"/g) || []).length === 1);
+  const rule = (sel) => { const m = css.match(new RegExp('(?:^|\\n)' + sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' \\{([^}]*)\\}')); return m ? m[1] : ''; };
+  const card = rule('.ar-guide.ar-host-photo');
+  assert('Irishnu card is bottom-RIGHT on desktop (right set, left auto) and clears the safe area', /right: max\(1\.5vw, 32px\)/.test(card) && /left: auto/.test(card) && /env\(safe-area-inset-bottom\)/.test(card));
+  assert('Irishnu card is bottom-right on phones too (incl. short phones), above the Hall/Creed bar', /aspect-ratio: 9 \/ 16; right: 2vw; left: auto;[^}]*bottom: calc\(58px \+ max\(12px, env\(safe-area-inset-bottom\)\)\)/.test(css) && !/\.ar-guide\.ar-host-photo \{[^}]*left: (1\.5|2)vw/.test(css));
 }
 
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`);
