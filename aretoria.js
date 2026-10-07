@@ -25,7 +25,7 @@ import {
 } from './aretoria-data.js?v=18';
 import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=18';
 
-const VERSION = 18;
+const VERSION = 19;
 const MET_KEY = 'mec-aretoria:met-irishnu';
 const reducedMQ = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
 const reduced = () => reducedMQ.matches;
