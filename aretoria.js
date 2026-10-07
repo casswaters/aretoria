@@ -29,10 +29,10 @@ import {
   guardianRole, guardianLine, guardianPortraitPath, irishnuPortraitPath, realmBackdropPath, HUB_ART, IRISHNU_AVATAR,
   mobileArtPath, pickArtPath, ART_MOBILE_MQ, ARRIVAL, arrivalWindow,
   NAME_KEY, NAME_ASKED_KEY, FIRST_VISIT_KEY, NAME_MAX, NAME_FALLBACK, cleanName, nameForms, guideName, GUIDE_ART
-} from './aretoria-data.js?v=40';
-import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=40';
+} from './aretoria-data.js?v=41';
+import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=41';
 
-const VERSION = 40;
+const VERSION = 41;
 const MET_KEY = 'mec-aretoria:met-irishnu';
 const FIRST_SESSION_KEY = 'mec-aretoria:first-visit-session'; // sessionStorage: this visit (browser session) began as the first
 
@@ -47,6 +47,23 @@ function firstVisit() {
 function markFirstVisitDone() {
   S.firstDoneHere = true;
   try { if (!localStorage.getItem(FIRST_VISIT_KEY)) { localStorage.setItem(FIRST_VISIT_KEY, '1'); sessionStorage.setItem(FIRST_SESSION_KEY, '1'); } } catch { /* private mode */ }
+}
+/** "Meet the guide again" (Hall of Virtues) or ?firstvisit=1: forget that the first conversation happened, so the
+    next guide conversation replays the first-visit flow. Clears the flag, this session's marker and the old
+    pre-v63 "met" marker (which would otherwise re-mark the visitor as returning). The name is kept. */
+function resetFirstVisit() {
+  S.firstDoneHere = false;
+  try { localStorage.removeItem(FIRST_VISIT_KEY); localStorage.removeItem(MET_KEY); sessionStorage.removeItem(FIRST_SESSION_KEY); } catch { /* private mode */ }
+}
+/** ?firstvisit=1 on the URL does the same once, then drops the parameter from the address bar. */
+function firstVisitParam() {
+  try {
+    const u = new URL(location.href);
+    if (u.searchParams.get('firstvisit') !== '1') return;
+    resetFirstVisit();
+    u.searchParams.delete('firstvisit');
+    history.replaceState(history.state, '', u.pathname + (u.search || '') + u.hash);
+  } catch { /* ignore */ }
 }
 /** Visitors from before v63 who already met the guide are returning visitors. */
 function migrateFirstVisit() {
@@ -273,6 +290,10 @@ function action(act, el) {
   else if (act === 'guide') openDialogue({ kind: 'guide' });
   else if (act === 'host') openDialogue({ kind: 'host', realm: S.view });
   else if (act === 'panel-close') closePanels();
+  else if (act === 'meet-again') {
+    resetFirstVisit();
+    const n = $('.ar-hall-replay'); if (n) n.textContent = `Done. Your next talk with ${guideName()} starts from the beginning, as on a first visit.`;
+  }
   else if (act === 'name') openNamePrompt({ edit: true, done: () => { if (!$('.ar-hall').hidden) renderHallName(); } });
 }
 
@@ -934,7 +955,9 @@ function renderHall(filter) {
     `<div class="ar-panel-inner"><h2>Hall of Virtues</h2>` +
     `<p class="ar-hall-lead">The virtues I seek to compound within myself:</p>` +
     `<p class="ar-hall-count">${VIRTUES.length} virtues · ${revealed} advisors revealed</p>` +
-    `<p class="ar-hall-you"><span class="ar-hall-you-t"></span> <button type="button" class="ar-linkbtn" data-act="name">Change</button></p>` +
+    `<p class="ar-hall-you"><span class="ar-hall-you-t"></span> <button type="button" class="ar-linkbtn" data-act="name">Change</button>` +
+    `<span class="ar-hall-sep" aria-hidden="true">·</span><button type="button" class="ar-linkbtn" data-act="meet-again">Meet ${esc(guideName())} again</button></p>` +
+    `<p class="ar-hall-replay" role="status" aria-live="polite"></p>` +
     `<div class="ar-filters"><button type="button" class="ar-filter${filter === 'all' ? ' on' : ''}" data-realm="all">All</button>` +
     realmsIn.map((r) => `<button type="button" class="ar-filter${filter === r.id ? ' on' : ''}" data-realm="${r.id}"><i></i>${esc(r.name)}</button>`).join('') + `</div>` +
     `<div class="ar-vgrid">` + list.map((v) => {
@@ -1295,6 +1318,7 @@ export async function openAretoria(opts = {}) {
   if (!root) build();
   if (S.open) { if (opts.realm) travel(opts.realm); return; }
   S.open = true;
+  firstVisitParam();
   migrateFirstVisit();
   S.artMobile = preferMobileArt();
   S.returnFocus = opts.returnFocus || document.activeElement;

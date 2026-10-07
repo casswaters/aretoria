@@ -4,13 +4,14 @@ Repo-only planning file. It is excluded from GitHub Pages and never ships to the
 Deploy = push to main; `.github/workflows/pages.yml` publishes main to gh-pages without this file. Do not push main to gh-pages by hand.
 Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of Aretoria; it links to this standalone site. Aretoria changes ship here only.
 
-**Last updated:** 2026-10-07, 4:21 PM MT
+**Last updated:** 2026-10-07, 4:30 PM MT
 
 ## House rules
 - One palette for the whole world: ivory, gold and cosmic night. No realm color-coding.
 - Rough art drafts go to Cassidy for approval before anything is published.
 - Irishnu is Cassidy (he/him): armor, not robes.
 - 81 virtues, each housed once in the six great temples (14/14/14/13/13/13); none on the axis or in Shadow.
+- Guardians are warriors who protect their realms (they may offer advice now and then); the virtues are the advisors.
 - Aretoria ships from this repo only (Captain's Log links here). Bump the SW on every release.
 - No hard-coded visitor name anywhere served: the visitor is {name}/{Name} (fallback "traveler"), the guide is {guide} (default Irishnu, config in GUIDE_NAME_DEFAULT / GUIDE_ART).
 
@@ -42,6 +43,7 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 - Version 1 = six virtue realms plus Shadow: confirm.
 
 ## Shipped (newest first, times MT)
+- 2026-10-07 16:30 — v66 (SW v41): "Meet Irishnu again" in the Hall of Virtues (and ?firstvisit=1) replays the guide's first-visit conversation; Guardians are warriors who protect their realms, not advisors (guide's realms answer, Valorix, Amara, default advisor line); the virtues stay the advisors.
 - 2026-10-07 16:21 — v65 (SW v40): "Who are you, really?" restored with its original answer. First visit: screen 1 = "What are the realms?" / "Who are you, really?"; after the realms: "And the Shadow Realm?", "Who are you, really?" (if not asked), "Where should I go today?", "Let me explore."; the Shadow question never comes before the realms answer. Later visits unchanged.
 - 2026-10-07 16:15 — v64 (SW v39): Irishnu scene integration (approved "subtle" pass, compositing only; design, pose and placement unchanged) — arrival layer and both hub cards: cyan cutout outline removed, edges defringed, graded to the painting (black/white point, warmth, softer gems), warm sunset back-rim + portal-blue rim on the side facing the swirl, light wrap, ivory floor bounce, depth haze, painting-matched softness and grain, floor-tinted contact shadow under each boot, faint reflection on the polished arrival floor, hub cast shadow now falls left like the walkway posts'. Build: qa/aretoria/irishnu-integration/integrate.py.
 - 2026-10-07 16:08 — v63 (SW v38): the guide's first conversation — first visit opens on "What are the realms?" only (answer names all six temples, Shadow across its bridge, the Axial hall), then the Shadow question / "Where should I go today?" / "Let me explore."; later visits get "Where should I go today?" and "I know the way. Let me explore." (first-visit-done flag next to the name). Removed: "Who are you, really?" and its answer.

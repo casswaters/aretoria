@@ -17,7 +17,8 @@
  * The visitor arrives through the central blue portal of the Axial Realm and Irishnu greets him there (v35
  * 'arrive' node). He does what is needed and often wraps it in dry wit, a riddle or gentle misdirection, but
  * the sincere guidance always comes first and the humour is never announced or named. v35 lore pass: robe →
- * armor, portal arrival, Guardians are advisors alongside the virtues, Shadow lies across its own bridge.
+ * armor, portal arrival, Shadow lies across its own bridge. v66: Guardians are warriors who protect their realms
+ * (they may offer advice now and then); the virtues housed in each temple are its advisors.
  * v36 (author): six great temples, each holding one great virtue; the 81 virtues are shared among the six
  * temples (14/14/14/13/13/13), none on the axis. The golden thread is a feature of the world, not a being:
  * nobody holds or weaves it.)
@@ -150,7 +151,7 @@ export const HUB = {
 export const GUIDE_NAME_DEFAULT = 'Irishnu';
 const ARRIVE_TEXT = "{Name}. Steady now; the portal sets everyone down a little dazzled. You are standing at the center of the Axial Realm, the shared realm of existence: one whole, with every realm held inside it. The golden thread runs through every bridge and portal. I hold the threshold, and, when it is needed, the traveler’s attention.";
 const WHO_TEXT = "Your guide, and your reflection: the self you send ahead into Aretoria, in ivory and sapphire, so that someone at the center always remembers why you came. I point at doors, and now and then at the one walking through them; you are the door that matters most and opens least. Every realm out there is one face of the same whole, {name}, and so are you. I am simply the reminder, armored so you will take me seriously.";
-const REALMS_TEXT = "Six great temples, {name}, each holding one great virtue: Wisdom in the Prism of Insight, Courage in the Forge of Valor, Humanity in the Hearth of Hearts, Justice in the Scales of Equity, Temperance in the Veil of Balance, and Transcendence in the Nebula of Awe. The eighty-one virtues are shared among those six temples, each with a single home. Every temple’s Guardian is its first advisor: Sophia, Valorix, Amara, Justar, Moder and Auria, in that order. The virtues housed with them are advisors too. Across its own bridge lies the Shadow Realm, watched by the Guardian of the Veil from the Veil of Shadows: where what is out of balance gets looked at honestly instead of hidden. And this is the Axial Realm, the shared hall that joins them all; the portal set you down in the middle of it. Every door opens from here. That is rather the point of a hall.";
+const REALMS_TEXT = "Six great temples, {name}, each holding one great virtue: Wisdom in the Prism of Insight, Courage in the Forge of Valor, Humanity in the Hearth of Hearts, Justice in the Scales of Equity, Temperance in the Veil of Balance, and Transcendence in the Nebula of Awe. The eighty-one virtues are shared among those six temples, each with a single home. Every temple’s Guardian serves to protect that realm: Sophia, Valorix, Amara, Justar, Moder and Auria, in that order. The virtues housed in each temple are its advisors. Across its own bridge lies the Shadow Realm, watched by the Guardian of the Veil from the Veil of Shadows: where what is out of balance gets looked at honestly instead of hidden. And this is the Axial Realm, the shared hall that joins them all; the portal set you down in the middle of it. Every door opens from here. That is rather the point of a hall.";
 const GREET_TEXT = "Ah, {name}. Right on time, or time is right on you; from the center it is hard to tell which. This is the Axial Realm, the shared realm of existence: one whole, with every realm held inside it. The golden thread runs through every bridge and portal. I hold the threshold, and, when it is needed, the traveler’s attention.";
 
 export const GUIDE = {
@@ -330,7 +331,7 @@ export const REALMS = [
           ]
         },
         "virtue": {
-          "text": "I speak first. Then listen to the other virtues of this forge: Assertiveness, Determination, Resilience, Perseverance, Honesty. Resilience wears her scars as veins of gold. Optimism swears every night ends. Find their gates along the ridge.",
+          "text": "I guard the forge. Its virtues do the counseling: Assertiveness, Determination, Resilience, Perseverance, Honesty. Resilience wears her scars as veins of gold. Optimism swears every night ends. Find their gates along the ridge.",
           "choices": [
             {
               "label": "Help me face it.",
@@ -534,7 +535,7 @@ export const REALMS = [
           ]
         },
         "virtue": {
-          "text": "I counsel first, dear one, but never alone: Empathy, Compassion, Kindness, Generosity, Unity. Empathy will sit inside your view; Compassion will get up and do something about it. I keep the fire going while we all talk.",
+          "text": "I keep watch over this hearth, dear one; the counsel comes from those around its fire: Empathy, Compassion, Kindness, Generosity, Unity. Empathy will sit inside your view; Compassion will get up and do something about it. I keep the fire going and the door safe while you all talk.",
           "choices": [
             {
               "label": "Help me reflect on my people.",
@@ -1428,7 +1429,7 @@ export function advisorDialogue(v) {
         ]
       },
       teach: {
-        text: v.teach || `${v.name}: ${v.essence} I am one of the advisors housed in the ${realm.temple}, where ${realm.guardian.name} is the first advisor.`,
+        text: v.teach || `${v.name}: ${v.essence} I am one of the advisors housed in the ${realm.temple}, which ${realm.guardian.name} protects.`,
         choices: [
           { label: 'Ask me your question.', next: 'reflect' },
           { label: 'Thank you.', next: 'bless' }

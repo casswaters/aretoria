@@ -129,12 +129,12 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('apple-mobile-web-app-title is Aretoria', /apple-mobile-web-app-title" content="Aretoria"/.test(html));
   assert('no MEC calendar / CaptainLog UI on page', !/month-grid|captains-log|panel-calendar|Modern Era Calendar/.test(html));
   assert('Irishnu mentioned as the Guide on landing', /Irishnu the Guide/.test(html));
-  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=40/.test(boot));
-  assert('SW is aretoria-v40', /aretoria-v40/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
+  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=41/.test(boot));
+  assert('SW is aretoria-v41', /aretoria-v41/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
   assert('SW precaches Aretoria code + shell', ['aretoria.js', 'aretoria-data.js', 'aretoria-art.js', 'aretoria.css', 'boot.js', 'shell.css'].every((f) => sw.includes(`./${f}`)));
   assert('SW does not precache portraits/guardians/realms', !/assets\/aretoria\/[^']*\.jpg/.test(noComments(sw)) && !/guardians\//.test(noComments(sw)) && !/realms\//.test(noComments(sw)));
-  assert('aretoria.js VERSION = 40 and imports data/art ?v=40; boot imports aretoria.js?v=40', /const VERSION = 40;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=40'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=40'/.test(src('./aretoria.js')) && /aretoria\.js\?v=40'/.test(src('./boot.js')));
-  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=40', /shell\.css\?v=18/.test(html) && /boot\.js\?v=40/.test(html) && /sw\.js\?v=40/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
+  assert('aretoria.js VERSION = 41 and imports data/art ?v=41; boot imports aretoria.js?v=41', /const VERSION = 41;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=41'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=41'/.test(src('./aretoria.js')) && /aretoria\.js\?v=41'/.test(src('./boot.js')));
+  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=41', /shell\.css\?v=18/.test(html) && /boot\.js\?v=41/.test(html) && /sw\.js\?v=41/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
   assert('manifest name Aretoria, scope /aretoria/', /"name": "Aretoria"/.test(src('./manifest.webmanifest')) && /"scope": "\/aretoria\/"/.test(src('./manifest.webmanifest')));
   assert('link back to Captain’s Log present', /modern-era-calendar/.test(html));
 }
@@ -247,7 +247,7 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('he is the visitor\'s reflection: "the self you send ahead", addressed by {name} (restored in v65)', /the self you send ahead/.test(N.who.text) && /\{name\}/.test(N.who.text));
   assert('the Axial Realm is "the shared realm of existence" (HUB.sub)', HUB.sub === 'The shared realm of existence' && /shared realm of existence/.test(N.greet.text) && /shared realm of existence/.test(N.arrive.text));
   assert('81 virtues, each in exactly one of the six great temples; none on the axis (v36)', VIRTUES.length === 81 && /The eighty-one virtues are shared among those six temples/.test(N.realms.text) && !('virtues' in HUB) && !/axis/.test(N.realms.text.split('Axial Realm')[0]));
-  assert('names every realm Guardian from the app data, and calls them advisors', REALMS.every((r) => N.realms.text.includes(r.guardian.name)) && /first advisor/.test(N.realms.text) && !/kettle/.test(N.realms.text));
+  assert('names every realm Guardian from the app data, as protectors of their realms (v66)', REALMS.every((r) => N.realms.text.includes(r.guardian.name)) && /Guardian serves to protect that realm/.test(N.realms.text) && !/first advisor/.test(N.realms.text) && !/kettle/.test(N.realms.text));
   const sh = REALMS.find((r) => r.id === 'shadow');
   assert('Shadow lies across its own bridge (not "below the axis"); its far bridges match the realm data', !/Below the axis/i.test(all) && /Across its own bridge/.test(N.shadow.text) && ['Courage', 'Humanity', 'Temperance'].every((x) => sh.landscape.includes(x) && N.shadow.text.includes(x)) && N.shadow.text.includes(sh.temple));
   assert('every realm named in his lines is a real realm', ['Wisdom', 'Courage', 'Humanity', 'Justice', 'Temperance', 'Transcendence'].every((x) => REALMS.some((r) => r.name === x) && N.realms.text.includes(x)));
@@ -277,9 +277,9 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('the eight minimal moves are marked fit: balanced', eq(VIRTUES.filter((v) => v.fit === 'balanced').map((v) => v.name).sort(), ['Acceptance', 'Cleanliness', 'Detachment', 'Excellence', 'Graciousness', 'Harmony', 'Patience', 'Peace']));
   assert('no "axis virtues" / "belong to the axis" anywhere', !/belong to the axis|axis virtues|stay here on the axis|shared by the axis/i.test(visible + dataSrc));
   const R = GUIDE.dialogue.nodes.realms.text;
-  assert('Irishnu\'s six-realms answer: six great temples each holding one great virtue, 81 shared among them, Guardians first advisors (named), virtues advisors too, Shadow + Veil, Axial hall + portal', /^Six great temples, \{name\}, each holding one great virtue/.test(R) && /The eighty-one virtues are shared among those six temples/.test(R) && /first advisor: Sophia, Valorix, Amara, Justar, Moder and Auria/.test(R) && /advisors too/.test(R) && /Shadow Realm, watched by the Guardian of the Veil/.test(R) && /Axial Realm, the shared hall that joins them all; the portal set you down/.test(R) && !/realms of light|great virtue:? Wisdom, Courage, Humanity, Justice, Temperance and Transcendence, and/.test(R));
+  assert('Irishnu\'s six-realms answer: six great temples each holding one great virtue, 81 shared among them, Guardians protect their realms (named), virtues are the advisors, Shadow + Veil, Axial hall + portal', /^Six great temples, \{name\}, each holding one great virtue/.test(R) && /The eighty-one virtues are shared among those six temples/.test(R) && /Every temple’s Guardian serves to protect that realm: Sophia, Valorix, Amara, Justar, Moder and Auria, in that order\./.test(R) && /The virtues housed in each temple are its advisors\./.test(R) && /Shadow Realm, watched by the Guardian of the Veil/.test(R) && /Axial Realm, the shared hall that joins them all; the portal set you down/.test(R) && !/realms of light|great virtue:? Wisdom, Courage, Humanity, Justice, Temperance and Transcendence, and/.test(R));
   assert('Guardians no longer deny being advisors ("not me", "kettle")', !/advisors, not me|counsel here, not me|kettle/.test(all + R));
-  assert('advisor default line: housed in the temple, the Guardian is the first advisor', /I am one of the advisors housed in the \$\{realm\.temple\}, where \$\{realm\.guardian\.name\} is the first advisor\./.test(dataSrc));
+  assert('advisor default line: housed in the temple the Guardian protects (v66)', /I am one of the advisors housed in the \$\{realm\.temple\}, which \$\{realm\.guardian\.name\} protects\./.test(dataSrc));
   assert('ritual line no longer invents virtue "temples"', /with Empathy and Compassion in the Hearth of Hearts/.test(dataSrc) && !/Compassion temples/.test(dataSrc));
   assert('kept as the author has not decided: Sophia\'s "before the axis had a name" and the "Seven Realms" landing', /before the axis had a name/.test(all) && /The Seven Realms/.test(src('./index.html')));
 }
@@ -356,7 +356,28 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('all four entry points validate and reach every node', D.validateTree(T).length === 0 && Object.keys(N).length === 11);
   assert('first-visit-done flag lives next to the name in localStorage', D.FIRST_VISIT_KEY === 'mec-aretoria:first-visit-done' && /localStorage\.setItem\(FIRST_VISIT_KEY, '1'\)/.test(aj));
   assert('the first visit lasts its session; the flag is set when that first conversation closes', /function firstVisit\(\) \{\s*try \{ return !!sessionStorage\.getItem\(FIRST_SESSION_KEY\) \|\| !localStorage\.getItem\(FIRST_VISIT_KEY\);/.test(aj) && /if \(wasOpen && S\.dlg\.firstVisit\) markFirstVisitDone\(\);/.test(aj) && /const fv = opts\.kind === 'guide' && !!sp\.tree\.firstStart && firstVisit\(\);/.test(aj));
-  assert('visitors who met the guide before v63 count as returning', /function migrateFirstVisit\(\) \{[^\n]*\n\s*try \{ if \(localStorage\.getItem\(MET_KEY\) && !localStorage\.getItem\(FIRST_VISIT_KEY\)/.test(aj) && /S\.open = true;\n\s*migrateFirstVisit\(\);/.test(aj));
+  assert('visitors who met the guide before v63 count as returning', /function migrateFirstVisit\(\) \{[^\n]*\n\s*try \{ if \(localStorage\.getItem\(MET_KEY\) && !localStorage\.getItem\(FIRST_VISIT_KEY\)/.test(aj) && /S\.open = true;\n\s*firstVisitParam\(\);\n\s*migrateFirstVisit\(\);/.test(aj));
+}
+
+{
+  console.log('\n--- v66: "Meet the guide again" (Hall of Virtues) and ?firstvisit=1 ---');
+  const aj = noComments(src('./aretoria.js')), css = src('./aretoria.css');
+  assert('Hall shows "Meet <guide> again" beside the name Change control, with a status line', /data-act="name">Change<\/button>` \+\s*`<span class="ar-hall-sep" aria-hidden="true">·<\/span><button type="button" class="ar-linkbtn" data-act="meet-again">Meet \$\{esc\(guideName\(\)\)\} again<\/button><\/p>`/.test(aj) && /<p class="ar-hall-replay" role="status" aria-live="polite"><\/p>/.test(aj));
+  assert('reset clears the first-visit flag, the session marker and the pre-v63 met marker; keeps the name', /function resetFirstVisit\(\) \{\s*S\.firstDoneHere = false;\s*try \{ localStorage\.removeItem\(FIRST_VISIT_KEY\); localStorage\.removeItem\(MET_KEY\); sessionStorage\.removeItem\(FIRST_SESSION_KEY\); \}/.test(aj) && !/function resetFirstVisit\(\) \{[^}]*NAME_KEY/.test(aj));
+  assert('the control resets and confirms in one brief line (text, not HTML)', /act === 'meet-again'\) \{\s*resetFirstVisit\(\);\s*const n = \$\('\.ar-hall-replay'\); if \(n\) n\.textContent = `Done\. Your next talk with \$\{guideName\(\)\} starts from the beginning, as on a first visit\.`;/.test(aj));
+  assert('?firstvisit=1 resets once before the migration runs, then leaves the address bar', /if \(u\.searchParams\.get\('firstvisit'\) !== '1'\) return;\s*resetFirstVisit\(\);\s*u\.searchParams\.delete\('firstvisit'\);\s*history\.replaceState/.test(aj) && /S\.open = true;\n\s*firstVisitParam\(\);\n\s*migrateFirstVisit\(\);/.test(aj));
+  assert('after a reset the next guide conversation is a first visit (firstVisit reads the cleared keys)', /return !!sessionStorage\.getItem\(FIRST_SESSION_KEY\) \|\| !localStorage\.getItem\(FIRST_VISIT_KEY\);/.test(aj) && /const fv = opts\.kind === 'guide' && !!sp\.tree\.firstStart && firstVisit\(\);/.test(aj));
+  assert('status line styled quietly and hidden when empty', /\.ar-hall-replay:empty \{ display: none; \}/.test(css));
+}
+
+{
+  console.log('\n--- v66: Guardians are warriors who protect their realms, not advisors ---');
+  const D = await import('./aretoria-data.js?v=test66');
+  const ds = src('./aretoria-data.js');
+  const all = JSON.stringify({ G: D.GUIDE, R: D.REALMS }) + ds;
+  assert('guide: "Every temple’s Guardian serves to protect that realm: Sophia, Valorix, Amara, Justar, Moder and Auria, in that order."', D.GUIDE.dialogue.nodes.realms.text.includes('Every temple’s Guardian serves to protect that realm: Sophia, Valorix, Amara, Justar, Moder and Auria, in that order.'));
+  assert('no Guardian framed as an advisor anywhere ("first advisor", "advisors too", "I counsel first", "I speak first … other virtues")', !/first advisor|advisors too|I counsel first|I speak first|other virtues of this forge|Guardians are advisors/i.test(all));
+  assert('virtues remain the advisors (realm answer, Valorix, Amara, default advisor line)', /The virtues housed in each temple are its advisors\./.test(D.GUIDE.dialogue.nodes.realms.text) && /I guard the forge\. Its virtues do the counseling:/.test(ds) && /I keep watch over this hearth, dear one; the counsel comes from those around its fire:/.test(ds));
 }
 
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`);
