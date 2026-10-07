@@ -4,7 +4,7 @@ Repo-only planning file. It is excluded from GitHub Pages and never ships to the
 Deploy = push to main; `.github/workflows/pages.yml` publishes main to gh-pages without this file. Do not push main to gh-pages by hand.
 Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of Aretoria; it links to this standalone site. Aretoria changes ship here only.
 
-**Last updated:** 2026-10-07, 4:08 PM MT
+**Last updated:** 2026-10-07, 4:21 PM MT
 
 ## House rules
 - One palette for the whole world: ivory, gold and cosmic night. No realm color-coding.
@@ -33,7 +33,7 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 - Short guided walk for first-time visitors (portal → hub → one realm → Hall).
 
 ## Open decisions (waiting on Cassidy)
-- v62 personal lines (flagged, unchanged; list in qa/aretoria/username-v37/flagged-lines.md): keep, generalise or make optional for visitors? Ritual days (Sunday self-audit with 1–10 scorecard, 1st/3rd Saturday relationship reflection, monthly review), "your Creed" / "Read my Creed" (the Creed is Cassidy's own), the Hall lead "The virtues I seek to compound within myself", (Irishnu's "Who are you, really?" answer, "the self you send ahead…", was removed in v63 at your request.)
+- v62 personal lines (flagged, unchanged; list in qa/aretoria/username-v37/flagged-lines.md): keep, generalise or make optional for visitors? Ritual days (Sunday self-audit with 1–10 scorecard, 1st/3rd Saturday relationship reflection, monthly review), "your Creed" / "Read my Creed" (the Creed is Cassidy's own), the Hall lead "The virtues I seek to compound within myself", Irishnu's "Who are you, really?" answer ("the self you send ahead…, in ivory and sapphire"): restored in v65; it fits once each visitor has their own reflection guide.
 - Sophia's line "since before the axis had a name": keep, reword or cut? (Kept for now.)
 - Landing "The Seven Realms": six realms plus Shadow, or six plus a shared realm?
 - The drawn fallback Irishnu is still hooded/robed: approve a redraw in armor?
@@ -42,6 +42,7 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 - Version 1 = six virtue realms plus Shadow: confirm.
 
 ## Shipped (newest first, times MT)
+- 2026-10-07 16:21 — v65 (SW v40): "Who are you, really?" restored with its original answer. First visit: screen 1 = "What are the realms?" / "Who are you, really?"; after the realms: "And the Shadow Realm?", "Who are you, really?" (if not asked), "Where should I go today?", "Let me explore."; the Shadow question never comes before the realms answer. Later visits unchanged.
 - 2026-10-07 16:15 — v64 (SW v39): Irishnu scene integration (approved "subtle" pass, compositing only; design, pose and placement unchanged) — arrival layer and both hub cards: cyan cutout outline removed, edges defringed, graded to the painting (black/white point, warmth, softer gems), warm sunset back-rim + portal-blue rim on the side facing the swirl, light wrap, ivory floor bounce, depth haze, painting-matched softness and grain, floor-tinted contact shadow under each boot, faint reflection on the polished arrival floor, hub cast shadow now falls left like the walkway posts'. Build: qa/aretoria/irishnu-integration/integrate.py.
 - 2026-10-07 16:08 — v63 (SW v38): the guide's first conversation — first visit opens on "What are the realms?" only (answer names all six temples, Shadow across its bridge, the Axial hall), then the Shadow question / "Where should I go today?" / "Let me explore."; later visits get "Where should I go today?" and "I know the way. Let me explore." (first-visit-done flag next to the name). Removed: "Who are you, really?" and its answer.
 - 2026-10-07 15:54 — v62 (SW v37): username-based Aretoria — first-visit name prompt ("What should Aretoria call you?", local only, skip uses "traveler"), change or forget it in the Hall of Virtues; no hard-coded name anywhere served; guide name and art swappable (default Irishnu).

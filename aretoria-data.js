@@ -149,6 +149,8 @@ export const HUB = {
    costume). Dialogue says {guide}, never the name; the portraits live in GUIDE_ART only. */
 export const GUIDE_NAME_DEFAULT = 'Irishnu';
 const ARRIVE_TEXT = "{Name}. Steady now; the portal sets everyone down a little dazzled. You are standing at the center of the Axial Realm, the shared realm of existence: one whole, with every realm held inside it. The golden thread runs through every bridge and portal. I hold the threshold, and, when it is needed, the traveler’s attention.";
+const WHO_TEXT = "Your guide, and your reflection: the self you send ahead into Aretoria, in ivory and sapphire, so that someone at the center always remembers why you came. I point at doors, and now and then at the one walking through them; you are the door that matters most and opens least. Every realm out there is one face of the same whole, {name}, and so are you. I am simply the reminder, armored so you will take me seriously.";
+const REALMS_TEXT = "Six great temples, {name}, each holding one great virtue: Wisdom in the Prism of Insight, Courage in the Forge of Valor, Humanity in the Hearth of Hearts, Justice in the Scales of Equity, Temperance in the Veil of Balance, and Transcendence in the Nebula of Awe. The eighty-one virtues are shared among those six temples, each with a single home. Every temple’s Guardian is its first advisor: Sophia, Valorix, Amara, Justar, Moder and Auria, in that order. The virtues housed with them are advisors too. Across its own bridge lies the Shadow Realm, watched by the Guardian of the Veil from the Veil of Shadows: where what is out of balance gets looked at honestly instead of hidden. And this is the Axial Realm, the shared hall that joins them all; the portal set you down in the middle of it. Every door opens from here. That is rather the point of a hall.";
 const GREET_TEXT = "Ah, {name}. Right on time, or time is right on you; from the center it is hard to tell which. This is the Axial Realm, the shared realm of existence: one whole, with every realm held inside it. The golden thread runs through every bridge and portal. I hold the threshold, and, when it is needed, the traveler’s attention.";
 
 export const GUIDE = {
@@ -163,14 +165,22 @@ export const GUIDE = {
     arrivalStart: 'arrive', // the greeting at the portal (Axial arrival); later taps on his card open 'greet'
     firstStart: 'greetFirst', firstArrivalStart: 'arriveFirst', // first visit only (see FIRST_VISIT_KEY)
     nodes: {
-      // First visit (no FIRST_VISIT_KEY yet): one door only, the realms; the answer then offers three.
+      // First visit (no FIRST_VISIT_KEY yet): the realms first, or who he is. The Shadow question only appears
+      // once the realms have been explained. Node variants track what has been asked: realms / realmsAfterWho,
+      // who (before the realms) / whoAfterRealms.
       arriveFirst: {
         text: ARRIVE_TEXT,
-        choices: [{ label: 'What are the realms?', next: 'realms' }]
+        choices: [
+          { label: 'What are the realms?', next: 'realms' },
+          { label: 'Who are you, really?', next: 'who' }
+        ]
       },
       greetFirst: {
         text: GREET_TEXT,
-        choices: [{ label: 'What are the realms?', next: 'realms' }]
+        choices: [
+          { label: 'What are the realms?', next: 'realms' },
+          { label: 'Who are you, really?', next: 'who' }
+        ]
       },
       // Every later visit: straight to the day, or out the door.
       arrive: {
@@ -188,11 +198,36 @@ export const GUIDE = {
         ]
       },
       realms: {
-        text: "Six great temples, {name}, each holding one great virtue: Wisdom in the Prism of Insight, Courage in the Forge of Valor, Humanity in the Hearth of Hearts, Justice in the Scales of Equity, Temperance in the Veil of Balance, and Transcendence in the Nebula of Awe. The eighty-one virtues are shared among those six temples, each with a single home. Every temple’s Guardian is its first advisor: Sophia, Valorix, Amara, Justar, Moder and Auria, in that order. The virtues housed with them are advisors too. Across its own bridge lies the Shadow Realm, watched by the Guardian of the Veil from the Veil of Shadows: where what is out of balance gets looked at honestly instead of hidden. And this is the Axial Realm, the shared hall that joins them all; the portal set you down in the middle of it. Every door opens from here. That is rather the point of a hall.",
+        text: REALMS_TEXT,
+        choices: [
+          { label: 'And the Shadow Realm?', next: 'shadow' },
+          { label: 'Who are you, really?', next: 'whoAfterRealms' },
+          { label: 'Where should I go today?', next: 'today' },
+          { label: 'Let me explore.', next: 'go' }
+        ]
+      },
+      realmsAfterWho: {
+        text: REALMS_TEXT,
         choices: [
           { label: 'And the Shadow Realm?', next: 'shadow' },
           { label: 'Where should I go today?', next: 'today' },
           { label: 'Let me explore.', next: 'go' }
+        ]
+      },
+      who: {
+        text: WHO_TEXT,
+        choices: [
+          { label: 'What are the realms?', next: 'realmsAfterWho' },
+          { label: 'Where should I go today?', next: 'today' },
+          { label: 'Then remind me: let me explore.', next: 'go' }
+        ]
+      },
+      whoAfterRealms: {
+        text: WHO_TEXT,
+        choices: [
+          { label: 'And the Shadow Realm?', next: 'shadow' },
+          { label: 'Where should I go today?', next: 'today' },
+          { label: 'Then remind me: let me explore.', next: 'go' }
         ]
       },
       today: {
