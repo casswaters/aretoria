@@ -130,7 +130,7 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('no MEC calendar / CaptainLog UI on page', !/month-grid|captains-log|panel-calendar|Modern Era Calendar/.test(html));
   assert('Irishnu mentioned as the Guide on landing', /Irishnu the Guide/.test(html));
   assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=38/.test(boot));
-  assert('SW is aretoria-v38', /aretoria-v38/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
+  assert('SW is aretoria-v39', /aretoria-v39/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
   assert('SW precaches Aretoria code + shell', ['aretoria.js', 'aretoria-data.js', 'aretoria-art.js', 'aretoria.css', 'boot.js', 'shell.css'].every((f) => sw.includes(`./${f}`)));
   assert('SW does not precache portraits/guardians/realms', !/assets\/aretoria\/[^']*\.jpg/.test(noComments(sw)) && !/guardians\//.test(noComments(sw)) && !/realms\//.test(noComments(sw)));
   assert('aretoria.js VERSION = 38 and imports data/art ?v=38; boot imports aretoria.js?v=38', /const VERSION = 38;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=38'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=38'/.test(src('./aretoria.js')) && /aretoria\.js\?v=38'/.test(src('./boot.js')));
