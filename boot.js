@@ -2,7 +2,7 @@
  * Aretoria standalone boot — landing shrine, then full portal overlay.
  * Shares localStorage keys with Captain's Log (same github.io origin).
  */
-import { openAretoria } from './aretoria.js?v=34';
+import { openAretoria } from './aretoria.js?v=35';
 
 const landing = document.getElementById('landing');
 const enterBtn = document.getElementById('enter-btn');
@@ -30,7 +30,7 @@ window.addEventListener('aretoria:closed', () => {
 });
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js?v=18').then((reg) => {
+  navigator.serviceWorker.register('./sw.js?v=35').then((reg) => {
     reg.update().catch(() => {});
   }).catch(() => {});
 }

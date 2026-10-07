@@ -129,12 +129,12 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('apple-mobile-web-app-title is Aretoria', /apple-mobile-web-app-title" content="Aretoria"/.test(html));
   assert('no MEC calendar / CaptainLog UI on page', !/month-grid|captains-log|panel-calendar|Modern Era Calendar/.test(html));
   assert('Irishnu mentioned as the Guide on landing', /Irishnu the Guide/.test(html));
-  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=18/.test(boot));
-  assert('SW is aretoria-v34', /aretoria-v34/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
+  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=35/.test(boot));
+  assert('SW is aretoria-v35', /aretoria-v35/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
   assert('SW precaches Aretoria code + shell', ['aretoria.js', 'aretoria-data.js', 'aretoria-art.js', 'aretoria.css', 'boot.js', 'shell.css'].every((f) => sw.includes(`./${f}`)));
   assert('SW does not precache portraits/guardians/realms', !/assets\/aretoria\/[^']*\.jpg/.test(noComments(sw)) && !/guardians\//.test(noComments(sw)) && !/realms\//.test(noComments(sw)));
-  assert('aretoria.js VERSION = 34 and imports data/art ?v=34; boot imports aretoria.js?v=34', /const VERSION = 34;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=34'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=34'/.test(src('./aretoria.js')) && /aretoria\.js\?v=34'/.test(src('./boot.js')));
-  assert('asset queries use ?v=18', /\?v=18/.test(html) && /\?v=18/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
+  assert('aretoria.js VERSION = 35 and imports data/art ?v=35; boot imports aretoria.js?v=35', /const VERSION = 35;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=35'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=35'/.test(src('./aretoria.js')) && /aretoria\.js\?v=35'/.test(src('./boot.js')));
+  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=35', /shell\.css\?v=18/.test(html) && /boot\.js\?v=35/.test(html) && /sw\.js\?v=35/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
   assert('manifest name Aretoria, scope /aretoria/', /"name": "Aretoria"/.test(src('./manifest.webmanifest')) && /"scope": "\/aretoria\/"/.test(src('./manifest.webmanifest')));
   assert('link back to Captain’s Log present', /modern-era-calendar/.test(html));
 }
@@ -215,6 +215,45 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   const card = rule('.ar-guide.ar-host-photo');
   assert('Irishnu card is bottom-RIGHT on desktop (right set, left auto) and clears the safe area', /right: max\(1\.5vw, 32px\)/.test(card) && /left: auto/.test(card) && /env\(safe-area-inset-bottom\)/.test(card));
   assert('Irishnu card is bottom-right on phones too (incl. short phones), above the Hall/Creed bar', /aspect-ratio: 9 \/ 16; right: 2vw; left: auto;[^}]*bottom: calc\(58px \+ max\(12px, env\(safe-area-inset-bottom\)\)\)/.test(css) && !/\.ar-guide\.ar-host-photo \{[^}]*left: (1\.5|2)vw/.test(css));
+}
+
+{
+  console.log('\n--- v35 iOS hub fix: the painting always returns after the arrival pull-back ---');
+  const aj = noComments(src('./aretoria.js')), css = src('./aretoria.css');
+  const fn = (name) => { const i = aj.indexOf(`function ${name}(`); return i < 0 ? '' : aj.slice(i, aj.indexOf('\n}\n', i) + 2); };
+  const fin = fn('finishArrival'), reset = fn('resetArrivalStage'), refresh = fn('refreshHubArt'), end = fn('endArrival'), par = fn('applyParallax');
+  assert('finishArrival sets the final state itself (reset + hub art refresh), not via animation/transition events', /resetArrivalStage\(\);/.test(fin) && /refreshHubArt\(\);/.test(fin) && !/animationend|transitionend/.test(aj));
+  assert('reset cancels every arrival animation and clears world transform, origin and opacity', /world\.style\.transform = ''/.test(reset) && /world\.style\.transformOrigin = ''/.test(reset) && /world\.style\.opacity = ''/.test(reset) && /\.cancel\(\)/.test(reset));
+  assert('reset hides the arrival layer, drops its classes and frees the big arrival painting', /el\.hidden = true/.test(reset) && /classList\.remove\('ar-arriving', 'ar-pulling'\)/.test(reset) && /\.ar-arrive-img'\)\.style\.backgroundImage = ''/.test(reset) && /\.ar-arrive-fly'\)\.forEach\(\(f\) => f\.remove\(\)\)/.test(reset));
+  assert('hub UI opacity is reset too (gates, title, hint never stuck faded)', /\[\$\('\.ar-hubui'\), \$\('\.ar-title'\), \$\('\.ar-hint'\)\]/.test(reset) && /u\.style\.opacity = ''/.test(reset));
+  assert('refreshHubArt swaps the painted layers for fresh copies once the image decodes', /replaceWith\(l\.cloneNode\(true\)\)/.test(refresh) && /im\.decode\(\)\.then\(done, done\)/.test(refresh) && /S\.view !== 'axial'/.test(refresh));
+  assert('pull-back is settled by a timer, the WAAPI promises and a late watchdog (whichever first)', /setTimeout\(finishArrival, T \+ 30\)/.test(end) && /Promise\.all\(A\.anims\.map\(\(a\) => a\.finished\)\)/.test(end) && /T \+ 1500/.test(end));
+  assert('during the pull-back the painting layers are 2D (not separate GPU layers) and lose will-change', /const flat = !!\(S\.arrival && S\.arrival\.phase === 'pull'\)/.test(par) && /flat \? `translate\(/.test(par) && /\.ar-pulling \.ar-layer \{ will-change: auto; \}/.test(css) && /layoutHub\(\); applyParallax\(true\);/.test(end));
+  assert('no CSS filter on the world while arriving / pulling back', /\.ar-arriving \.ar-world, \.ar-pulling \.ar-world \{ filter: none; transition: none; \}/.test(css));
+  assert('outside the pull-back nothing can leave the world scaled, and the arrival layer stays hidden', /\.ar:not\(\.ar-pulling\) \.ar-world \{ transform: none !important; \}/.test(css) && /\.ar:not\(\.ar-arriving\):not\(\.ar-pulling\) \.ar-arrive \{ display: none !important; \}/.test(css));
+  assert('reduced motion keeps .ar-pulling through its 300 ms cross-fade (so the guard does not cut it)', /if \(reduced\(\)\) \{\s*root\.classList\.remove\('ar-arriving'\); root\.classList\.add\('ar-pulling'\);/.test(end));
+  assert('interrupted intro: hiding the page / pagehide finishes the pull-back; pageshow (bfcache) and returning to the tab repaint the hub', /document\.hidden\) \{ cancelAnimationFrame\(S\.raf\); if \(S\.arrival && S\.arrival\.phase === 'pull'\) finishArrival\(\); \}/.test(aj) && /addEventListener\('pagehide'/.test(aj) && /addEventListener\('pageshow', \(e\) => \{ if \(S\.open && e\.persisted\) \{ finishArrival\(\); refreshHubArt\(\); \} \}\)/.test(aj) && /if \(!S\.arrival\) refreshHubArt\(\);/.test(aj));
+  assert('leaving the hub mid-arrival (e.g. "Take me to Wisdom") settles the arrival first', /function showView\(id\) \{\s*if \(S\.arrival && id !== 'axial'\) finishArrival\(\);/.test(aj));
+  assert('closing Aretoria mid-arrival still cleans up', /closeDialogue\(true\); closePanels\(\); finishArrival\(\);/.test(aj));
+}
+
+{
+  console.log('\n--- v35 Irishnu lore pass (all of his lines) ---');
+  const N = GUIDE.dialogue.nodes, all = Object.values(N).map((n) => n.text).join(' '), aj = noComments(src('./aretoria.js'));
+  assert('arrival greeting is its own first line, opened only by the arrival', GUIDE.dialogue.arrivalStart === 'arrive' && !!N.arrive && GUIDE.dialogue.start === 'greet' && /opts\.arrival && sp\.tree\.arrivalStart && sp\.tree\.nodes\[sp\.tree\.arrivalStart\] \? sp\.tree\.arrivalStart : sp\.tree\.start/.test(aj));
+  assert('both entry points validate (arrive + greet reachable, all choices resolve)', validateTree(GUIDE.dialogue).length === 0);
+  assert('arrive greets the visitor who came through the central portal of the Axial Realm', /portal/.test(N.arrive.text) && /Axial Realm/.test(N.arrive.text) && /center/.test(N.arrive.text));
+  assert('he wears ivory-and-sapphire armor now: no robe in his lines', !/\brobes?\b/i.test(all) && /ivory and sapphire/.test(N.who.text) && /armor/.test(N.who.text) && GUIDE.look === 'ivory-and-sapphire armor');
+  assert('he is Cassidy\'s in-game self: "the self you send ahead"', /the self you send ahead/.test(N.who.text) && /Cassidy/.test(N.who.text));
+  assert('the Axial Realm is "the shared realm of existence" (HUB.sub)', HUB.sub === 'The shared realm of existence' && /shared realm of existence/.test(N.greet.text) && /shared realm of existence/.test(N.arrive.text));
+  assert('81 virtues, all housed in the six realms; the five axis virtues are real advisors there', VIRTUES.length === 81 && /Eighty-one virtues live in the six rooms of light, every one with a home/.test(N.realms.text) && HUB.virtues.every((v) => N.realms.text.includes(v) && VIRTUES.some((x) => x.name === v && x.realm !== 'axial')));
+  assert('names every realm Guardian from the app data, and calls them advisors', REALMS.every((r) => N.realms.text.includes(r.guardian.name)) && /first advisor/.test(N.realms.text) && !/kettle/.test(N.realms.text));
+  const sh = REALMS.find((r) => r.id === 'shadow');
+  assert('Shadow lies across its own bridge (not "below the axis"); its far bridges match the realm data', !/Below the axis/i.test(all) && /Across its own bridge/.test(N.shadow.text) && ['Courage', 'Humanity', 'Temperance'].every((x) => sh.landscape.includes(x) && N.shadow.text.includes(x)) && N.shadow.text.includes(sh.temple));
+  assert('every realm named in his lines is a real realm', ['Wisdom', 'Courage', 'Humanity', 'Justice', 'Temperance', 'Transcendence'].every((x) => REALMS.some((r) => r.name === x) && N.realms.text.includes(x)));
+  assert('his voice and rules survive: one whole, Eirena, real circumstances, he/him, never a jester', /one whole/.test(all) && /Eirena/.test(all) && /real circumstances/.test(all) && !/\b(she|her|herself)\b/i.test(JSON.stringify(GUIDE)) && !/jester|clown|fool|motley|harlequin|trickster|keeper|chakra/i.test(JSON.stringify(GUIDE)));
+  const html = src('./index.html');
+  assert('landing copy: portal arrival, no "shrine fly-through"', /Step through the portal/.test(html) && !/shrine fly-through|Enter the shrine/i.test(html) && /Irishnu the Guide meets you/.test(html));
 }
 
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`);
