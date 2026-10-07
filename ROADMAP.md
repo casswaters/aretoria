@@ -4,7 +4,45 @@ Repo-only planning file. It is excluded from GitHub Pages and never ships to the
 Deploy = push to main; `.github/workflows/pages.yml` publishes main to gh-pages without this file. Do not push main to gh-pages by hand.
 Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of Aretoria; it links to this standalone site. Aretoria changes ship here only.
 
-**Last updated:** 2026-10-07, 4:08 PM MT)
+**Last updated:** 2026-10-07, 4:08 PM MT
+
+## House rules
+- One palette for the whole world: ivory, gold and cosmic night. No realm color-coding.
+- Rough art drafts go to Cassidy for approval before anything is published.
+- Irishnu is Cassidy (he/him): armor, not robes.
+- 81 virtues, each housed once in the six great temples (14/14/14/13/13/13); none on the axis or in Shadow.
+- Aretoria ships from this repo only (Captain's Log links here). Bump the SW on every release.
+- No hard-coded visitor name anywhere served: the visitor is {name}/{Name} (fallback "traveler"), the guide is {guide} (default Irishnu, config in GUIDE_NAME_DEFAULT / GUIDE_ART).
+
+## Now
+- Confirm the hub painting fix from SW aretoria-v35 (Aretoria v60) on a real iPhone: the painting must come back after the Axial arrival pull-back.
+- Settle the open wording and lore decisions below.
+
+## Next
+- Lock Version 1 scope: the six virtue realms plus Shadow, complete and consistent (Guardians, advisors, Hall of Virtues, Creed).
+- Redraw the drawn fallback Irishnu figure in armor (it is still hooded/robed). Rough draft to Cassidy first.
+- Apply the landing "Seven Realms" wording once decided (landing, meta, manifest).
+
+## Later
+- Reflection guide: choose fantasy name + design costume replacing Irishnu. Each visitor names their own reflection guide and designs its costume, and it takes Irishnu's spot (arrival, hub card, dialogue avatar). Groundwork shipped in v62: the guide name is the {guide} token (GUIDE_NAME_DEFAULT) and all guide art paths live in GUIDE_ART.
+- 3D animated companion: the visitor's reflection guide (Irishnu for Cassidy) as a 3D animated character who hangs around the user's Captain's Log in various moods and character phases. Builds on the reflection-guide feature above (custom fantasy name + costume); cross-referenced in the Captain's Log roadmap.
+- Optional color quests inside realms, only if Cassidy approves. Realms themselves stay on the shared palette.
+
+## Ideas
+- A light link with Captain's Log entries (for example, the virtue you reflected on today).
+- Short guided walk for first-time visitors (portal → hub → one realm → Hall).
+
+## Open decisions (waiting on Cassidy)
+- v62 personal lines (flagged, unchanged; list in qa/aretoria/username-v37/flagged-lines.md): keep, generalise or make optional for visitors? Ritual days (Sunday self-audit with 1–10 scorecard, 1st/3rd Saturday relationship reflection, monthly review), "your Creed" / "Read my Creed" (the Creed is Cassidy's own), the Hall lead "The virtues I seek to compound within myself", (Irishnu's "Who are you, really?" answer, "the self you send ahead…", was removed in v63 at your request.)
+- Sophia's line "since before the axis had a name": keep, reword or cut? (Kept for now.)
+- Landing "The Seven Realms": six realms plus Shadow, or six plus a shared realm?
+- The drawn fallback Irishnu is still hooded/robed: approve a redraw in armor?
+- The v35 hub painting fix: confirmed on your iPhone?
+- Optional color quests inside realms later: yes or no?
+- Version 1 = six virtue realms plus Shadow: confirm.
+
+## Shipped (newest first, times MT)
+- 2026-10-07 16:08 — v63 (SW v38): the guide's first conversation — first visit opens on "What are the realms?" only (answer names all six temples, Shadow across its bridge, the Axial hall), then the Shadow question / "Where should I go today?" / "Let me explore."; later visits get "Where should I go today?" and "I know the way. Let me explore." (first-visit-done flag next to the name). Removed: "Who are you, really?" and its answer.
 - 2026-10-07 15:54 — v62 (SW v37): username-based Aretoria — first-visit name prompt ("What should Aretoria call you?", local only, skip uses "traveler"), change or forget it in the Hall of Virtues; no hard-coded name anywhere served; guide name and art swappable (default Irishnu).
 - 2026-10-07 15:26 — v61 (SW v36): lore pass — Eirena removed; golden thread held by no one; six great temples share the 81 virtues 14/14/14/13/13/13; Irishnu's six-temples answer rewritten.
 - 2026-10-07 14:57 — v60 (SW v35): iOS fix so the hub painting always returns after the arrival pull-back; Irishnu lore pass on all his lines.
