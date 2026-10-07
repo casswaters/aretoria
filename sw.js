@@ -1,5 +1,5 @@
-/* Aretoria standalone service worker — network-first app shell (aretoria-v31) */
-const CACHE = 'aretoria-v31';
+/* Aretoria standalone service worker — network-first app shell (aretoria-v32) */
+const CACHE = 'aretoria-v32';
 /* Portrait/shrine/guardian/realm images (assets/aretoria/) are deliberately NOT precached;
    they are fetched only when the portal is entered, then kept by the runtime cache. */
 const ASSETS = [
