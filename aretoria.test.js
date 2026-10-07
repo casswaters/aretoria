@@ -129,12 +129,12 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('apple-mobile-web-app-title is Aretoria', /apple-mobile-web-app-title" content="Aretoria"/.test(html));
   assert('no MEC calendar / CaptainLog UI on page', !/month-grid|captains-log|panel-calendar|Modern Era Calendar/.test(html));
   assert('Irishnu mentioned as the Guide on landing', /Irishnu the Guide/.test(html));
-  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=35/.test(boot));
-  assert('SW is aretoria-v35', /aretoria-v35/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
+  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=36/.test(boot));
+  assert('SW is aretoria-v36', /aretoria-v36/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
   assert('SW precaches Aretoria code + shell', ['aretoria.js', 'aretoria-data.js', 'aretoria-art.js', 'aretoria.css', 'boot.js', 'shell.css'].every((f) => sw.includes(`./${f}`)));
   assert('SW does not precache portraits/guardians/realms', !/assets\/aretoria\/[^']*\.jpg/.test(noComments(sw)) && !/guardians\//.test(noComments(sw)) && !/realms\//.test(noComments(sw)));
-  assert('aretoria.js VERSION = 35 and imports data/art ?v=35; boot imports aretoria.js?v=35', /const VERSION = 35;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=35'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=35'/.test(src('./aretoria.js')) && /aretoria\.js\?v=35'/.test(src('./boot.js')));
-  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=35', /shell\.css\?v=18/.test(html) && /boot\.js\?v=35/.test(html) && /sw\.js\?v=35/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
+  assert('aretoria.js VERSION = 36 and imports data/art ?v=36; boot imports aretoria.js?v=36', /const VERSION = 36;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=36'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=36'/.test(src('./aretoria.js')) && /aretoria\.js\?v=36'/.test(src('./boot.js')));
+  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=36', /shell\.css\?v=18/.test(html) && /boot\.js\?v=36/.test(html) && /sw\.js\?v=36/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
   assert('manifest name Aretoria, scope /aretoria/', /"name": "Aretoria"/.test(src('./manifest.webmanifest')) && /"scope": "\/aretoria\/"/.test(src('./manifest.webmanifest')));
   assert('link back to Captain’s Log present', /modern-era-calendar/.test(html));
 }
@@ -246,14 +246,42 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('he wears ivory-and-sapphire armor now: no robe in his lines', !/\brobes?\b/i.test(all) && /ivory and sapphire/.test(N.who.text) && /armor/.test(N.who.text) && GUIDE.look === 'ivory-and-sapphire armor');
   assert('he is Cassidy\'s in-game self: "the self you send ahead"', /the self you send ahead/.test(N.who.text) && /Cassidy/.test(N.who.text));
   assert('the Axial Realm is "the shared realm of existence" (HUB.sub)', HUB.sub === 'The shared realm of existence' && /shared realm of existence/.test(N.greet.text) && /shared realm of existence/.test(N.arrive.text));
-  assert('81 virtues, all housed in the six realms; the five axis virtues are real advisors there', VIRTUES.length === 81 && /Eighty-one virtues live in the six rooms of light, every one with a home/.test(N.realms.text) && HUB.virtues.every((v) => N.realms.text.includes(v) && VIRTUES.some((x) => x.name === v && x.realm !== 'axial')));
+  assert('81 virtues, each in exactly one of the six great temples; none on the axis (v36)', VIRTUES.length === 81 && /The eighty-one virtues are shared among those six temples/.test(N.realms.text) && !('virtues' in HUB) && !/axis/.test(N.realms.text.split('Axial Realm')[0]));
   assert('names every realm Guardian from the app data, and calls them advisors', REALMS.every((r) => N.realms.text.includes(r.guardian.name)) && /first advisor/.test(N.realms.text) && !/kettle/.test(N.realms.text));
   const sh = REALMS.find((r) => r.id === 'shadow');
   assert('Shadow lies across its own bridge (not "below the axis"); its far bridges match the realm data', !/Below the axis/i.test(all) && /Across its own bridge/.test(N.shadow.text) && ['Courage', 'Humanity', 'Temperance'].every((x) => sh.landscape.includes(x) && N.shadow.text.includes(x)) && N.shadow.text.includes(sh.temple));
   assert('every realm named in his lines is a real realm', ['Wisdom', 'Courage', 'Humanity', 'Justice', 'Temperance', 'Transcendence'].every((x) => REALMS.some((r) => r.name === x) && N.realms.text.includes(x)));
-  assert('his voice and rules survive: one whole, Eirena, real circumstances, he/him, never a jester', /one whole/.test(all) && /Eirena/.test(all) && /real circumstances/.test(all) && !/\b(she|her|herself)\b/i.test(JSON.stringify(GUIDE)) && !/jester|clown|fool|motley|harlequin|trickster|keeper|chakra/i.test(JSON.stringify(GUIDE)));
+  assert('his voice and rules survive: one whole, the golden thread, real circumstances, he/him, never a jester', /one whole/.test(all) && /golden thread/.test(all) && /real circumstances/.test(all) && !/\b(she|her|herself)\b/i.test(JSON.stringify(GUIDE)) && !/jester|clown|fool|motley|harlequin|trickster|keeper|chakra/i.test(JSON.stringify(GUIDE)));
   const html = src('./index.html');
   assert('landing copy: portal arrival, no "shrine fly-through"', /Step through the portal/.test(html) && !/shrine fly-through|Enter the shrine/i.test(html) && /Irishnu the Guide meets you/.test(html));
+}
+
+{
+  console.log('\n--- v36 lore: no Eirena, impersonal golden thread, six great temples (14/14/14/13/13/13) ---');
+  const dataSrc = src('./aretoria-data.js');
+  const visible = JSON.stringify({ GUIDE, REALMS, HUB, VIRTUES: VIRTUES.map((v) => advisorDialogue(v)), CREED, OPENING, CLOSING }) + noComments(src('./aretoria.js')) + src('./index.html') + src('./manifest.webmanifest') + src('./boot.js');
+  assert('Eirena is gone from every text, data file and comment', !/Eirena|Weaver/i.test(visible) && !/Eirena|Eternal Weaver/.test(dataSrc));
+  assert('nobody holds or weaves the golden thread', !/(holds?|holding|weaves?|weaving|weave)[^.]{0,30}golden thread|golden thread[^.]{0,20}(is held|is woven)|watch [A-Z]\w+ weave/i.test(visible));
+  assert('the thread is a feature: gold light through every bridge and portal', /golden thread runs through every bridge and portal/.test(GUIDE.dialogue.nodes.greet.text) && /golden thread runs through every bridge and portal/.test(GUIDE.dialogue.nodes.arrive.text) && /every bridge and portal/.test(HUB.thread));
+  const all = REALMS.flatMap((r) => Object.values(r.dialogue.nodes).map((n) => n.text)).join(' ');
+  assert('guardian lines keep their images without a being: warmest at Amara\'s hearth, seven colors in the Prism, bridges catching light, dimmed never cut', /golden thread runs warmest here/.test(all) && /golden thread passes through my Prism and comes out as seven colors/.test(all) && /watch the golden thread shine as the bridges catch the light/.test(all) && /Even the golden thread passes through, dimmed, never cut/.test(all));
+  const count = {}; VIRTUES.forEach((v) => { count[v.realm] = (count[v.realm] || 0) + 1; });
+  const sizes = REALMS.filter((r) => r.id !== 'shadow').map((r) => count[r.id] || 0).sort();
+  assert('81 virtues, each exactly once, all in the six great temples (none on the axis or in Shadow)', VIRTUES.length === 81 && new Set(VIRTUES.map((v) => v.slug)).size === 81 && VIRTUES.every((v) => REALM_IDS.includes(v.realm) && v.realm !== 'shadow' && v.realm !== 'axial') && !('virtues' in HUB));
+  assert('balanced: three temples hold 14, three hold 13', eq(sizes, [13, 13, 13, 14, 14, 14]), JSON.stringify(count));
+  assert('exact v36 counts: Humanity 14, Justice 14, Temperance 14, Courage 13, Wisdom 13, Transcendence 13', count.humanity === 14 && count.justice === 14 && count.temperance === 14 && count.courage === 13 && count.wisdom === 13 && count.transcendence === 13);
+  assert('realm tag lists = exactly the virtues housed there (one source of truth)', REALMS.every((r) => eq([...r.virtues].sort(), VIRTUES.filter((v) => v.realm === r.id).map((v) => v.name).sort())));
+  assert('each realm\'s great virtue leads its list where it is one of the 81', ['wisdom', 'courage', 'justice', 'temperance'].every((id) => { const r = REALMS.find((x) => x.id === id); return r.virtues[0] === r.name; }));
+  const home = (n) => (VIRTUES.find((v) => v.name === n) || {}).realm;
+  assert('the five former axis virtues each have one home: Beauty, Graciousness → Transcendence; Integrity → Justice; Purposefulness, Wonder → Wisdom', home('Beauty') === 'transcendence' && home('Graciousness') === 'transcendence' && home('Integrity') === 'justice' && home('Purposefulness') === 'wisdom' && home('Wonder') === 'wisdom');
+  assert('the eight minimal moves are marked fit: balanced', eq(VIRTUES.filter((v) => v.fit === 'balanced').map((v) => v.name).sort(), ['Acceptance', 'Cleanliness', 'Detachment', 'Excellence', 'Graciousness', 'Harmony', 'Patience', 'Peace']));
+  assert('no "axis virtues" / "belong to the axis" anywhere', !/belong to the axis|axis virtues|stay here on the axis|shared by the axis/i.test(visible + dataSrc));
+  const R = GUIDE.dialogue.nodes.realms.text;
+  assert('Irishnu\'s six-realms answer: six great temples each holding one great virtue, 81 shared among them, Guardians first advisors (named), virtues advisors too, Shadow + Veil, Axial hall + portal', /^Six great temples, Cassidy, each holding one great virtue/.test(R) && /The eighty-one virtues are shared among those six temples/.test(R) && /first advisor: Sophia, Valorix, Amara, Justar, Moder and Auria/.test(R) && /advisors too/.test(R) && /Shadow Realm, watched by the Guardian of the Veil/.test(R) && /Axial Realm, the shared hall that joins them all; the portal set you down/.test(R) && !/realms of light|great virtue:? Wisdom, Courage, Humanity, Justice, Temperance and Transcendence, and/.test(R));
+  assert('Guardians no longer deny being advisors ("not me", "kettle")', !/advisors, not me|counsel here, not me|kettle/.test(all + R));
+  assert('advisor default line: housed in the temple, the Guardian is the first advisor', /I am one of the advisors housed in the \$\{realm\.temple\}, where \$\{realm\.guardian\.name\} is the first advisor\./.test(dataSrc));
+  assert('ritual line no longer invents virtue "temples"', /with Empathy and Compassion in the Hearth of Hearts/.test(dataSrc) && !/Compassion temples/.test(dataSrc));
+  assert('kept as Cassidy has not decided: Sophia\'s "before the axis had a name" and the "Seven Realms" landing', /before the axis had a name/.test(all) && /The Seven Realms/.test(src('./index.html')));
 }
 
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`);
