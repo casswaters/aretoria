@@ -13,6 +13,7 @@ async function enter() {
     landing.hidden = true;
     await openAretoria({ returnFocus: enterBtn });
   } catch (err) {
+    document.documentElement.classList.remove('ar-autoenter');
     landing.hidden = false;
     console.error('Aretoria failed to open', err);
   } finally {
@@ -23,6 +24,7 @@ async function enter() {
 enterBtn.addEventListener('click', () => { enter(); });
 
 window.addEventListener('aretoria:closed', () => {
+  document.documentElement.classList.remove('ar-autoenter');
   landing.hidden = false;
   enterBtn.focus({ preventScroll: true });
 });
