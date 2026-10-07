@@ -106,7 +106,7 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
 }
 
 {
-  console.log('\n--- Standalone shell + SW aretoria-v16 ---');
+  console.log('\n--- Standalone shell + SW aretoria-v17 ---');
   const html = src('./index.html');
   const sw = src('./sw.js');
   const boot = src('./boot.js');
@@ -114,12 +114,12 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('apple-mobile-web-app-title is Aretoria', /apple-mobile-web-app-title" content="Aretoria"/.test(html));
   assert('no MEC calendar / CaptainLog UI on page', !/month-grid|captains-log|panel-calendar|Modern Era Calendar/.test(html));
   assert('Irishnu mentioned as the Guide on landing', /Irishnu the Guide/.test(html));
-  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=16/.test(boot));
-  assert('SW is aretoria-v16', /aretoria-v16/.test(sw) && !/aretoria-v15/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
+  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=17/.test(boot));
+  assert('SW is aretoria-v17', /aretoria-v17/.test(sw) && !/aretoria-v16/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
   assert('SW precaches Aretoria code + shell', ['aretoria.js', 'aretoria-data.js', 'aretoria-art.js', 'aretoria.css', 'boot.js', 'shell.css'].every((f) => sw.includes(`./${f}`)));
   assert('SW does not precache portraits/guardians/realms', !/assets\/aretoria\/[^']*\.jpg/.test(noComments(sw)) && !/guardians\//.test(noComments(sw)) && !/realms\//.test(noComments(sw)));
-  assert('aretoria.js VERSION = 16', /const VERSION = 16;/.test(src('./aretoria.js')));
-  assert('asset queries use ?v=16', /\?v=16/.test(html) && /\?v=16/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
+  assert('aretoria.js VERSION = 17', /const VERSION = 17;/.test(src('./aretoria.js')));
+  assert('asset queries use ?v=17', /\?v=17/.test(html) && /\?v=17/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
   assert('manifest name Aretoria, scope /aretoria/', /"name": "Aretoria"/.test(src('./manifest.webmanifest')) && /"scope": "\/aretoria\/"/.test(src('./manifest.webmanifest')));
   assert('link back to Captain’s Log present', /modern-era-calendar/.test(html));
 }
