@@ -62,7 +62,7 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   console.log('\n--- Lore rules: Irishnu the Guide, warrior Guardians, Version 1 ---');
   assert('Irishnu is titled the Guide', GUIDE.name === 'Irishnu' && GUIDE.title === 'the Guide');
   const guideText = JSON.stringify(GUIDE);
-  assert('Irishnu (Cassidy) avatar exists; stills only (no hub video)', existsSync(new URL(IRISHNU_AVATAR, import.meta.url)) && !/<video|IRISHNU_CLIP|irishnu\.(mp4|webm)/.test(readFileSync(new URL('./aretoria.js', import.meta.url), 'utf8')));
+  assert('guide avatar exists; stills only (no hub video)', existsSync(new URL(IRISHNU_AVATAR, import.meta.url)) && !/<video|IRISHNU_CLIP|irishnu\.(mp4|webm)/.test(readFileSync(new URL('./aretoria.js', import.meta.url), 'utf8')));
   assert('Irishnu is he/him: no she/her in his lines', !/\b(she|her|herself)\b/i.test(guideText));
   assert('Irishnu is never labelled a jester/fool/clown', !/jester|clown|fool|motley|harlequin|trickster/i.test(guideText));
   {
@@ -129,12 +129,12 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('apple-mobile-web-app-title is Aretoria', /apple-mobile-web-app-title" content="Aretoria"/.test(html));
   assert('no MEC calendar / CaptainLog UI on page', !/month-grid|captains-log|panel-calendar|Modern Era Calendar/.test(html));
   assert('Irishnu mentioned as the Guide on landing', /Irishnu the Guide/.test(html));
-  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=36/.test(boot));
-  assert('SW is aretoria-v36', /aretoria-v36/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
+  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=37/.test(boot));
+  assert('SW is aretoria-v37', /aretoria-v37/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
   assert('SW precaches Aretoria code + shell', ['aretoria.js', 'aretoria-data.js', 'aretoria-art.js', 'aretoria.css', 'boot.js', 'shell.css'].every((f) => sw.includes(`./${f}`)));
   assert('SW does not precache portraits/guardians/realms', !/assets\/aretoria\/[^']*\.jpg/.test(noComments(sw)) && !/guardians\//.test(noComments(sw)) && !/realms\//.test(noComments(sw)));
-  assert('aretoria.js VERSION = 36 and imports data/art ?v=36; boot imports aretoria.js?v=36', /const VERSION = 36;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=36'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=36'/.test(src('./aretoria.js')) && /aretoria\.js\?v=36'/.test(src('./boot.js')));
-  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=36', /shell\.css\?v=18/.test(html) && /boot\.js\?v=36/.test(html) && /sw\.js\?v=36/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
+  assert('aretoria.js VERSION = 37 and imports data/art ?v=37; boot imports aretoria.js?v=37', /const VERSION = 37;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=37'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=37'/.test(src('./aretoria.js')) && /aretoria\.js\?v=37'/.test(src('./boot.js')));
+  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=37', /shell\.css\?v=18/.test(html) && /boot\.js\?v=37/.test(html) && /sw\.js\?v=37/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
   assert('manifest name Aretoria, scope /aretoria/', /"name": "Aretoria"/.test(src('./manifest.webmanifest')) && /"scope": "\/aretoria\/"/.test(src('./manifest.webmanifest')));
   assert('link back to Captain’s Log present', /modern-era-calendar/.test(html));
 }
@@ -244,7 +244,7 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('both entry points validate (arrive + greet reachable, all choices resolve)', validateTree(GUIDE.dialogue).length === 0);
   assert('arrive greets the visitor who came through the central portal of the Axial Realm', /portal/.test(N.arrive.text) && /Axial Realm/.test(N.arrive.text) && /center/.test(N.arrive.text));
   assert('he wears ivory-and-sapphire armor now: no robe in his lines', !/\brobes?\b/i.test(all) && /ivory and sapphire/.test(N.who.text) && /armor/.test(N.who.text) && GUIDE.look === 'ivory-and-sapphire armor');
-  assert('he is Cassidy\'s in-game self: "the self you send ahead"', /the self you send ahead/.test(N.who.text) && /Cassidy/.test(N.who.text));
+  assert('he is the visitor\'s reflection: "the self you send ahead", addressed by {name}', /the self you send ahead/.test(N.who.text) && /\{name\}/.test(N.who.text));
   assert('the Axial Realm is "the shared realm of existence" (HUB.sub)', HUB.sub === 'The shared realm of existence' && /shared realm of existence/.test(N.greet.text) && /shared realm of existence/.test(N.arrive.text));
   assert('81 virtues, each in exactly one of the six great temples; none on the axis (v36)', VIRTUES.length === 81 && /The eighty-one virtues are shared among those six temples/.test(N.realms.text) && !('virtues' in HUB) && !/axis/.test(N.realms.text.split('Axial Realm')[0]));
   assert('names every realm Guardian from the app data, and calls them advisors', REALMS.every((r) => N.realms.text.includes(r.guardian.name)) && /first advisor/.test(N.realms.text) && !/kettle/.test(N.realms.text));
@@ -277,11 +277,58 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('the eight minimal moves are marked fit: balanced', eq(VIRTUES.filter((v) => v.fit === 'balanced').map((v) => v.name).sort(), ['Acceptance', 'Cleanliness', 'Detachment', 'Excellence', 'Graciousness', 'Harmony', 'Patience', 'Peace']));
   assert('no "axis virtues" / "belong to the axis" anywhere', !/belong to the axis|axis virtues|stay here on the axis|shared by the axis/i.test(visible + dataSrc));
   const R = GUIDE.dialogue.nodes.realms.text;
-  assert('Irishnu\'s six-realms answer: six great temples each holding one great virtue, 81 shared among them, Guardians first advisors (named), virtues advisors too, Shadow + Veil, Axial hall + portal', /^Six great temples, Cassidy, each holding one great virtue/.test(R) && /The eighty-one virtues are shared among those six temples/.test(R) && /first advisor: Sophia, Valorix, Amara, Justar, Moder and Auria/.test(R) && /advisors too/.test(R) && /Shadow Realm, watched by the Guardian of the Veil/.test(R) && /Axial Realm, the shared hall that joins them all; the portal set you down/.test(R) && !/realms of light|great virtue:? Wisdom, Courage, Humanity, Justice, Temperance and Transcendence, and/.test(R));
+  assert('Irishnu\'s six-realms answer: six great temples each holding one great virtue, 81 shared among them, Guardians first advisors (named), virtues advisors too, Shadow + Veil, Axial hall + portal', /^Six great temples, \{name\}, each holding one great virtue/.test(R) && /The eighty-one virtues are shared among those six temples/.test(R) && /first advisor: Sophia, Valorix, Amara, Justar, Moder and Auria/.test(R) && /advisors too/.test(R) && /Shadow Realm, watched by the Guardian of the Veil/.test(R) && /Axial Realm, the shared hall that joins them all; the portal set you down/.test(R) && !/realms of light|great virtue:? Wisdom, Courage, Humanity, Justice, Temperance and Transcendence, and/.test(R));
   assert('Guardians no longer deny being advisors ("not me", "kettle")', !/advisors, not me|counsel here, not me|kettle/.test(all + R));
   assert('advisor default line: housed in the temple, the Guardian is the first advisor', /I am one of the advisors housed in the \$\{realm\.temple\}, where \$\{realm\.guardian\.name\} is the first advisor\./.test(dataSrc));
   assert('ritual line no longer invents virtue "temples"', /with Empathy and Compassion in the Hearth of Hearts/.test(dataSrc) && !/Compassion temples/.test(dataSrc));
-  assert('kept as Cassidy has not decided: Sophia\'s "before the axis had a name" and the "Seven Realms" landing', /before the axis had a name/.test(all) && /The Seven Realms/.test(src('./index.html')));
+  assert('kept as the author has not decided: Sophia\'s "before the axis had a name" and the "Seven Realms" landing', /before the axis had a name/.test(all) && /The Seven Realms/.test(src('./index.html')));
+}
+
+{
+  console.log('\n--- v37: username-based (no hard-coded person), name prompt, swappable guide ---');
+  const D = await import('./aretoria-data.js?v=test37');
+  const { readdirSync } = await import('fs');
+  const OWNER = String.fromCharCode(67, 97, 115, 115, 105, 100, 121); // built at runtime so this file stays clean too
+  const served = [];
+  const walk = (dir) => { for (const e of readdirSync(new URL(dir, import.meta.url), { withFileTypes: true })) {
+    if (['.git', '.github', 'node_modules'].includes(e.name) || e.name === 'ROADMAP.md') continue;
+    const rel = dir + e.name; if (e.isDirectory()) walk(rel + '/'); else if (/\.(js|mjs|css|html|json|webmanifest|txt|md|svg)$/.test(e.name)) served.push(rel);
+  } };
+  walk('./');
+  const hits = served.filter((f) => new RegExp(OWNER, 'i').test(src(f)));
+  assert('no hard-coded owner name in any served file (code, data, UI, tests)', hits.length === 0, hits.join(', '));
+  const texts = [];
+  const tree = (t) => Object.values(t.nodes).forEach((n) => { texts.push(n.text); n.choices.forEach((c) => texts.push(c.label)); });
+  tree(D.GUIDE.dialogue); D.REALMS.forEach((r) => tree(r.dialogue)); D.VIRTUES.forEach((v) => tree(D.advisorDialogue(v)));
+  assert('dialogue addresses the visitor only through {name} / {Name}', texts.some((t) => /\{name\}/.test(t)) && texts.some((t) => /\{Name\}/.test(t)));
+  assert('{Name} only opens a sentence; {name} never does', texts.every((t) => !/(^|[.!?…]\s+)\{name\}/.test(t) && !/[^.!?…\s]\s*\{Name\}/.test(t.replace(/^\{Name\}/, ''))));
+  assert('the guide is named only through {guide} in every line (swappable)', texts.every((t) => !/Irishnu/.test(t)) && texts.some((t) => /\{guide\}/.test(t)));
+  const day = new Date(2026, 9, 7);
+  const fill = (t, n) => D.fillTokens(t, D.tokenContext(day, D.REALMS, n));
+  const A = D.GUIDE.dialogue.nodes;
+  assert('token replacement: a typed name greets the visitor', fill(A.arrive.text, 'Ada').startsWith('Ada. Steady now') && fill(A.greet.text, 'Ada').startsWith('Ah, Ada. Right on time') && fill(A.realms.text, 'Ada').startsWith('Six great temples, Ada,'));
+  assert('fallback grammar: "Traveler." at a sentence start, "traveler" mid-sentence', fill(A.arrive.text, '').startsWith('Traveler. Steady now') && fill(A.greet.text, '').startsWith('Ah, traveler. Right on time') && fill(D.REALMS.find((r) => r.id === 'courage').dialogue.nodes[D.REALMS.find((r) => r.id === 'courage').dialogue.start].text, '').startsWith('Traveler! Good.'));
+  const allFallback = texts.map((t) => fill(t, ''));
+  assert('every line fills cleanly with the fallback (no tokens left, capitalised at sentence starts)', allFallback.every((t) => !/\{(name|Name|guide)\}/.test(t) && !/(^|[.!?…]\s+)traveler\b/.test(t) && !/,\s+Traveler\b/.test(t)));
+  assert('every line fills with a typed name and the guide name', texts.map((t) => fill(t, 'Ada')).every((t) => !/\{(name|Name|guide)\}/.test(t)) && texts.some((t) => fill(t, 'Ada').includes(D.GUIDE_NAME_DEFAULT)));
+  assert('lowercase typed names are raised only at a sentence start', fill(A.arrive.text, 'émile').startsWith('Émile. ') && fill(A.greet.text, 'émile').startsWith('Ah, émile.'));
+  assert('name cleaning: trims, caps at 24, keeps unicode letters, spaces, hyphens, apostrophes', D.cleanName('  Ada  ') === 'Ada' && D.cleanName("Seán O’Brien-Ní") === "Seán O’Brien-Ní" && D.cleanName('张伟') === '张伟' && D.cleanName("D'Angelo") === "D'Angelo" && Array.from(D.cleanName('x'.repeat(60))).length === 24 && D.cleanName('a  b') === 'a b' && D.cleanName('123 !!!') === '');
+  const evil = D.cleanName('<img src=x onerror=alert(1)>{name}&amp;"');
+  assert('escaping: markup and token braces are stripped from names (no HTML or token injection)', !/[<>&"=(){}\/;]/.test(evil) && D.nameForms('<b>').name === 'b');
+  assert('fallback is "traveler"; empty / letterless names fall back', D.NAME_FALLBACK === 'traveler' && D.nameForms('').name === 'traveler' && D.nameForms('').Name === 'Traveler' && D.nameForms('—').name === 'traveler');
+  assert('name tokens are registered', ['name', 'Name', 'guide'].every((k) => D.TOKENS.includes(k)));
+  const aj = noComments(src('./aretoria.js')), css = src('./aretoria.css');
+  assert('stored in localStorage only (name + asked flag), nothing sent anywhere', /localStorage\.setItem\(NAME_KEY, n\)/.test(aj) && /localStorage\.setItem\(NAME_ASKED_KEY, '1'\)/.test(aj) && D.NAME_KEY === 'mec-aretoria:name' && !/fetch\(|XMLHttpRequest|sendBeacon/.test(aj));
+  assert('the prompt is shown in the same frame as the root (no flash) and the entrance waits for it', /if \(!nameAsked\(\)\) \{ \$\('\.ar-name'\)\.hidden = false;[^\n]*\n\s*root\.hidden = false;/.test(aj) && /openNamePrompt\(\{ done: \(\) => \{ if \(S\.open\) \{ startIntro\(opts\.realm\);/.test(aj));
+  assert('asked once: existing visitors without a name get it once; skip remembers', /function nameAsked\(\) \{ try \{ return !!localStorage\.getItem\(NAME_ASKED_KEY\) \|\| !!storedName\(\);/.test(aj) && /if \(!box\.classList\.contains\('edit'\)\) saveName\(''\)/.test(aj));
+  assert('the prompt sits on opaque night above every layer', /\.ar-name \{ position: absolute; inset: 0; z-index: 60;[^}]*#020108/.test(css));
+  assert('copy: one field, gentle first-name nudge, Continue + Skip, local-only note', /What should Aretoria call you\?/.test(aj) && /Your first name works best/.test(aj) && /maxlength="\$\{NAME_MAX\}"/.test(aj) && />Continue</.test(aj) && /Skip for now/.test(aj) && /Kept only in this browser/.test(aj));
+  assert('change / clear later from the Hall of Virtues ("Aretoria calls you …" · Change · Forget my name)', /data-act="name">Change</.test(aj) && /act === 'name'\) openNamePrompt\(\{ edit: true/.test(aj) && /Forget my name/.test(aj) && /function clearName\(\) \{[^\n]*localStorage\.removeItem\(NAME_KEY\)/.test(aj));
+  assert('names are rendered as text, never HTML (Hall line via textContent; dialogue via textContent; choices escaped)', /t\.textContent = n \? `Aretoria calls you \$\{n\}\.`/.test(aj) && /tEl\.textContent = text/.test(aj) && /esc\(fillTokens\(c\.label, D\.ctx\)\)/.test(aj));
+  assert('dialogue context carries the visitor name', /tokenContext\(new Date\(\), undefined, visitorName\(\)\)/.test(aj));
+  assert('the prompt owns the keyboard (Enter submits, Esc skips) and its clicks never reach the hub', /if \(!\$\('\.ar-name'\)\.hidden\) return;/.test(aj) && /e\.key === 'Escape'\) \{ e\.preventDefault\(\); \$\('\.ar-name-skip'\)\.click\(\); \}/.test(aj) && /box\.addEventListener\('click', \(e\) => e\.stopPropagation\(\)\)/.test(aj));
+  assert('guide swappable: one name config + one art config', D.GUIDE.name === D.GUIDE_NAME_DEFAULT && D.GUIDE_NAME_DEFAULT === 'Irishnu' && D.guideName() === 'Irishnu' && D.GUIDE_ART.portrait === D.IRISHNU_PORTRAIT && D.GUIDE_ART.avatar === D.IRISHNU_AVATAR && D.ARRIVAL.irishnu.src === D.GUIDE_ART.arrival && D.GUIDE.portrait === D.GUIDE_ART.portrait);
+  assert('UI names the guide through guideName() (card, aria, hint), never a literal', !/\bIrishnu\b/.test(aj) && /hubHint = \(\) => `Tap a gate to travel · tap \$\{guideName\(\)\} to talk`/.test(aj) && /esc\(GUIDE_ART\.avatar\)/.test(aj));
 }
 
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`);

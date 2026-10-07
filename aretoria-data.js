@@ -4,7 +4,7 @@
  * Cosmology: V1 "horizontal" Aretoria — six VIA-virtue realms plus the Shadow Realm
  * (seven environments), entered from the Axial Realm (the shared realm of existence; the golden thread is the
  * gold light running through every bridge and portal that joins the realms into one whole). Irishnu, the Guide, greets
- * you in the hub. Names, temples and virtues come from Cassidy's Aretoria project notes;
+ * you in the hub. Names, temples and virtues come from the author's Aretoria project notes;
  * the Shadow Realm has no named central guardian there, so it uses the neutral name
  * "Guardian of the Veil". Since v25 every realm host is presented as that realm's
  * Guardian and described as a warrior suited to the realm (guardian.warrior).
@@ -12,13 +12,13 @@
  * v27 adds the Axial hub painted backdrop (HUB.realmBackdrop = RP('axial')); entry still uses SHRINE_IMAGE.
  * v28: mobile portrait siblings under .../mobile/ (~576×1024); pickArtPath + ART_MOBILE_MQ for responsive art.
  *
- * (Authoring note: Irishnu is Cassidy's in-game self, his old LARP name (he/him), in ivory-and-sapphire armor,
- * never a jester. In-world he calls himself the self Cassidy sends ahead; the LARP backstory stays off-screen.
+ * (Authoring note: Irishnu (the default guide) is the author's in-game self, his old LARP name (he/him), in ivory-and-sapphire armor,
+ * never a jester. In-world he calls himself the self the visitor sends ahead; the LARP backstory stays off-screen.
  * The visitor arrives through the central blue portal of the Axial Realm and Irishnu greets him there (v35
  * 'arrive' node). He does what is needed and often wraps it in dry wit, a riddle or gentle misdirection, but
  * the sincere guidance always comes first and the humour is never announced or named. v35 lore pass: robe →
  * armor, portal arrival, Guardians are advisors alongside the virtues, Shadow lies across its own bridge.
- * v36 (Cassidy): six great temples, each holding one great virtue; the 81 virtues are shared among the six
+ * v36 (author): six great temples, each holding one great virtue; the 81 virtues are shared among the six
  * temples (14/14/14/13/13/13), none on the axis. The golden thread is a feature of the world, not a being:
  * nobody holds or weaves it.)
  *
@@ -31,7 +31,7 @@
 
 export const GROUNDING = 'How does this fit my real circumstances?';
 
-/* Cassidy's own words (from his Aretoria note and creed). Keep verbatim; never paraphrase. */
+/* The author's own words (from the Aretoria note and creed). Keep verbatim; never paraphrase. */
 export const OPENING = "Within me blooms Aretoria, a constellation of legendary realms where ancient advisors, masters of space and time, guide adventurous souls who rise to the challenge of creating, building, and adventuring in an ever-expanding universe.";
 export const CLOSING = "Thus, I stand—a testament to the power of a life lived with intention and grace.";
 export const CREED = {
@@ -70,7 +70,7 @@ export function isoDate(d) {
 }
 
 /**
- * Which of Cassidy's rituals falls on this (local) date, and which realm suits it.
+ * Which of the author's rituals falls on this (local) date, and which realm suits it.
  * Sunday → weekly self-audit (Justice) · 1st/3rd Saturday → relationship reflection
  * (Humanity) · last day of the month → monthly review (Temperance) · otherwise the
  * daily reflection (Wisdom).
@@ -94,12 +94,34 @@ export function fillTokens(text, ctx) {
   return String(text).replace(/\{(\w+)\}/g, (m, k) => (ctx && ctx[k] != null ? String(ctx[k]) : m));
 }
 
-export const TOKENS = ['ritual', 'ritualLine', 'suggest', 'suggestTemple', 'suggestId', 'weekday'];
+export const TOKENS = ['ritual', 'ritualLine', 'suggest', 'suggestTemple', 'suggestId', 'weekday', 'name', 'Name', 'guide'];
 
-export function tokenContext(date, realms = REALMS) {
+/* ---------- the visitor's name (v37): asked once, kept in this browser only ----------
+   Dialogue never hard-codes a person: {name} mid-sentence, {Name} at the start of a sentence, both filled at
+   render time from localStorage (NAME_KEY). Skipping uses the fallback "traveler" ("Traveler." at a sentence
+   start). Names are cleaned to letters (any script), spaces, hyphens and apostrophes, at most NAME_MAX. */
+export const NAME_KEY = 'mec-aretoria:name';
+export const NAME_ASKED_KEY = 'mec-aretoria:name-asked';
+export const NAME_FALLBACK = 'traveler';
+export const NAME_MAX = 24;
+export function cleanName(raw) {
+  let s = String(raw == null ? '' : raw).normalize('NFC').replace(/[^\p{L}\p{M}\s'’-]/gu, '').replace(/\s+/gu, ' ').trim();
+  s = Array.from(s).slice(0, NAME_MAX).join('').trim();
+  return /\p{L}/u.test(s) ? s : '';
+}
+/** {name} / {Name} values: the cleaned name as typed (first letter raised at a sentence start), or the fallback. */
+export function nameForms(raw) {
+  const n = cleanName(raw) || NAME_FALLBACK;
+  const first = Array.from(n)[0];
+  return { name: n, Name: first.toLocaleUpperCase() + n.slice(first.length) };
+}
+
+export function tokenContext(date, realms = REALMS, visitorName = '') {
   const r = ritualFor(date);
   const sug = realms.find((x) => x.id === r.realm) || realms[0];
   return {
+    ...nameForms(visitorName),
+    guide: guideName(),
     ritual: r.name,
     ritualLine: r.line,
     suggest: sug.name,
@@ -121,11 +143,14 @@ export const HUB = {
   thread: 'The golden thread: the gold light running through every bridge and portal, joining the realms into one whole.'
 };
 
+/* The reflection guide is swappable (ROADMAP: each visitor may later name their own guide and design its
+   costume). Dialogue says {guide}, never the name; the portraits live in GUIDE_ART only. */
+export const GUIDE_NAME_DEFAULT = 'Irishnu';
 export const GUIDE = {
   id: 'irishnu',
-  name: 'Irishnu',
+  name: GUIDE_NAME_DEFAULT,
   title: 'the Guide',
-  source: 'notes', // name/persona from notes; appearance per Cassidy: ivory-and-sapphire armor
+  source: 'notes', // name/persona from notes; appearance per the author: ivory-and-sapphire armor
   look: 'ivory-and-sapphire armor',
   color: '#f1d58e',
   dialogue: {
@@ -133,7 +158,7 @@ export const GUIDE = {
     arrivalStart: 'arrive', // the first-visit greeting at the portal (Axial arrival); later taps on his card open 'greet'
     nodes: {
       arrive: {
-        text: "Cassidy. Steady now; the portal sets everyone down a little dazzled. You are standing at the center of the Axial Realm, the shared realm of existence: one whole, with every realm held inside it. The golden thread runs through every bridge and portal. I hold the threshold, and, when it is needed, the traveler’s attention.",
+        text: "{Name}. Steady now; the portal sets everyone down a little dazzled. You are standing at the center of the Axial Realm, the shared realm of existence: one whole, with every realm held inside it. The golden thread runs through every bridge and portal. I hold the threshold, and, when it is needed, the traveler’s attention.",
         choices: [
           { label: 'What are the realms?', next: 'realms' },
           { label: 'Where should I go today?', next: 'today' },
@@ -142,7 +167,7 @@ export const GUIDE = {
         ]
       },
       greet: {
-        text: "Ah, Cassidy. Right on time, or time is right on you; from the center it is hard to tell which. This is the Axial Realm, the shared realm of existence: one whole, with every realm held inside it. The golden thread runs through every bridge and portal. I hold the threshold, and, when it is needed, the traveler’s attention.",
+        text: "Ah, {name}. Right on time, or time is right on you; from the center it is hard to tell which. This is the Axial Realm, the shared realm of existence: one whole, with every realm held inside it. The golden thread runs through every bridge and portal. I hold the threshold, and, when it is needed, the traveler’s attention.",
         choices: [
           { label: 'What are the realms?', next: 'realms' },
           { label: 'Where should I go today?', next: 'today' },
@@ -151,7 +176,7 @@ export const GUIDE = {
         ]
       },
       realms: {
-        text: "Six great temples, Cassidy, each holding one great virtue: Wisdom, Courage, Humanity, Justice, Temperance and Transcendence. The eighty-one virtues are shared among those six temples, each with a single home. Every temple’s Guardian is its first advisor: Sophia, Valorix, Amara, Justar, Moder and Auria, in that order. The virtues housed with them are advisors too. Across its own bridge lies the Shadow Realm, watched by the Guardian of the Veil. And this is the Axial Realm, the shared hall that joins them all; the portal set you down in the middle of it. Every door opens from here. That is rather the point of a hall.",
+        text: "Six great temples, {name}, each holding one great virtue: Wisdom, Courage, Humanity, Justice, Temperance and Transcendence. The eighty-one virtues are shared among those six temples, each with a single home. Every temple’s Guardian is its first advisor: Sophia, Valorix, Amara, Justar, Moder and Auria, in that order. The virtues housed with them are advisors too. Across its own bridge lies the Shadow Realm, watched by the Guardian of the Veil. And this is the Axial Realm, the shared hall that joins them all; the portal set you down in the middle of it. Every door opens from here. That is rather the point of a hall.",
         choices: [
           { label: 'Where should I go today?', next: 'today' },
           { label: 'And the Shadow Realm?', next: 'shadow' },
@@ -160,7 +185,7 @@ export const GUIDE = {
         ]
       },
       who: {
-        text: "Your guide, and your reflection: the self you send ahead into Aretoria, in ivory and sapphire, so that someone at the center always remembers why you came. I point at doors, and now and then at the one walking through them; you are the door that matters most and opens least. Every realm out there is one face of the same whole, Cassidy, and so are you. I am simply the reminder, armored so you will take me seriously.",
+        text: "Your guide, and your reflection: the self you send ahead into Aretoria, in ivory and sapphire, so that someone at the center always remembers why you came. I point at doors, and now and then at the one walking through them; you are the door that matters most and opens least. Every realm out there is one face of the same whole, {name}, and so are you. I am simply the reminder, armored so you will take me seriously.",
         choices: [
           { label: 'Where should I go today?', next: 'today' },
           { label: 'Then remind me: let me explore.', next: 'go' }
@@ -232,7 +257,7 @@ export const REALMS = [
       "start": "greet",
       "nodes": {
         "greet": {
-          "text": "Cassidy! Good. Boots on the anvil-ground. I am Valorix the Stormheart, Guardian of Courage. Courage is not the absence of fear, but the thunder that drowns it out. So. What battle brought you to the Forge of Valor?",
+          "text": "{Name}! Good. Boots on the anvil-ground. I am Valorix the Stormheart, Guardian of Courage. Courage is not the absence of fear, but the thunder that drowns it out. So. What battle brought you to the Forge of Valor?",
           "choices": [
             {
               "label": "Something I’ve been avoiding.",
@@ -253,7 +278,7 @@ export const REALMS = [
           ]
         },
         "who": {
-          "text": "The first storm that made me broke my first armor. I walked out of it anyway. That is the whole story. Moder trained beside me here once, and still cools my steel at the tempering pool. Irishnu calls me “loud.” Irishnu is correct.",
+          "text": "The first storm that made me broke my first armor. I walked out of it anyway. That is the whole story. Moder trained beside me here once, and still cools my steel at the tempering pool. {guide} calls me “loud.” {guide} is correct.",
           "choices": [
             {
               "label": "And the realm itself?",
@@ -338,7 +363,7 @@ export const REALMS = [
       "start": "greet",
       "nodes": {
         "greet": {
-          "text": "Be welcome under the Scales of Equity, Cassidy. I am Justar the Balancer, Guardian of Justice. My blade stays sheathed; the scale does my fighting. Every oath on this beam began as a small choice. I do not condemn. I weigh. What would you place on the scales?",
+          "text": "Be welcome under the Scales of Equity, {name}. I am Justar the Balancer, Guardian of Justice. My blade stays sheathed; the scale does my fighting. Every oath on this beam began as a small choice. I do not condemn. I weigh. What would you place on the scales?",
           "choices": [
             {
               "label": "My week.",
@@ -355,7 +380,7 @@ export const REALMS = [
           ]
         },
         "who": {
-          "text": "Once. Early. I weighed a traveler and found only debt. Amara sat him at her hearth and found the reason. Since then the beam carries mercy as a counterweight. Irishnu calls that the one joke I have ever told.",
+          "text": "Once. Early. I weighed a traveler and found only debt. Amara sat him at her hearth and found the reason. Since then the beam carries mercy as a counterweight. {guide} calls that the one joke I have ever told.",
           "choices": [
             {
               "label": "What do the scales measure?",
@@ -407,7 +432,7 @@ export const REALMS = [
           ]
         },
         "bless": {
-          "text": "The beam steadies. Balance is not perfection, Cassidy; it is honest correction, made again and again. I will keep this page open until the promise is paid.",
+          "text": "The beam steadies. Balance is not perfection, {name}; it is honest correction, made again and again. I will keep this page open until the promise is paid.",
           "choices": [
             {
               "label": "Return to the Axial hub",
@@ -440,7 +465,7 @@ export const REALMS = [
       "start": "greet",
       "nodes": {
         "greet": {
-          "text": "Come in from the cold, dear one. I am Amara the Heartbloom, Guardian of Humanity. These hands bind wounds, and when a heart must be defended, they hold the shield. The fountain of empathy has been flowing all day for you. How is your heart, Cassidy?",
+          "text": "Come in from the cold, dear one. I am Amara the Heartbloom, Guardian of Humanity. These hands bind wounds, and when a heart must be defended, they hold the shield. The fountain of empathy has been flowing all day for you. How is your heart, {name}?",
           "choices": [
             {
               "label": "Full. I want to share it.",
@@ -542,7 +567,7 @@ export const REALMS = [
       "start": "greet",
       "nodes": {
         "greet": {
-          "text": "Breathe with the tide, Cassidy. In… and out. I am Moder the Equilibrator, Guardian of Temperance. I trained a lifetime to strike once… and to know when not to strike at all. The Veil of Balance moves so it never breaks. What feels out of balance?",
+          "text": "Breathe with the tide, {name}. In… and out. I am Moder the Equilibrator, Guardian of Temperance. I trained a lifetime to strike once… and to know when not to strike at all. The Veil of Balance moves so it never breaks. What feels out of balance?",
           "choices": [
             {
               "label": "I’ve been running hot.",
@@ -559,7 +584,7 @@ export const REALMS = [
           ]
         },
         "who": {
-          "text": "At Valorix’s forge. I was the hottest student there. Burned every blade. So I walked here… and sat… for a long time. He still visits. I still cool his steel. Irishnu says we are one guardian with two moods.",
+          "text": "At Valorix’s forge. I was the hottest student there. Burned every blade. So I walked here… and sat… for a long time. He still visits. I still cool his steel. {guide} says we are one guardian with two moods.",
           "choices": [
             {
               "label": "Teach me balance.",
@@ -611,7 +636,7 @@ export const REALMS = [
           ]
         },
         "bless": {
-          "text": "Enough is a feast, Cassidy. Take one breath slower than you want to. There. Balance travels with you.",
+          "text": "Enough is a feast, {name}. Take one breath slower than you want to. There. Balance travels with you.",
           "choices": [
             {
               "label": "Return to the Axial hub",
@@ -644,7 +669,7 @@ export const REALMS = [
       "start": "greet",
       "nodes": {
         "greet": {
-          "text": "Welcome, Cassidy. I am Sophia the Eternal Oracle, Guardian of Wisdom, a battle-sage who wins most battles before they begin. The Prism has been turning your light into colors all day. I have no quick answers, only the quiet truth that lasts. What are you seeking?",
+          "text": "Welcome, {name}. I am Sophia the Eternal Oracle, Guardian of Wisdom, a battle-sage who wins most battles before they begin. The Prism has been turning your light into colors all day. I have no quick answers, only the quiet truth that lasts. What are you seeking?",
           "choices": [
             {
               "label": "Clarity on a decision.",
@@ -665,7 +690,7 @@ export const REALMS = [
           ]
         },
         "who": {
-          "text": "Doubt is how I keep my robes woven. Irishnu and I have argued since before the axis had a name; I ask why, Irishnu asks why not. The golden thread passes through my Prism and comes out as seven colors. Which one is the true thread? Yes.",
+          "text": "Doubt is how I keep my robes woven. {guide} and I have argued since before the axis had a name; I ask why, {guide} asks why not. The golden thread passes through my Prism and comes out as seven colors. Which one is the true thread? Yes.",
           "choices": [
             {
               "label": "Tell me of your realm.",
@@ -717,7 +742,7 @@ export const REALMS = [
           ]
         },
         "bless": {
-          "text": "Light passes through you and becomes many colors; that is not confusion, it is richness. One last thing: which belief of yours deserves a second look? Carry that question, not an answer. Go gently, Cassidy.",
+          "text": "Light passes through you and becomes many colors; that is not confusion, it is richness. One last thing: which belief of yours deserves a second look? Carry that question, not an answer. Go gently, {name}.",
           "choices": [
             {
               "label": "Return to the Axial hub",
@@ -750,7 +775,7 @@ export const REALMS = [
       "start": "greet",
       "nodes": {
         "greet": {
-          "text": "Oh, Cassidy, look up! I am Auria the Awestruck, Guardian of Transcendence. My wings are for lifting others, my lance for keeping wonder safe. The Nebula grew a little when you arrived; it grows with every act of appreciation. What have you come to celebrate?",
+          "text": "Oh, {name}, look up! I am Auria the Awestruck, Guardian of Transcendence. My wings are for lifting others, my lance for keeping wonder safe. The Nebula grew a little when you arrived; it grows with every act of appreciation. What have you come to celebrate?",
           "choices": [
             {
               "label": "Something good happened.",
@@ -853,7 +878,7 @@ export const REALMS = [
       "start": "greet",
       "nodes": {
         "greet": {
-          "text": "You came through the veil, Cassidy. That took honesty. I am the Guardian of the Veil. I keep watch where the light grows thin. Nothing here is judged. The mirror pool only shows what is bent, so it can be made straight. What calls you here?",
+          "text": "You came through the veil, {name}. That took honesty. I am the Guardian of the Veil. I keep watch where the light grows thin. Nothing here is judged. The mirror pool only shows what is bent, so it can be made straight. What calls you here?",
           "choices": [
             {
               "label": "Something dark is pulling at me.",
@@ -874,7 +899,7 @@ export const REALMS = [
           ]
         },
         "who": {
-          "text": "A name is something to hide behind. Here, nothing hides. The other guardians cross my bridges when their own shadows grow. Irishnu does not joke here. Even the golden thread passes through, dimmed, never cut.",
+          "text": "A name is something to hide behind. Here, nothing hides. The other guardians cross my bridges when their own shadows grow. {guide} does not joke here. Even the golden thread passes through, dimmed, never cut.",
           "choices": [
             {
               "label": "What is this place?",
@@ -964,10 +989,19 @@ export const REALM_IDS = REALMS.map((r) => r.id);
 /* -------------------------------------------------------------------------- */
 
 /* GUARDIAN_DIR / GP() / REALM_DIR / RP() are defined above REALMS. */
-export const IRISHNU_PORTRAIT = GP('irishnu');
-GUIDE.portrait = IRISHNU_PORTRAIT;
-/** Irishnu is Cassidy's own LARP persona (he/him). Face crop for the round dialogue avatar. */
-export const IRISHNU_AVATAR = GP('irishnu-face');
+/** Every picture of the guide in one place (desktop card; mobile sibling via mobileArtPath; dialogue face; the
+    figure standing in the arrival scene). Swap these (and GUIDE.name) to give the visitor their own guide. */
+export const GUIDE_ART = {
+  portrait: GP('irishnu'),
+  avatar: GP('irishnu-face'),
+  arrival: 'assets/aretoria/arrival/irishnu.webp'
+};
+export const IRISHNU_PORTRAIT = GUIDE_ART.portrait;
+GUIDE.portrait = GUIDE_ART.portrait;
+/** The guide's display name (today the default; later the visitor's chosen fantasy name). */
+export function guideName() { return (GUIDE && GUIDE.name) || GUIDE_NAME_DEFAULT; }
+/** Irishnu is the author's own LARP persona (he/him); the guide is swappable via GUIDE_ART / GUIDE.name. Face crop for the round dialogue avatar. */
+export const IRISHNU_AVATAR = GUIDE_ART.avatar;
 /** Axial hub painted floating-island backdrop (entry cinematic still uses SHRINE_IMAGE). */
 HUB.realmBackdrop = RP('axial');
 
@@ -992,7 +1026,7 @@ export const HUB_ART = {
    garden arch (x0 130) to Irishnu at 60% across, 0.6 s hold then 4.5 s sine ease-in-out. */
 export const ARRIVAL = {
   image: 'assets/aretoria/arrival/arrival.jpg', w: 1280, h: 590,
-  irishnu: { src: 'assets/aretoria/arrival/irishnu.webp', box: [671, 412, 799, 584], feet: [735, 566] },
+  irishnu: { src: GUIDE_ART.arrival, box: [671, 412, 799, 584], feet: [735, 566] },
   wisps: { desk: 'assets/aretoria/arrival/wisps-desk.webp', phone: 'assets/aretoria/arrival/wisps-phone.webp' },
   desk: { cx: 640 },
   phone: { x0: 130, irsAt: 0.6, holdMs: 600, panMs: 4500, ease: 'cubic-bezier(0.37, 0, 0.63, 1)' },
@@ -1131,16 +1165,16 @@ export function validateAll() {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Hall of Virtues: the single virtue list (Cassidy's note, Acceptance..Zest)  */
+/* Hall of Virtues: the single virtue list (the author's note, Acceptance..Zest)  */
 /*                                                                            */
 /* To reveal a new advisor later: drop <slug>.jpg into                         */
 /* assets/aretoria/portraits/ and add `portrait: P('<slug>')` to that entry   */
-/* (P = tall portrait, like Cassidy's own; G = landscape/generated art).      */
-/* All 81 virtues have art as of v24: 22 of Cassidy's own + 59 generated.      */
+/* (P = tall portrait, like the author's own; G = landscape/generated art).      */
+/* All 81 virtues have art as of v24: 22 of the author's own + 59 generated.      */
 /* Optional `greet` / `teach` / `ask` / `bless` lines customise the dialogue;  */
 /* without them a gentle default script is used.                              */
 /*                                                                            */
-/* realm: from the V1 realm mapping in Cassidy's Grok notes (fit: 'notes').    */
+/* realm: from the V1 realm mapping in the author's Grok notes (fit: 'notes').    */
 /* Six virtues are not mapped there and use a best fit (fit: 'best').          */
 /* v36: eight moved to balance the temples at 14/14/14/13/13/13 ('balanced').  */
 /* -------------------------------------------------------------------------- */
@@ -1149,14 +1183,14 @@ export const PORTRAIT_DIR = 'assets/aretoria/portraits/';
 export const SHRINE_IMAGE = 'assets/aretoria/shrine.jpg';
 /** Entry shrine mobile portrait (~576×1024), door-biased crop. */
 export const SHRINE_IMAGE_MOBILE = 'assets/aretoria/mobile/shrine.jpg';
-const P = (slug) => `${PORTRAIT_DIR}${slug}.jpg`;   // Cassidy's own portraits (tall, ~2:3)
+const P = (slug) => `${PORTRAIT_DIR}${slug}.jpg`;   // the author's own portraits (tall, ~2:3)
 /* Generated portraits (1024×576 landscape, figure centred). The `wide` flag lets the UI
    show them in a landscape frame when an advisor speaks; small frames crop to the centre. */
 const G = (slug) => { WIDE.add(slug); return P(slug); };
 const WIDE = new Set();
 export const slugify = (name) => String(name).toLowerCase().replace(/[^a-z]/g, '');
 
-/* v36 balance (Cassidy): three temples hold 14 virtues and three hold 13, with the fewest moves from the notes'
+/* v36 balance (author): three temples hold 14 virtues and three hold 13, with the fewest moves from the notes'
    mapping; the eight moved virtues carry fit: 'balanced'. */
 const BALANCED = new Set(['acceptance', 'detachment', 'peace', 'graciousness', 'patience', 'harmony', 'excellence', 'cleanliness']);
 function V(name, realm, essence, extra = {}) {
@@ -1166,19 +1200,19 @@ function V(name, realm, essence, extra = {}) {
 
 export const VIRTUES = [
   V('Acceptance', 'transcendence', 'Embracing what is, so you can act from peace instead of resistance.', { portrait: P('acceptance'),
-    greet: 'Come closer, Cassidy. I am woven of starlight and stillness. I do not ask the universe to be other than it is. I only ask it what comes next.',
+    greet: 'Come closer, {name}. I am woven of starlight and stillness. I do not ask the universe to be other than it is. I only ask it what comes next.',
     teach: 'Acceptance is not surrender. It is the ground you stand on before you move. Whatever you stop fighting, you can finally work with.',
     ask: 'What are you still arguing with that has already happened? What would change if you accepted it today?' }),
   V('Assertiveness', 'courage', 'Speaking your truth and holding your ground with respect.', { portrait: P('assertiveness'),
-    greet: 'Stand up straight, Cassidy. I wear the red of a heart that refuses to stay silent. Say what you mean. Say it kindly. But say it.',
+    greet: 'Stand up straight, {name}. I wear the red of a heart that refuses to stay silent. Say what you mean. Say it kindly. But say it.',
     teach: 'Assertiveness lives between silence and aggression. It is a boundary drawn clearly enough that no one has to guess where you stand.',
     ask: 'What needs to be said that you have been swallowing? To whom, and in what words?' }),
   V('Authenticity', 'justice', 'Living so that the outside matches the inside.', { fit: 'best', portrait: P('authenticity'),
-    greet: 'I have worn many robes across many ages, Cassidy, and every color in them is my own. Be welcome. Here, no one needs a mask.',
+    greet: 'I have worn many robes across many ages, {name}, and every color in them is my own. Be welcome. Here, no one needs a mask.',
     teach: 'Authenticity is integrity turned inward: your words, choices and face all telling the same story. It is the quiet justice you do to yourself.',
     ask: 'Where today did you act like someone you are not? What would the true version of you have done?' }),
   V('Beauty', 'transcendence', 'Seeing and creating splendor that lifts the spirit.', { portrait: P('beauty'),
-    greet: 'Look into my mirror, Cassidy. It does not show a face. It shows what you are able to see. Today, let it show you something lovely.',
+    greet: 'Look into my mirror, {name}. It does not show a face. It shows what you are able to see. Today, let it show you something lovely.',
     teach: 'Beauty is not decoration. It is a doorway. Every time you notice it, you widen the world a little; every time you make it, you give that doorway to someone else.',
     ask: 'What was the most beautiful thing you noticed recently, and what will you make a little more beautiful before the week is out?' }),
   V('Caring', 'humanity', 'Tending to others and yourself with attention and warmth.', { portrait: P('caring'),
@@ -1186,56 +1220,56 @@ export const VIRTUES = [
     teach: 'Caring is attention made practical: noticing what someone needs and quietly providing it. Do not forget to tend your own garden as well.',
     ask: 'Who needs tending this week, including you, and what is one small act of care you can give?' }),
   V('Cleanliness', 'temperance', 'Clearing clutter of space, body and mind so clarity can enter.', { portrait: P('cleanliness'),
-    greet: 'Breathe, Cassidy. The air here has been washed by starlight. Clear water, clear space, clear mind. That is where good choices are born.',
+    greet: 'Breathe, {name}. The air here has been washed by starlight. Clear water, clear space, clear mind. That is where good choices are born.',
     teach: 'Cleanliness is respect made visible: for your body, your home and the people who share them. A cleared surface invites a clear thought.',
     ask: 'What one space, habit or thought could you clear out this week to make room for clarity?' }),
   V('Commitment', 'temperance', 'Keeping faith with your promises over time.', { portrait: P('commitment'),
-    greet: 'I hold a heart between two hands, Cassidy, bound by rings and an anchor. Every vow you keep makes it shine a little brighter.',
+    greet: 'I hold a heart between two hands, {name}, bound by rings and an anchor. Every vow you keep makes it shine a little brighter.',
     teach: 'Commitment is temperance stretched across time: choosing the same good thing again on the days it is not exciting. Its strength is quiet and cumulative.',
     ask: 'Which promise, to yourself or someone else, most deserves your recommitment this week?' }),
   V('Compassion', 'humanity', 'Feeling with another’s suffering and moving to ease it.', { portrait: P('compassion'),
-    greet: 'Your heart is welcome here, Cassidy, whole or bruised. See, I hold one too. It glows brighter when it is shared.',
+    greet: 'Your heart is welcome here, {name}, whole or bruised. See, I hold one too. It glows brighter when it is shared.',
     teach: 'Compassion is empathy that moves its feet. You feel the pain, and then you do something kind about it, for others and for yourself.',
     ask: 'Whose suffering touched you recently, and what is one kind thing you could do about it?' }),
   V('Confidence', 'courage', 'Trusting your worth and your ability to meet what comes.', { portrait: P('confidence'),
-    greet: 'Raise your eyes, Cassidy. This crown is not for me alone. Every soul who knows its worth wears one, even if no one else can see it.',
+    greet: 'Raise your eyes, {name}. This crown is not for me alone. Every soul who knows its worth wears one, even if no one else can see it.',
     teach: 'Confidence is not certainty of success. It is certainty that you will meet the outcome with integrity. Build it from evidence: promises kept, fears faced.',
     ask: 'What evidence do you already have that you can handle what is in front of you?' }),
   V('Consideration', 'humanity', 'Thoughtful awareness: seeing all sides before acting.', { portrait: P('consideration'),
-    greet: 'Pause with me, Cassidy. I hold a small scale of light, one pan for your needs and one for theirs. Let us see how it settles.',
+    greet: 'Pause with me, {name}. I hold a small scale of light, one pan for your needs and one for theirs. Let us see how it settles.',
     teach: 'Consideration is mindful deliberation, the gentle art of seeing all sides before acting. It turns reactions into choices.',
     ask: 'Whose perspective did you overlook recently? How might the situation look from where they stand?' }),
   V('Contentment', 'temperance', 'Profound inner peace and the gentle acceptance of what is.', { portrait: P('contentment'),
-    greet: 'Rest a moment, Cassidy. My bowl is full of warm light, and it is enough. I think you may already have more than you notice.',
+    greet: 'Rest a moment, {name}. My bowl is full of warm light, and it is enough. I think you may already have more than you notice.',
     teach: 'Contentment is quiet fulfillment: not wanting nothing, but knowing that what is here is sufficient for this moment. Enough is a feast.',
     ask: 'What in your life right now is already enough? Name three things.' }),
   V('Cooperation', 'justice', 'Unity, mutual support and the joyful power of working together.', { portrait: P('cooperation'),
-    greet: 'Open your hands, Cassidy. Light grows strongest where many hands meet. Who are you building with?',
+    greet: 'Open your hands, {name}. Light grows strongest where many hands meet. Who are you building with?',
     teach: 'Cooperation is the joyful power of working toward a shared purpose. It asks you to bring your strength and leave room for everyone else’s.',
     ask: 'Where could you invite someone in instead of carrying it alone?' }),
   V('Courage', 'courage', 'Acting in the presence of fear when the action serves your principles.', { portrait: P('courage'),
-    greet: 'Cassidy. I have walked through the abyss and come back. Stand at my shoulder a moment. What is the edge in front of you?',
+    greet: '{Name}. I have walked through the abyss and come back. Stand at my shoulder a moment. What is the edge in front of you?',
     teach: 'Feel the fear. It is the edge of the known. Honor it as a signal, not a sentence. True bravery is not the absence of fear; it is choosing to act in its presence when the action serves your principles.',
     ask: 'Name the single, deliberate step you will take toward what frightens you.',
-    bless: 'Say it with a breath or a fist to the chest: “I feel the edge. I choose the step. I am the force.” I answer every time, Cassidy.' }),
+    bless: 'Say it with a breath or a fist to the chest: “I feel the edge. I choose the step. I am the force.” I answer every time, {name}.' }),
   V('Creativity', 'wisdom', 'Making the new from the given; asking “what if?”', { portrait: P('creativity'),
-    greet: 'Ah, Cassidy! Every color in my robe was once an idea nobody had tried. Shall we try another?',
+    greet: 'Ah, {name}! Every color in my robe was once an idea nobody had tried. Shall we try another?',
     teach: 'Creativity twists the threads of the ordinary into the extraordinary. Let your mind wander like a river finding new paths, then build what you find.',
     ask: 'What is one thing you could create, build or reimagine this week, just because you can?' }),
   V('Detachment', 'transcendence', 'Loving fully while holding outcomes lightly.', { portrait: P('detachment'),
-    greet: 'Float with me, Cassidy. Up here, the things that clutch at you look smaller. Let us loosen their grip together.',
+    greet: 'Float with me, {name}. Up here, the things that clutch at you look smaller. Let us loosen their grip together.',
     teach: 'Detachment is not coldness. It is release: caring deeply while letting go of what you cannot control. Your heart stays open and your hands stay free.',
     ask: 'What outcome are you gripping too tightly? What would it feel like to hold it with open hands?' }),
   V('Determination', 'courage', 'Relentless resolve that carries a goal through difficulty.', { portrait: P('determination'),
-    greet: 'You found me at the stone, Cassidy. I have been working it all night. Some things do not move until you decide they will.',
+    greet: 'You found me at the stone, {name}. I have been working it all night. Some things do not move until you decide they will.',
     teach: 'Determination is the decision made once and kept every morning. It does not need to be loud. It just needs to keep showing up.',
     ask: 'What goal deserves your stubbornness right now, and what is the first move you will make on it?' }),
   V('Dignity', 'justice', 'Honoring the worth in yourself and in every person.', { portrait: P('dignity'),
-    greet: 'Be welcome, Cassidy. You carry yourself like someone who knows his worth. Good. Now let us make sure everyone around you is treated as though they do too.',
+    greet: 'Be welcome, {name}. You carry yourself like someone who knows his worth. Good. Now let us make sure everyone around you is treated as though they do too.',
     teach: 'Dignity is the respect owed to every person simply for being one, yourself included. It is a quiet standard you keep even when no one is watching.',
     ask: 'Where did you, or someone near you, lose a little dignity recently? How can it be restored?' }),
   V('Empathy', 'humanity', 'Feeling with another and seeing through their eyes.', { portrait: P('empathy'),
-    greet: 'Step inside the star, Cassidy. Every point of it is someone else’s view of the world. From here, you can see through all of them.',
+    greet: 'Step inside the star, {name}. Every point of it is someone else’s view of the world. From here, you can see through all of them.',
     teach: 'Empathy is the thread that binds souls. Step into the pool of another’s story and let your heart weave with theirs before you judge or advise.',
     ask: 'Whose world could you step into this week? What do you think they are feeling right now?' }),
   V('Encouragement', 'humanity', 'Lifting others’ spirits and belief in themselves.', { portrait: G('encouragement'), ask: "Who near you is about to quit on something good? What will you say to them?" }),
@@ -1247,7 +1281,7 @@ export const VIRTUES = [
   V('Faith', 'transcendence', 'Trusting what cannot yet be seen.', { portrait: G('faith'), ask: "What are you trusting that you cannot yet see? What small act would honor that trust?" }),
   V('Flexibility', 'wisdom', 'Adapting gracefully when the path changes.', { portrait: G('flexibility'), ask: "Which plan are you holding so rigidly it has started to crack? What could bend?" }),
   V('Forgiveness', 'temperance', 'Releasing grudges so the heart can move freely.', { portrait: P('forgiveness'),
-    greet: 'Let the golden light fall on you, Cassidy. Nothing you carry is too heavy to set down here.',
+    greet: 'Let the golden light fall on you, {name}. Nothing you carry is too heavy to set down here.',
     teach: 'Forgiveness is release, not approval. You let go of the debt so it stops collecting interest in your heart, and you keep the lesson.',
     ask: 'Who, perhaps yourself, are you ready to forgive, even a little? What would you let go of?' }),
   V('Friendliness', 'humanity', 'Warm openness that makes others feel welcome.', { portrait: G('friendliness'), ask: "Who could you greet first, warmly, this week, before they greet you?" }),
@@ -1282,17 +1316,17 @@ export const VIRTUES = [
   V('Quietudeness', 'temperance', 'A cultivated inner quiet.', { fit: 'best', portrait: P('quietudeness'), ask: "Where is the noise loudest in you? What would ten minutes of quiet reveal?" }),
   V('Reliability', 'justice', 'Being someone others can count on.', { portrait: G('reliability'), ask: "Who is counting on you right now? What will you deliver, and by when?" }),
   V('Resilience', 'courage', 'Rebounding from setbacks stronger than before.', { portrait: P('resilience'),
-    greet: 'Pull up a stool by the forge, Cassidy. I have been hammered more times than I can count. Look at me. Still here, and stronger at the seams.',
+    greet: 'Pull up a stool by the forge, {name}. I have been hammered more times than I can count. Look at me. Still here, and stronger at the seams.',
     teach: 'Resilience is the art of weaving strength from fractures. Bend, but never break; each trial forges you anew, and the scars become veins of gold.',
     ask: 'What setback are you recovering from, and what has it taught you that makes you stronger?' }),
   V('Resolve', 'courage', 'A firm decision that does not waver under pressure.', { fit: 'best', portrait: P('resolve'),
-    greet: 'You walked a long way through the forest to find me, Cassidy. That is resolve already. Lean on my staff a moment.',
+    greet: 'You walked a long way through the forest to find me, {name}. That is resolve already. Lean on my staff a moment.',
     teach: 'Resolve is the decision behind the decision: settled so deeply that pressure cannot reopen it. Decide once, then let the decision carry you.',
     ask: 'What have you already decided in your heart but not yet committed to? Seal it here.' }),
   V('Respect', 'justice', 'Honoring the worth and boundaries of all.', { portrait: G('respect'), ask: "Whose boundary or worth did you step past? How can you honor it next time?" }),
   V('Responsibility', 'justice', 'Owning your tasks and their consequences.', { portrait: G('responsibility'), ask: "What consequence of yours are you still leaving for someone else to carry?" }),
   V('Reverence', 'transcendence', 'Honoring the sacred in all things.', { portrait: P('reverence'),
-    greet: 'Hush, Cassidy. Listen to the stars. I am made of them, and so are you. Everything here is holy if you look long enough.',
+    greet: 'Hush, {name}. Listen to the stars. I am made of them, and so are you. Everything here is holy if you look long enough.',
     teach: 'Reverence is honoring the sacred, the vastness that holds you and the small things that carry it. It turns ordinary moments into temples.',
     ask: 'Where did you feel the sacred recently, in a person, place or moment?' }),
   V('Self-discipline', 'temperance', 'Mastery over impulse in service of what matters.', { portrait: G('selfdiscipline'), ask: "Which impulse keeps winning? What will you do the next time it calls?" }),
@@ -1330,13 +1364,13 @@ export const advisorKey = (iso, v) => `mec-realm:${iso}:${v.realm}:${v.slug}`;
 
 /** Rotating farewells for advisors without a custom `bless` (no shared closing formula). */
 const BLESS = [
-  (n) => `Go with ${n}, Cassidy. I will be here when you want counsel again.`,
+  (n) => `Go with ${n}, {name}. I will be here when you want counsel again.`,
   (n) => `Carry ${n} lightly. It grows heavier with use, in the good way.`,
   (n) => `That answer is a seed. Let ${n} water it.`,
-  (n) => `Thank you for listening, Cassidy. ${n.charAt(0).toUpperCase() + n.slice(1)} rarely gets such a good audience.`,
+  (n) => `Thank you for listening, {name}. ${n.charAt(0).toUpperCase() + n.slice(1)} rarely gets such a good audience.`,
   (n) => `Walk on. If you forget me, ${n} will find a way to remind you.`,
   (n) => `Well spoken. Come back and tell me what ${n} changed.`,
-  (n) => `Keep that close, Cassidy. ${n.charAt(0).toUpperCase() + n.slice(1)} is patient, but it likes to be practiced.`
+  (n) => `Keep that close, {name}. ${n.charAt(0).toUpperCase() + n.slice(1)} is patient, but it likes to be practiced.`
 ];
 
 /** Scripted dialogue for a virtue advisor (custom lines if present, gentle defaults otherwise). */
@@ -1347,7 +1381,7 @@ export function advisorDialogue(v) {
     start: 'greet',
     nodes: {
       greet: {
-        text: v.greet || `Welcome, Cassidy. I am the Advisor of ${v.name}, from the ${realm.name} Realm. What I hold is this: ${v.essence.charAt(0).toLowerCase()}${v.essence.slice(1)}`,
+        text: v.greet || `Welcome, {name}. I am the Advisor of ${v.name}, from the ${realm.name} Realm. What I hold is this: ${v.essence.charAt(0).toLowerCase()}${v.essence.slice(1)}`,
         choices: [
           { label: 'What do you teach?', next: 'teach' },
           { label: 'Ask me your question.', next: 'reflect' },
