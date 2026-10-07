@@ -28,12 +28,30 @@ import {
   advisorsFor, advisorDialogue, advisorTitle, advisorKey, virtueBySlug,
   guardianRole, guardianLine, guardianPortraitPath, irishnuPortraitPath, realmBackdropPath, HUB_ART, IRISHNU_AVATAR,
   mobileArtPath, pickArtPath, ART_MOBILE_MQ, ARRIVAL, arrivalWindow,
-  NAME_KEY, NAME_ASKED_KEY, NAME_MAX, NAME_FALLBACK, cleanName, nameForms, guideName, GUIDE_ART
-} from './aretoria-data.js?v=37';
-import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=37';
+  NAME_KEY, NAME_ASKED_KEY, FIRST_VISIT_KEY, NAME_MAX, NAME_FALLBACK, cleanName, nameForms, guideName, GUIDE_ART
+} from './aretoria-data.js?v=38';
+import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=38';
 
-const VERSION = 37;
+const VERSION = 38;
 const MET_KEY = 'mec-aretoria:met-irishnu';
+const FIRST_SESSION_KEY = 'mec-aretoria:first-visit-session'; // sessionStorage: this visit (browser session) began as the first
+
+/* ---------- first visit vs later visits (v63) ----------
+   The first visit's guide conversation opens on one door ("What are the realms?"), whose answer offers the Shadow
+   question, today's realm, or "Let me explore." When that first conversation closes, FIRST_VISIT_KEY is stored
+   next to the name; the rest of that session stays a first visit, and every later visit opens on just
+   "Where should I go today?" and "I know the way. Let me explore." */
+function firstVisit() {
+  try { return !!sessionStorage.getItem(FIRST_SESSION_KEY) || !localStorage.getItem(FIRST_VISIT_KEY); } catch { return !S.firstDoneHere; }
+}
+function markFirstVisitDone() {
+  S.firstDoneHere = true;
+  try { if (!localStorage.getItem(FIRST_VISIT_KEY)) { localStorage.setItem(FIRST_VISIT_KEY, '1'); sessionStorage.setItem(FIRST_SESSION_KEY, '1'); } } catch { /* private mode */ }
+}
+/** Visitors from before v63 who already met the guide are returning visitors. */
+function migrateFirstVisit() {
+  try { if (localStorage.getItem(MET_KEY) && !localStorage.getItem(FIRST_VISIT_KEY) && !sessionStorage.getItem(FIRST_SESSION_KEY)) localStorage.setItem(FIRST_VISIT_KEY, '1'); } catch { /* ignore */ }
+}
 
 /* ---------- the visitor's name (localStorage only; never sent anywhere) ---------- */
 function storedName() { try { return cleanName(localStorage.getItem(NAME_KEY) || ''); } catch { return ''; } }
@@ -757,8 +775,10 @@ function openDialogue(opts) {
   closeDialogue(true);
   rememberFocus();
   const sp = speakerFor(opts);
-  const first = opts.arrival && sp.tree.arrivalStart && sp.tree.nodes[sp.tree.arrivalStart] ? sp.tree.arrivalStart : sp.tree.start;
-  S.dlg = { ...sp, opts, ctx: tokenContext(new Date(), undefined, visitorName()), node: first };
+  const fv = opts.kind === 'guide' && !!sp.tree.firstStart && firstVisit();
+  const pick = (k) => (sp.tree[k] && sp.tree.nodes[sp.tree[k]] ? sp.tree[k] : null);
+  const first = (opts.arrival && (fv ? pick('firstArrivalStart') : pick('arrivalStart'))) || (fv && pick('firstStart')) || sp.tree.start;
+  S.dlg = { ...sp, opts, ctx: tokenContext(new Date(), undefined, visitorName()), node: first, firstVisit: fv };
   const d = $('.ar-dlg');
   d.classList.toggle('ar-dlg-photo', !!sp.virtue);
   $('.ar-dlg-portrait').innerHTML = sp.portrait;
@@ -827,6 +847,7 @@ function closeDialogue(silent) {
   root.querySelectorAll('.speaking').forEach((e) => e.classList.remove('speaking'));
   const st = $('.ar-stage'); st.classList.remove('show'); st.hidden = true; st.innerHTML = '';
   const wasOpen = !!S.dlg;
+  if (wasOpen && S.dlg.firstVisit) markFirstVisitDone(); // the first conversation has been had
   S.dlg = null;
   if (wasOpen) restoreFocus();
   if (wasOpen && !silent) hint(S.view === 'axial' ? hubHint() : 'Tap the Guardian or an advisor to speak');
@@ -1274,6 +1295,7 @@ export async function openAretoria(opts = {}) {
   if (!root) build();
   if (S.open) { if (opts.realm) travel(opts.realm); return; }
   S.open = true;
+  migrateFirstVisit();
   S.artMobile = preferMobileArt();
   S.returnFocus = opts.returnFocus || document.activeElement;
   if (!nameAsked()) { $('.ar-name').hidden = false; $('.ar-name').classList.add('first'); } // same frame as the root: no flash
