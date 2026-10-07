@@ -129,12 +129,12 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('apple-mobile-web-app-title is Aretoria', /apple-mobile-web-app-title" content="Aretoria"/.test(html));
   assert('no MEC calendar / CaptainLog UI on page', !/month-grid|captains-log|panel-calendar|Modern Era Calendar/.test(html));
   assert('Irishnu mentioned as the Guide on landing', /Irishnu the Guide/.test(html));
-  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=37/.test(boot));
-  assert('SW is aretoria-v37', /aretoria-v37/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
+  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=38/.test(boot));
+  assert('SW is aretoria-v38', /aretoria-v38/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
   assert('SW precaches Aretoria code + shell', ['aretoria.js', 'aretoria-data.js', 'aretoria-art.js', 'aretoria.css', 'boot.js', 'shell.css'].every((f) => sw.includes(`./${f}`)));
   assert('SW does not precache portraits/guardians/realms', !/assets\/aretoria\/[^']*\.jpg/.test(noComments(sw)) && !/guardians\//.test(noComments(sw)) && !/realms\//.test(noComments(sw)));
-  assert('aretoria.js VERSION = 37 and imports data/art ?v=37; boot imports aretoria.js?v=37', /const VERSION = 37;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=37'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=37'/.test(src('./aretoria.js')) && /aretoria\.js\?v=37'/.test(src('./boot.js')));
-  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=37', /shell\.css\?v=18/.test(html) && /boot\.js\?v=37/.test(html) && /sw\.js\?v=37/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
+  assert('aretoria.js VERSION = 38 and imports data/art ?v=38; boot imports aretoria.js?v=38', /const VERSION = 38;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=38'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=38'/.test(src('./aretoria.js')) && /aretoria\.js\?v=38'/.test(src('./boot.js')));
+  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=38', /shell\.css\?v=18/.test(html) && /boot\.js\?v=38/.test(html) && /sw\.js\?v=38/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
   assert('manifest name Aretoria, scope /aretoria/', /"name": "Aretoria"/.test(src('./manifest.webmanifest')) && /"scope": "\/aretoria\/"/.test(src('./manifest.webmanifest')));
   assert('link back to Captain’s Log present', /modern-era-calendar/.test(html));
 }
@@ -240,11 +240,11 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
 {
   console.log('\n--- v35 Irishnu lore pass (all of his lines) ---');
   const N = GUIDE.dialogue.nodes, all = Object.values(N).map((n) => n.text).join(' '), aj = noComments(src('./aretoria.js'));
-  assert('arrival greeting is its own first line, opened only by the arrival', GUIDE.dialogue.arrivalStart === 'arrive' && !!N.arrive && GUIDE.dialogue.start === 'greet' && /opts\.arrival && sp\.tree\.arrivalStart && sp\.tree\.nodes\[sp\.tree\.arrivalStart\] \? sp\.tree\.arrivalStart : sp\.tree\.start/.test(aj));
+  assert('arrival greeting is its own first line, opened only by the arrival', GUIDE.dialogue.arrivalStart === 'arrive' && !!N.arrive && GUIDE.dialogue.start === 'greet' && /\(opts\.arrival && \(fv \? pick\('firstArrivalStart'\) : pick\('arrivalStart'\)\)\) \|\| \(fv && pick\('firstStart'\)\) \|\| sp\.tree\.start/.test(aj));
   assert('both entry points validate (arrive + greet reachable, all choices resolve)', validateTree(GUIDE.dialogue).length === 0);
   assert('arrive greets the visitor who came through the central portal of the Axial Realm', /portal/.test(N.arrive.text) && /Axial Realm/.test(N.arrive.text) && /center/.test(N.arrive.text));
-  assert('he wears ivory-and-sapphire armor now: no robe in his lines', !/\brobes?\b/i.test(all) && /ivory and sapphire/.test(N.who.text) && /armor/.test(N.who.text) && GUIDE.look === 'ivory-and-sapphire armor');
-  assert('he is the visitor\'s reflection: "the self you send ahead", addressed by {name}', /the self you send ahead/.test(N.who.text) && /\{name\}/.test(N.who.text));
+  assert('he wears ivory-and-sapphire armor now: no robe in his lines', !/\brobes?\b/i.test(all) && GUIDE.look === 'ivory-and-sapphire armor');
+  assert('v63: the old third question ("Who are you, really?") and its answer are gone', !N.who && !JSON.stringify(GUIDE).includes('Who are you, really?') && !/the self you send ahead/.test(all));
   assert('the Axial Realm is "the shared realm of existence" (HUB.sub)', HUB.sub === 'The shared realm of existence' && /shared realm of existence/.test(N.greet.text) && /shared realm of existence/.test(N.arrive.text));
   assert('81 virtues, each in exactly one of the six great temples; none on the axis (v36)', VIRTUES.length === 81 && /The eighty-one virtues are shared among those six temples/.test(N.realms.text) && !('virtues' in HUB) && !/axis/.test(N.realms.text.split('Axial Realm')[0]));
   assert('names every realm Guardian from the app data, and calls them advisors', REALMS.every((r) => N.realms.text.includes(r.guardian.name)) && /first advisor/.test(N.realms.text) && !/kettle/.test(N.realms.text));
@@ -329,6 +329,25 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('the prompt owns the keyboard (Enter submits, Esc skips) and its clicks never reach the hub', /if \(!\$\('\.ar-name'\)\.hidden\) return;/.test(aj) && /e\.key === 'Escape'\) \{ e\.preventDefault\(\); \$\('\.ar-name-skip'\)\.click\(\); \}/.test(aj) && /box\.addEventListener\('click', \(e\) => e\.stopPropagation\(\)\)/.test(aj));
   assert('guide swappable: one name config + one art config', D.GUIDE.name === D.GUIDE_NAME_DEFAULT && D.GUIDE_NAME_DEFAULT === 'Irishnu' && D.guideName() === 'Irishnu' && D.GUIDE_ART.portrait === D.IRISHNU_PORTRAIT && D.GUIDE_ART.avatar === D.IRISHNU_AVATAR && D.ARRIVAL.irishnu.src === D.GUIDE_ART.arrival && D.GUIDE.portrait === D.GUIDE_ART.portrait);
   assert('UI names the guide through guideName() (card, aria, hint), never a literal', !/\bIrishnu\b/.test(aj) && /hubHint = \(\) => `Tap a gate to travel · tap \$\{guideName\(\)\} to talk`/.test(aj) && /esc\(GUIDE_ART\.avatar\)/.test(aj));
+}
+
+{
+  console.log('\n--- v63: the guide\'s first conversation vs later visits ---');
+  const D = await import('./aretoria-data.js?v=test63');
+  const T = D.GUIDE.dialogue, N = T.nodes, labels = (id) => N[id].choices.map((c) => c.label);
+  const nexts = (id) => N[id].choices.map((c) => c.next);
+  const aj = noComments(src('./aretoria.js'));
+  assert('first visit, step 1: the only choice is "What are the realms?" (arrival and card)', T.firstArrivalStart === 'arriveFirst' && T.firstStart === 'greetFirst' && eq(labels('arriveFirst'), ['What are the realms?']) && eq(labels('greetFirst'), ['What are the realms?']) && eq(nexts('arriveFirst'), ['realms']));
+  assert('first visit keeps the same greeting text as later visits', N.arriveFirst.text === N.arrive.text && N.greetFirst.text === N.greet.text);
+  const R = N.realms.text;
+  assert('the realms answer names all six temples with their virtues, the 81, the Guardians, Shadow across its bridge and the Axial hall', [['Wisdom', 'Prism of Insight'], ['Courage', 'Forge of Valor'], ['Humanity', 'Hearth of Hearts'], ['Justice', 'Scales of Equity'], ['Temperance', 'Veil of Balance'], ['Transcendence', 'Nebula of Awe']].every(([v, t]) => R.includes(`${v} in the ${t}`)) && D.REALMS.filter((r) => r.id !== 'shadow').every((r) => R.includes(r.temple)) && /eighty-one/.test(R) && /Across its own bridge lies the Shadow Realm, watched by the Guardian of the Veil/.test(R) && /Axial Realm, the shared hall/.test(R));
+  assert('step 2: Shadow question, "Where should I go today?", "Let me explore." (not "I know the way")', eq(labels('realms'), ['And the Shadow Realm?', 'Where should I go today?', 'Let me explore.']) && eq(nexts('realms'), ['shadow', 'today', 'go']));
+  assert('later visits: only "Where should I go today?" and "I know the way. Let me explore."', ['arrive', 'greet'].every((id) => eq(labels(id), ['Where should I go today?', 'I know the way. Let me explore.']) && eq(nexts(id), ['today', 'go'])) && T.arrivalStart === 'arrive' && T.start === 'greet');
+  assert('"I know the way" never appears on the first-visit path', ['arriveFirst', 'greetFirst', 'realms'].every((id) => !labels(id).some((l) => /know the way/i.test(l))));
+  assert('all four entry points validate and reach every node', D.validateTree(T).length === 0 && Object.keys(N).length === 8);
+  assert('first-visit-done flag lives next to the name in localStorage', D.FIRST_VISIT_KEY === 'mec-aretoria:first-visit-done' && /localStorage\.setItem\(FIRST_VISIT_KEY, '1'\)/.test(aj));
+  assert('the first visit lasts its session; the flag is set when that first conversation closes', /function firstVisit\(\) \{\s*try \{ return !!sessionStorage\.getItem\(FIRST_SESSION_KEY\) \|\| !localStorage\.getItem\(FIRST_VISIT_KEY\);/.test(aj) && /if \(wasOpen && S\.dlg\.firstVisit\) markFirstVisitDone\(\);/.test(aj) && /const fv = opts\.kind === 'guide' && !!sp\.tree\.firstStart && firstVisit\(\);/.test(aj));
+  assert('visitors who met the guide before v63 count as returning', /function migrateFirstVisit\(\) \{[^\n]*\n\s*try \{ if \(localStorage\.getItem\(MET_KEY\) && !localStorage\.getItem\(FIRST_VISIT_KEY\)/.test(aj) && /S\.open = true;\n\s*migrateFirstVisit\(\);/.test(aj));
 }
 
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`);

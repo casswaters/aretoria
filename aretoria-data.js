@@ -102,6 +102,8 @@ export const TOKENS = ['ritual', 'ritualLine', 'suggest', 'suggestTemple', 'sugg
    start). Names are cleaned to letters (any script), spaces, hyphens and apostrophes, at most NAME_MAX. */
 export const NAME_KEY = 'mec-aretoria:name';
 export const NAME_ASKED_KEY = 'mec-aretoria:name-asked';
+/** Set once the visitor's first conversation with the guide ends; later visits get the short return greeting. */
+export const FIRST_VISIT_KEY = 'mec-aretoria:first-visit-done';
 export const NAME_FALLBACK = 'traveler';
 export const NAME_MAX = 24;
 export function cleanName(raw) {
@@ -146,6 +148,9 @@ export const HUB = {
 /* The reflection guide is swappable (ROADMAP: each visitor may later name their own guide and design its
    costume). Dialogue says {guide}, never the name; the portraits live in GUIDE_ART only. */
 export const GUIDE_NAME_DEFAULT = 'Irishnu';
+const ARRIVE_TEXT = "{Name}. Steady now; the portal sets everyone down a little dazzled. You are standing at the center of the Axial Realm, the shared realm of existence: one whole, with every realm held inside it. The golden thread runs through every bridge and portal. I hold the threshold, and, when it is needed, the traveler’s attention.";
+const GREET_TEXT = "Ah, {name}. Right on time, or time is right on you; from the center it is hard to tell which. This is the Axial Realm, the shared realm of existence: one whole, with every realm held inside it. The golden thread runs through every bridge and portal. I hold the threshold, and, when it is needed, the traveler’s attention.";
+
 export const GUIDE = {
   id: 'irishnu',
   name: GUIDE_NAME_DEFAULT,
@@ -155,40 +160,39 @@ export const GUIDE = {
   color: '#f1d58e',
   dialogue: {
     start: 'greet',
-    arrivalStart: 'arrive', // the first-visit greeting at the portal (Axial arrival); later taps on his card open 'greet'
+    arrivalStart: 'arrive', // the greeting at the portal (Axial arrival); later taps on his card open 'greet'
+    firstStart: 'greetFirst', firstArrivalStart: 'arriveFirst', // first visit only (see FIRST_VISIT_KEY)
     nodes: {
+      // First visit (no FIRST_VISIT_KEY yet): one door only, the realms; the answer then offers three.
+      arriveFirst: {
+        text: ARRIVE_TEXT,
+        choices: [{ label: 'What are the realms?', next: 'realms' }]
+      },
+      greetFirst: {
+        text: GREET_TEXT,
+        choices: [{ label: 'What are the realms?', next: 'realms' }]
+      },
+      // Every later visit: straight to the day, or out the door.
       arrive: {
-        text: "{Name}. Steady now; the portal sets everyone down a little dazzled. You are standing at the center of the Axial Realm, the shared realm of existence: one whole, with every realm held inside it. The golden thread runs through every bridge and portal. I hold the threshold, and, when it is needed, the traveler’s attention.",
+        text: ARRIVE_TEXT,
         choices: [
-          { label: 'What are the realms?', next: 'realms' },
           { label: 'Where should I go today?', next: 'today' },
-          { label: 'Why is there a Shadow Realm?', next: 'shadow' },
           { label: 'I know the way. Let me explore.', next: 'go' }
         ]
       },
       greet: {
-        text: "Ah, {name}. Right on time, or time is right on you; from the center it is hard to tell which. This is the Axial Realm, the shared realm of existence: one whole, with every realm held inside it. The golden thread runs through every bridge and portal. I hold the threshold, and, when it is needed, the traveler’s attention.",
+        text: GREET_TEXT,
         choices: [
-          { label: 'What are the realms?', next: 'realms' },
           { label: 'Where should I go today?', next: 'today' },
-          { label: 'Why is there a Shadow Realm?', next: 'shadow' },
           { label: 'I know the way. Let me explore.', next: 'go' }
         ]
       },
       realms: {
-        text: "Six great temples, {name}, each holding one great virtue: Wisdom, Courage, Humanity, Justice, Temperance and Transcendence. The eighty-one virtues are shared among those six temples, each with a single home. Every temple’s Guardian is its first advisor: Sophia, Valorix, Amara, Justar, Moder and Auria, in that order. The virtues housed with them are advisors too. Across its own bridge lies the Shadow Realm, watched by the Guardian of the Veil. And this is the Axial Realm, the shared hall that joins them all; the portal set you down in the middle of it. Every door opens from here. That is rather the point of a hall.",
+        text: "Six great temples, {name}, each holding one great virtue: Wisdom in the Prism of Insight, Courage in the Forge of Valor, Humanity in the Hearth of Hearts, Justice in the Scales of Equity, Temperance in the Veil of Balance, and Transcendence in the Nebula of Awe. The eighty-one virtues are shared among those six temples, each with a single home. Every temple’s Guardian is its first advisor: Sophia, Valorix, Amara, Justar, Moder and Auria, in that order. The virtues housed with them are advisors too. Across its own bridge lies the Shadow Realm, watched by the Guardian of the Veil from the Veil of Shadows: where what is out of balance gets looked at honestly instead of hidden. And this is the Axial Realm, the shared hall that joins them all; the portal set you down in the middle of it. Every door opens from here. That is rather the point of a hall.",
         choices: [
-          { label: 'Where should I go today?', next: 'today' },
           { label: 'And the Shadow Realm?', next: 'shadow' },
-          { label: 'Who are you, really?', next: 'who' },
-          { label: 'Thank you. I’ll explore.', next: 'go' }
-        ]
-      },
-      who: {
-        text: "Your guide, and your reflection: the self you send ahead into Aretoria, in ivory and sapphire, so that someone at the center always remembers why you came. I point at doors, and now and then at the one walking through them; you are the door that matters most and opens least. Every realm out there is one face of the same whole, {name}, and so are you. I am simply the reminder, armored so you will take me seriously.",
-        choices: [
           { label: 'Where should I go today?', next: 'today' },
-          { label: 'Then remind me: let me explore.', next: 'go' }
+          { label: 'Let me explore.', next: 'go' }
         ]
       },
       today: {
@@ -1119,9 +1123,9 @@ export function validateTree(tree, realmIds = REALM_IDS, ctx = { suggestId: 'wis
   if (!tree || !tree.nodes) return ['missing tree'];
   const ids = Object.keys(tree.nodes);
   if (!tree.nodes[tree.start]) errs.push(`start node "${tree.start}" missing`);
-  if (tree.arrivalStart && !tree.nodes[tree.arrivalStart]) errs.push(`arrival start node "${tree.arrivalStart}" missing`);
+  for (const k of ['arrivalStart', 'firstStart', 'firstArrivalStart']) if (tree[k] && !tree.nodes[tree[k]]) errs.push(`${k} node "${tree[k]}" missing`);
   // a tree may have a second entry point (Irishnu's arrival greeting); both roots count for reachability
-  const seen = new Set([tree.start, ...(tree.arrivalStart ? [tree.arrivalStart] : [])]);
+  const seen = new Set([tree.start, ...['arrivalStart', 'firstStart', 'firstArrivalStart'].filter((k) => tree[k]).map((k) => tree[k])]);
   const queue = [...seen];
   while (queue.length) {
     const id = queue.shift();
