@@ -646,4 +646,7 @@ html:has(.ar:not([hidden])), html:has(.ar:not([hidden])) body { background: #050
 .ar-name-note { margin: 6px 0 0; font-size: .86rem; color: #a99fbd; font-style: italic; }
 .ar-hall-you { text-align: center; margin: -4px 0 12px; font-size: .98rem; color: #d9d2e8; }
 .ar-hall-you .ar-linkbtn { min-height: 32px; font-size: .95rem; }
+.ar-hall-sep { margin: 0 6px 0 4px; color: rgba(227,191,108,.6); }
+.ar-hall-replay { text-align: center; margin: -8px 0 12px; min-height: 0; font-size: .9rem; font-style: italic; color: var(--gold-b, #f6e2a6); }
+.ar-hall-replay:empty { display: none; }
 .ar-name.edit .ar-name-card { background: linear-gradient(180deg, #17122c, #0b0819); }
