@@ -541,8 +541,8 @@ function sceneHub(img) {
 }
 
 export const SCENES = {
-  wisdom: sceneWisdom, courage: sceneCourage, humanity: sceneHumanity, justice: sceneJustice,
-  temperance: sceneTemperance, transcendence: sceneTranscendence, shadow: sceneShadow, axial: sceneHub
+  courage: sceneCourage, justice: sceneJustice, humanity: sceneHumanity, temperance: sceneTemperance,
+  wisdom: sceneWisdom, transcendence: sceneTranscendence, shadow: sceneShadow, axial: sceneHub
 };
 
 /* ========================================================================== */

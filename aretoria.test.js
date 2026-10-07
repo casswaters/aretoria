@@ -129,12 +129,12 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('apple-mobile-web-app-title is Aretoria', /apple-mobile-web-app-title" content="Aretoria"/.test(html));
   assert('no MEC calendar / CaptainLog UI on page', !/month-grid|captains-log|panel-calendar|Modern Era Calendar/.test(html));
   assert('Irishnu mentioned as the Guide on landing', /Irishnu the Guide/.test(html));
-  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=41/.test(boot));
-  assert('SW is aretoria-v41', /aretoria-v41/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
+  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=42/.test(boot));
+  assert('SW is aretoria-v42', /aretoria-v42/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
   assert('SW precaches Aretoria code + shell', ['aretoria.js', 'aretoria-data.js', 'aretoria-art.js', 'aretoria.css', 'boot.js', 'shell.css'].every((f) => sw.includes(`./${f}`)));
   assert('SW does not precache portraits/guardians/realms', !/assets\/aretoria\/[^']*\.jpg/.test(noComments(sw)) && !/guardians\//.test(noComments(sw)) && !/realms\//.test(noComments(sw)));
-  assert('aretoria.js VERSION = 41 and imports data/art ?v=41; boot imports aretoria.js?v=41', /const VERSION = 41;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=41'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=41'/.test(src('./aretoria.js')) && /aretoria\.js\?v=41'/.test(src('./boot.js')));
-  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=41', /shell\.css\?v=18/.test(html) && /boot\.js\?v=41/.test(html) && /sw\.js\?v=41/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
+  assert('aretoria.js VERSION = 42 and imports data/art ?v=42; boot imports aretoria.js?v=42', /const VERSION = 42;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=42'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=42'/.test(src('./aretoria.js')) && /aretoria\.js\?v=42'/.test(src('./boot.js')));
+  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=42', /shell\.css\?v=18/.test(html) && /boot\.js\?v=42/.test(html) && /sw\.js\?v=42/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
   assert('manifest name Aretoria, scope /aretoria/', /"name": "Aretoria"/.test(src('./manifest.webmanifest')) && /"scope": "\/aretoria\/"/.test(src('./manifest.webmanifest')));
   assert('link back to Captain’s Log present', /modern-era-calendar/.test(html));
 }
@@ -164,7 +164,7 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('desktop gates sit on the bridges between plaza and temples (x 220–1060, y 280–400)', ids.slice(0, 6).every((id) => D[id][0] >= 220 && D[id][0] <= 1060 && D[id][1] >= 280 && D[id][1] <= 400));
   assert('Shadow centred on the front bridge, orb on the rune', D.shadow[0] === 640 && D.shadow[1] > HUB_ART.desk.rune[1] + 100 && HUB_ART.desk.rune[0] === 640);
   assert('mobile hub is a grid with a painting band rect', HUB_ART.mob.layout === 'grid' && Array.isArray(HUB_ART.mob.band) && HUB_ART.mob.band.length === 4 && HUB_ART.mob.band[3] > HUB_ART.mob.rune[1] && HUB_ART.mob.band[1] < HUB_ART.mob.rune[1]);
-  assert('phone grid order is the six realms left→right; Shadow the centred 7th tile', /const HUB_GRID_ORDER = \['courage', 'justice', 'humanity', 'temperance', 'wisdom', 'transcendence'\]/.test(src('./aretoria.js')) && /id === 'shadow' \? 2 : Math\.floor\(k \/ 3\)/.test(ajA) && /id === 'shadow' \? 1 : k % 3/.test(ajA));
+  assert('phone grid order is the six realms left→right; Shadow the centred 7th tile', /const HUB_GRID_ORDER = REALM_ORDER;/.test(src('./aretoria.js')) && /id === 'shadow' \? 2 : Math\.floor\(k \/ 3\)/.test(ajA) && /id === 'shadow' \? 1 : k % 3/.test(ajA));
   assert('grid sits between the header and the painting band top', /\.ar-top'\)/.test(ajA) && /toScreen\(\[0, art\.band\[1\]\]\)/.test(ajA) && /classList\.toggle\('ar-hubgrid', mobile\)/.test(ajA));
   assert('layoutHub maps desktop gates by realm name, Shadow on x = cx, orb on the rune', /art\.gates\[id\]/.test(ajA) && /id === 'shadow'\) x = w \/ 2/.test(ajA) && /toScreen\(art\.rune\)/.test(ajA));
   const cssG = noComments(src('./aretoria.css'));
@@ -277,7 +277,7 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('the eight minimal moves are marked fit: balanced', eq(VIRTUES.filter((v) => v.fit === 'balanced').map((v) => v.name).sort(), ['Acceptance', 'Cleanliness', 'Detachment', 'Excellence', 'Graciousness', 'Harmony', 'Patience', 'Peace']));
   assert('no "axis virtues" / "belong to the axis" anywhere', !/belong to the axis|axis virtues|stay here on the axis|shared by the axis/i.test(visible + dataSrc));
   const R = GUIDE.dialogue.nodes.realms.text;
-  assert('Irishnu\'s six-realms answer: six great temples each holding one great virtue, 81 shared among them, Guardians protect their realms (named), virtues are the advisors, Shadow + Veil, Axial hall + portal', /^Six great temples, \{name\}, each holding one great virtue/.test(R) && /The eighty-one virtues are shared among those six temples/.test(R) && /Every temple’s Guardian serves to protect that realm: Sophia, Valorix, Amara, Justar, Moder and Auria, in that order\./.test(R) && /The virtues housed in each temple are its advisors\./.test(R) && /Shadow Realm, watched by the Guardian of the Veil/.test(R) && /Axial Realm, the shared hall that joins them all; the portal set you down/.test(R) && !/realms of light|great virtue:? Wisdom, Courage, Humanity, Justice, Temperance and Transcendence, and/.test(R));
+  assert('Irishnu\'s six-realms answer: six great temples each holding one great virtue, 81 shared among them, Guardians protect their realms (named), virtues are the advisors, Shadow + Veil, Axial hall + portal', /^Six great temples, \{name\}, each holding one great virtue/.test(R) && /The eighty-one virtues are shared among those six temples/.test(R) && /Every temple’s Guardian serves to protect that realm: Valorix, Justar, Amara, Moder, Sophia and Auria, in that order\./.test(R) && /The virtues housed in each temple are its advisors\./.test(R) && /Shadow Realm, watched by the Guardian of the Veil/.test(R) && /Axial Realm, the shared hall that joins them all; the portal set you down/.test(R) && !/realms of light|great virtue:? Wisdom, Courage, Humanity, Justice, Temperance and Transcendence, and/.test(R));
   assert('Guardians no longer deny being advisors ("not me", "kettle")', !/advisors, not me|counsel here, not me|kettle/.test(all + R));
   assert('advisor default line: housed in the temple the Guardian protects (v66)', /I am one of the advisors housed in the \$\{realm\.temple\}, which \$\{realm\.guardian\.name\} protects\./.test(dataSrc));
   assert('ritual line no longer invents virtue "temples"', /with Empathy and Compassion in the Hearth of Hearts/.test(dataSrc) && !/Compassion temples/.test(dataSrc));
@@ -375,9 +375,64 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   const D = await import('./aretoria-data.js?v=test66');
   const ds = src('./aretoria-data.js');
   const all = JSON.stringify({ G: D.GUIDE, R: D.REALMS }) + ds;
-  assert('guide: "Every temple’s Guardian serves to protect that realm: Sophia, Valorix, Amara, Justar, Moder and Auria, in that order."', D.GUIDE.dialogue.nodes.realms.text.includes('Every temple’s Guardian serves to protect that realm: Sophia, Valorix, Amara, Justar, Moder and Auria, in that order.'));
+  assert('guide: "Every temple’s Guardian serves to protect that realm: Valorix, Justar, Amara, Moder, Sophia and Auria, in that order." (hub order, v67)', D.GUIDE.dialogue.nodes.realms.text.includes('Every temple’s Guardian serves to protect that realm: Valorix, Justar, Amara, Moder, Sophia and Auria, in that order.'));
   assert('no Guardian framed as an advisor anywhere ("first advisor", "advisors too", "I counsel first", "I speak first … other virtues")', !/first advisor|advisors too|I counsel first|I speak first|other virtues of this forge|Guardians are advisors/i.test(all));
   assert('virtues remain the advisors (realm answer, Valorix, Amara, default advisor line)', /The virtues housed in each temple are its advisors\./.test(D.GUIDE.dialogue.nodes.realms.text) && /I guard the forge\. Its virtues do the counseling:/.test(ds) && /I keep watch over this hearth, dear one; the counsel comes from those around its fire:/.test(ds));
+}
+
+{
+  console.log('\n--- v67: realms always in hub order (left to right in the Axial painting) ---');
+  const D = await import('./aretoria-data.js?v=test67');
+  const O = D.REALM_ORDER, byId = (id) => D.REALMS.find((r) => r.id === id);
+  const gx = D.HUB_ART.desk.gates;
+  assert('REALM_ORDER is the desktop hub gates sorted left to right (Courage, Justice, Humanity, Temperance, Wisdom, Transcendence)', eq([...O], ['courage', 'justice', 'humanity', 'temperance', 'wisdom', 'transcendence']) && eq([...O], Object.keys(gx).filter((k) => k !== 'shadow').sort((a, b) => gx[a][0] - gx[b][0])) && Object.isFrozen(O));
+  assert('Shadow is not in the row: front-centre below the plaza (x = centre, lower than every temple gate), listed after the six', D.SHADOW_ID === 'shadow' && gx.shadow[0] === 640 && O.every((id) => gx.shadow[1] > gx[id][1]));
+  assert('REALMS data follows REALM_ORDER then Shadow (module throws otherwise)', eq(D.REALM_IDS, [...O, 'shadow']) && /throw new Error\('REALMS must follow REALM_ORDER/.test(src('./aretoria-data.js')));
+  const inOrder = (text, names) => { const pos = names.map((n) => text.indexOf(n)); return pos.every((p) => p >= 0) && pos.every((p, i) => i === 0 || p > pos[i - 1]); };
+  const names = O.map((id) => byId(id).name), temples = O.map((id) => byId(id).temple), guardians = O.map((id) => byId(id).guardian.name);
+  const R = D.GUIDE.dialogue.nodes.realms.text;
+  assert('guide\'s realms answer lists virtues, temples and Guardians in hub order ("From left to right around this hall", "in that order")', inOrder(R, names) && inOrder(R, temples) && inOrder(R, guardians) && /From left to right around this hall: Courage in the Forge of Valor, Justice in the Scales of Equity, Humanity in the Hearth of Hearts, Temperance in the Veil of Balance, Wisdom in the Prism of Insight, and Transcendence in the Nebula of Awe\./.test(R) && /Valorix, Justar, Amara, Moder, Sophia and Auria, in that order\./.test(R));
+  assert('phone gate grid and Hall filters follow the shared order', /const HUB_GRID_ORDER = REALM_ORDER;/.test(src('./aretoria.js')) && /const realmsIn = REALMS\.filter/.test(src('./aretoria.js')));
+  assert('landing lists the realms in hub order, Shadow last', /Courage, Justice, Humanity, Temperance, Wisdom, Transcendence,\s+and Shadow/.test(src('./index.html')));
+  // every served string listing 3+ realms, temples or Guardians keeps the order
+  const strip = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\s)\/\/.*$/gm, '').replace(/<!--[\s\S]*?-->/g, '');
+  const served = ['./index.html', './manifest.webmanifest', './aretoria-data.js', './aretoria.js', './boot.js'].map((f) => strip(src(f))).join('\n');
+  const bad = [];
+  for (const line of served.split('\n')) for (const list of [names, temples, guardians]) {
+    const present = list.filter((n) => line.includes(n)); if (present.length < 3) continue;
+    const seq = [...present].sort((a, b) => line.indexOf(a) - line.indexOf(b));
+    if (seq.join() !== present.join()) bad.push(line.trim().slice(0, 80));
+  }
+  assert('no served line lists 3+ realms / temples / Guardians out of hub order', bad.length === 0, bad.join(' | '));
+}
+
+{
+  console.log('\n--- v67: hub Guide card (A13 short iPhones, A14 drift after a realm) ---');
+  const css = src('./aretoria.css'), aj = noComments(src('./aretoria.js'));
+  assert('phones: the photo card keeps a 9:16 portrait ratio (height from the ratio, beats the 18vh / 34vw rules)', /@media \(max-width: 699px\) \{\s*\.ar \.ar-host\.ar-guide\.ar-host-photo \{ aspect-ratio: 9 \/ 16; width: min\(30vw, 118px\); height: auto; \}/.test(css) && /@media \(max-width: 699px\) and \(max-height: 720px\) \{\s*\.ar \.ar-host\.ar-guide\.ar-host-photo \{ width: min\(26vw, 100px\); \}/.test(css));
+  assert('a finger tap never drives the parallax (mouse only)', /if \(e\.pointerType && e\.pointerType !== 'mouse'\) return;/.test(aj));
+  assert('the Guide card drifts at most 8px sideways on desktop and not at all on phones', /const gx = el\.classList\.contains\('ar-guide'\) \? \(narrow \? 0 : 8\) : 30;/.test(aj) && /right: max\(1\.5vw, 32px\)/.test(css));
+}
+
+{
+  console.log('\n--- v67: no em dashes or tildes in served copy (one deliberate exception) ---');
+  const strip = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\s)\/\/.*$/gm, '').replace(/<!--[\s\S]*?-->/g, '');
+  const KEEP = 'Thus, I stand—a testament to the power of a life lived with intention and grace.';
+  assert('the closing line keeps its em dash exactly (the author\'s deliberate exception)', CLOSING === KEEP);
+  const files = ['./index.html', './manifest.webmanifest', './aretoria-data.js', './aretoria.js', './aretoria-art.js', './boot.js'];
+  const hits = files.flatMap((f) => strip(src(f)).replace(KEEP, '').split('\n').filter((l) => /[—~]/.test(l)).map((l) => `${f}: ${l.trim().slice(0, 60)}`));
+  const cssContent = ['./aretoria.css', './shell.css'].flatMap((f) => (src(f).match(/content:\s*"[^"]*"/g) || []).filter((c) => /[—~]/.test(c)));
+  assert('served copy (HTML, manifest, data, UI strings, CSS content) has no em dashes or tildes', hits.length === 0 && cssContent.length === 0, hits.concat(cssContent).join(' | '));
+  const texts = [OPENING, ...CREED.paragraphs, ...CREED.affirmation, JSON.stringify(GUIDE), JSON.stringify(REALMS), JSON.stringify(VIRTUES), JSON.stringify(HUB)].join(' ');
+  assert('dialogue, creed and Hall data carry no em dashes or tildes', !/[—~]/.test(texts));
+  assert('creed lines now: "…and distinction, the fundamental pattern…" and "…toward godhood: to become joint-heirs…"', CREED.paragraphs.some((p) => p.includes('in perfect unity, love, and distinction, the fundamental pattern of consciousness and relationship.')) && CREED.paragraphs.some((p) => p.includes('Our purpose is to progress toward godhood: to become joint-heirs and co-creators')));
+}
+
+{
+  console.log('\n--- v67: test and dev files never ship to Pages ---');
+  const wf = src('./.github/workflows/pages.yml');
+  assert('Publish Pages excludes ROADMAP.md, aretoria.test.js, *.test.js and package.json', /exclude_assets: '\.github,ROADMAP\.md,aretoria\.test\.js,\*\.test\.js,package\.json'/.test(wf));
+  assert('the service worker never precaches the test file', !/test\.js/.test(src('./sw.js')));
 }
 
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`);

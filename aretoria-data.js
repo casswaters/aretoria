@@ -39,8 +39,8 @@ export const CREED = {
   title: "The Divine Evolution Creed",
   paragraphs: [
       "I affirm one infinite, eternal God: omnipotent, omniscient, omnipresent, omni-benevolent, and omnitemporal, encompassing the ruliad of all possible rules, computations, histories, and possibilities. All that is, all that could be, all that is imagined, and even all that appears as non-being or impossibility exists within and as expressions of this single self-existent reality, with the material realm, and nature itself, existing as a portion of this reality.",
-      "Within this oneness exists eternal relationality: a divine community of persons in perfect unity, love, and distinction — the fundamental pattern of consciousness and relationship.",
-      "Humanity is not separate from this reality but literally of its kind: intelligences on an eternal journey of growth, refinement, and exaltation. Our purpose is to progress toward godhood — to become joint-heirs and co-creators, increasing in glory, intelligence, and creative power forever.",
+      "Within this oneness exists eternal relationality: a divine community of persons in perfect unity, love, and distinction, the fundamental pattern of consciousness and relationship.",
+      "Humanity is not separate from this reality but literally of its kind: intelligences on an eternal journey of growth, refinement, and exaltation. Our purpose is to progress toward godhood: to become joint-heirs and co-creators, increasing in glory, intelligence, and creative power forever.",
       "We live this truth through reason, science, ethical discipline, and secular wisdom in daily life. Evidence, liberty, critical inquiry, and human flourishing are the proper methods for navigating existence. Revelation, when it occurs, aligns with and accelerates natural law rather than violating it.",
       "Thus, the cosmos is a living, evolving divinity awakening and dancing through us, as us. Through God, we are becoming more fully conscious and glorious in and as the universe. Every act of learning, creation, love, and moral courage participates in this grand divinization. We are evolving facets of the divine, called to consciously accelerate its unfolding."
   ],
@@ -151,7 +151,7 @@ export const HUB = {
 export const GUIDE_NAME_DEFAULT = 'Irishnu';
 const ARRIVE_TEXT = "{Name}. Steady now; the portal sets everyone down a little dazzled. You are standing at the center of the Axial Realm, the shared realm of existence: one whole, with every realm held inside it. The golden thread runs through every bridge and portal. I hold the threshold, and, when it is needed, the traveler’s attention.";
 const WHO_TEXT = "Your guide, and your reflection: the self you send ahead into Aretoria, in ivory and sapphire, so that someone at the center always remembers why you came. I point at doors, and now and then at the one walking through them; you are the door that matters most and opens least. Every realm out there is one face of the same whole, {name}, and so are you. I am simply the reminder, armored so you will take me seriously.";
-const REALMS_TEXT = "Six great temples, {name}, each holding one great virtue: Wisdom in the Prism of Insight, Courage in the Forge of Valor, Humanity in the Hearth of Hearts, Justice in the Scales of Equity, Temperance in the Veil of Balance, and Transcendence in the Nebula of Awe. The eighty-one virtues are shared among those six temples, each with a single home. Every temple’s Guardian serves to protect that realm: Sophia, Valorix, Amara, Justar, Moder and Auria, in that order. The virtues housed in each temple are its advisors. Across its own bridge lies the Shadow Realm, watched by the Guardian of the Veil from the Veil of Shadows: where what is out of balance gets looked at honestly instead of hidden. And this is the Axial Realm, the shared hall that joins them all; the portal set you down in the middle of it. Every door opens from here. That is rather the point of a hall.";
+const REALMS_TEXT = "Six great temples, {name}, each holding one great virtue. From left to right around this hall: Courage in the Forge of Valor, Justice in the Scales of Equity, Humanity in the Hearth of Hearts, Temperance in the Veil of Balance, Wisdom in the Prism of Insight, and Transcendence in the Nebula of Awe. The eighty-one virtues are shared among those six temples, each with a single home. Every temple’s Guardian serves to protect that realm: Valorix, Justar, Amara, Moder, Sophia and Auria, in that order. The virtues housed in each temple are its advisors. Across its own bridge lies the Shadow Realm, watched by the Guardian of the Veil from the Veil of Shadows: where what is out of balance gets looked at honestly instead of hidden. And this is the Axial Realm, the shared hall that joins them all; the portal set you down in the middle of it. Every door opens from here. That is rather the point of a hall.";
 const GREET_TEXT = "Ah, {name}. Right on time, or time is right on you; from the center it is hard to tell which. This is the Axial Realm, the shared realm of existence: one whole, with every realm held inside it. The golden thread runs through every bridge and portal. I hold the threshold, and, when it is needed, the traveler’s attention.";
 
 export const GUIDE = {
@@ -1017,6 +1017,13 @@ export const REALMS = [
 ];
 
 export const REALM_IDS = REALMS.map((r) => r.id);
+/** v67 (the author's rule): the six realms ALWAYS appear in the order their temples sit in the Axial hub painting,
+    left to right (the desktop gates follow the temples: HUB_ART.desk.gates x ascending). Every list of realms,
+    temples or Guardians (data, dialogue, Hall filters, landing, phone gate grid) follows this one constant.
+    Shadow is not in that row: its gate sits front-centre on the bridge below the plaza, so it is listed after the six. */
+export const REALM_ORDER = Object.freeze(['courage', 'justice', 'humanity', 'temperance', 'wisdom', 'transcendence']);
+export const SHADOW_ID = 'shadow';
+if (REALM_IDS.join() !== [...REALM_ORDER, SHADOW_ID].join()) throw new Error('REALMS must follow REALM_ORDER (hub left to right), then Shadow');
 
 /* -------------------------------------------------------------------------- */
 /* Guardians + Guide portraits; realm painted backdrops                        */

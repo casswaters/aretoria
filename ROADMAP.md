@@ -12,6 +12,8 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 - Irishnu is Cassidy (he/him): armor, not robes.
 - 81 virtues, each housed once in the six great temples (14/14/14/13/13/13); none on the axis or in Shadow.
 - Guardians are warriors who protect their realms (they may offer advice now and then); the virtues are the advisors.
+- Realms, temples and Guardians are always listed in the order the temples sit in the Axial hub art, left to right: Courage, Justice, Humanity, Temperance, Wisdom, Transcendence (REALM_ORDER in aretoria-data.js). Shadow comes after the six (its gate is front-centre, below the plaza).
+- No em dashes or tildes in served copy, except the author's closing line "Thus, I stand—a testament…".
 - Aretoria ships from this repo only (Captain's Log links here). Bump the SW on every release.
 - No hard-coded visitor name anywhere served: the visitor is {name}/{Name} (fallback "traveler"), the guide is {guide} (default Irishnu, config in GUIDE_NAME_DEFAULT / GUIDE_ART).
 
@@ -43,6 +45,7 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 - Version 1 = six virtue realms plus Shadow: confirm.
 
 ## Shipped (newest first, times MT)
+- 2026-10-07 17:10 — v67 (SW v42): realms always listed in hub order, left to right (Courage, Justice, Humanity, Temperance, Wisdom, Transcendence; Shadow after, front-centre) via one REALM_ORDER constant; hub Guide card stays 9:16 portrait on short iPhones (393×659, 375×667) so Irishnu sits clear of his label; tap no longer drives the parallax (card no longer drifts off the right edge after a realm); em dashes out of landing/manifest/creed copy (closing line kept); tests no longer published to Pages.
 - 2026-10-07 16:30 — v66 (SW v41): "Meet Irishnu again" in the Hall of Virtues (and ?firstvisit=1) replays the guide's first-visit conversation; Guardians are warriors who protect their realms, not advisors (guide's realms answer, Valorix, Amara, default advisor line); the virtues stay the advisors.
 - 2026-10-07 16:21 — v65 (SW v40): "Who are you, really?" restored with its original answer. First visit: screen 1 = "What are the realms?" / "Who are you, really?"; after the realms: "And the Shadow Realm?", "Who are you, really?" (if not asked), "Where should I go today?", "Let me explore."; the Shadow question never comes before the realms answer. Later visits unchanged.
 - 2026-10-07 16:15 — v64 (SW v39): Irishnu scene integration (approved "subtle" pass, compositing only; design, pose and placement unchanged) — arrival layer and both hub cards: cyan cutout outline removed, edges defringed, graded to the painting (black/white point, warmth, softer gems), warm sunset back-rim + portal-blue rim on the side facing the swirl, light wrap, ivory floor bounce, depth haze, painting-matched softness and grain, floor-tinted contact shadow under each boot, faint reflection on the polished arrival floor, hub cast shadow now falls left like the walkway posts'. Build: qa/aretoria/irishnu-integration/integrate.py.

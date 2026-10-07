@@ -1,5 +1,5 @@
 # Publish main to GitHub Pages (gh-pages branch) without repo-only files.
-# ROADMAP.md is a planning file: it stays on main and must never ship to the live site.
+# ROADMAP.md is a planning file and aretoria.test.js / package.json are dev files: they stay on main and never ship to the live site.
 # Deploy = push to main. Do not push main to gh-pages by hand (that would publish ROADMAP.md).
 name: Publish Pages
 
@@ -30,5 +30,5 @@ jobs:
           publish_dir: .
           publish_branch: gh-pages
           force_orphan: false
-          exclude_assets: '.github,ROADMAP.md'
+          exclude_assets: '.github,ROADMAP.md,aretoria.test.js,*.test.js,package.json'
           commit_message: 'Publish Pages (repo-only files excluded)'
