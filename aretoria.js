@@ -29,11 +29,11 @@ import {
   guardianRole, guardianLine, guardianPortraitPath, irishnuPortraitPath, realmBackdropPath, HUB_ART, IRISHNU_AVATAR,
   mobileArtPath, pickArtPath, ART_MOBILE_MQ, ARRIVAL, arrivalWindow,
   NAME_KEY, NAME_ASKED_KEY, FIRST_VISIT_KEY, REALM_ORDER, NAME_MAX, NAME_FALLBACK, cleanName, nameForms, guideName, guideLabel, GUIDE_ART, GUIDE_KEY, isFamilyGuide
-} from './aretoria-data.js?v=46';
-import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=46';
-import { sound } from './aretoria-audio.js?v=46';
+} from './aretoria-data.js?v=47';
+import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=47';
+import { sound } from './aretoria-audio.js?v=47';
 
-const VERSION = 46;
+const VERSION = 47;
 const MET_KEY = 'mec-aretoria:met-irishnu';
 const FIRST_SESSION_KEY = 'mec-aretoria:first-visit-session'; // sessionStorage: this visit (browser session) began as the first
 
