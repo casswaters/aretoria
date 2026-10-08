@@ -4,7 +4,7 @@ Repo-only planning file. It is excluded from GitHub Pages and never ships to the
 Deploy = push to main; `.github/workflows/pages.yml` publishes main to gh-pages without this file. Do not push main to gh-pages by hand.
 Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of Aretoria; it links to this standalone site. Aretoria changes ship here only.
 
-**Last updated:** 2026-10-07, 5:15 PM MT
+**Last updated:** 2026-10-07, 6:50 PM MT
 
 ## House rules
 - One palette for the whole world: ivory, gold and cosmic night. No realm color-coding.
@@ -18,6 +18,12 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 - No hard-coded visitor name anywhere served: the visitor is {name}/{Name} (fallback "traveler"), the guide is {guide} (default Irishnu, config in GUIDE_NAME_DEFAULT / GUIDE_ART).
 
 ## Now
+- Family guides by link (plan 2026-10-07, replaces the guide-creator presets). Cassidy makes each family member's guide himself (up to 5 people) and each person gets their own link where their guide replaces Irishnu: https://casswaters.github.io/aretoria/?guide=<slug>, slug = a simple lowercase first name (not secret; accepted).
+  - The link loads that person's guide config: guide name, armor phrase in "Who are you, really?", art, and their visitor name prefilled (only if none is saved; still editable in the Hall of Virtues).
+  - Remembered in localStorage (mec-aretoria:guide), so later visits without the param keep their guide. Way back to the default: "Use the default guide" in the Hall, or ?guide=default. The plain link (nothing saved) is always Irishnu.
+  - The guide's name and art replace Irishnu everywhere: landing line, arrival intro, hub card and its label, dialogue name and avatar, "Meet <guide> again" in the Hall.
+  - Owner-made avatars, same pipeline as Irishnu: local background removal (rembg birefnet-portrait + pymatting edge cleanup), then the approved "subtle" scene-integration pass (qa/aretoria/irishnu-integration/integrate.py) at Irishnu's exact spot and scale. Likeness is never repainted or beautified. Outputs per person in assets/aretoria/guides/<slug>/: card.jpg (1024x576), mobile/card.jpg (576x1024), face.jpg (256x256), arrival.webp (384x516). Build: qa/aretoria/family-guides/build/.
+  - Each person's art is a draft until Cassidy approves the previews; nothing goes live before that. In progress: Jill (?guide=jill, guide "Luz Liath") and Jaycee (?guide=jaycee, guide "Elysia Starweaver").
 - Confirm the hub painting fix from SW aretoria-v35 (Aretoria v60) on a real iPhone: the painting must come back after the Axial arrival pull-back.
 - Settle the open wording and lore decisions below.
 
@@ -27,21 +33,8 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 - Apply the landing "Seven Realms" wording once decided (landing, meta, manifest).
 
 ## Later
-- Guide creator (the reflection guide), approved plan 2026-10-07. There is ONE guide: the role Irishnu fills. Each visitor makes their own version of that one guide, and it takes Irishnu's spot (arrival, hub card, dialogue avatar). Goal: enough variety that each family member's guide feels personal, so Cassidy can share Aretoria for family show and tell.
-  - Runs inside the setup sequence, after the visitor's own first name prompt ("What should Aretoria call you?", unchanged). No AI connection, server or API key needed; it all runs on the page.
-  - Setup order, exact wording:
-    1. Tap one of the 12 armor sets. A simple grid of thumbnails: 6 female (F1 to F6) and 6 male (M1 to M6) full-figure guides, each a distinct complete look. One tap selects a set and the guide updates at once. No parts layering, mix-and-match, customizing or extra steps. Every set uses the same pose and framing so any set drops straight into Irishnu's spot in the art, and each set has a noted face oval for the photo.
-    2. Upload a face portrait, auto-fitted. On-device face detection finds the face (the browser FaceDetector API where available, otherwise a small open-source in-browser model such as MediaPipe Face Detection or face-api.js running locally, no server), then scales, centers and levels it into the set's face oval, with a soft blend so it does not look pasted on (color tone matched to the art palette, feathered edge, optional painterly filter). Manual drag and zoom stay available only as an optional "Adjust" fallback. If no face is found, it says so and offers Adjust. The photo stays on the device only and is never uploaded to a server. It stays optional (off by default, the set's painted face is used without it) with a clear "Remove photo" button later.
-    3. Preview of their guide asking "How does it look?" with two choices: keep it, or try again (re-upload or Adjust). Do not use the wording "Yes, that's me".
-    4. Then ask "What do you want to name your guide?" (the guide's name, asked after the look is settled). Show 5 one-tap suggested fantasy names that match whether the chosen set is female or male, rotating from a pool (proposed 10 female and 10 male in qa/aretoria/guide-creator-draft/notes.md, awaiting approval; original, in Aretoria's sacred classical tone, never Valorix, Justar, Amara, Moder, Sophia, Auria or Irishnu), plus a text box for their own fantasy name. Lines stay scripted, with this name inserted through the existing {guide} token.
-  - Saved in localStorage on their device only, like the username. Change or reset it later from the Hall of Virtues.
-  - No realm-specific armor, emblems or crests. One guide, one shared palette (ivory, marble, gold, cosmic night; sapphire accents allowed). The set choice is cosmetic and changes nothing else.
-  - Irishnu's exact set stays the owner default and is not offered as a preset; all 12 sets must clearly differ from his ivory and sapphire armor. No jesters.
-  - No uniqueness checks or "already taken" nudges: guides live on each person's own device and are never seen by others.
-  - First step: rough sheet of the 12 sets for Cassidy's approval before anything is published (draft in qa/aretoria/guide-creator-draft/).
-  - Groundwork shipped in v62: the guide name is the {guide} token (GUIDE_NAME_DEFAULT) and all guide art paths live in GUIDE_ART.
-  - Later optional upgrade: an AI-generated painted portrait (including a fully repainted face in the art style from the uploaded photo) or a guide who answers in free conversation. Both need a backend or an API key and cost money per use.
-- 3D animated companion: the visitor's reflection guide (Irishnu for Cassidy) as a 3D animated character who hangs around the user's Captain's Log in various moods and character phases. Builds on the reflection-guide feature above (custom fantasy name + costume); cross-referenced in the Captain's Log roadmap.
+- In-browser guide creator (idea only, not planned): a visitor would build their own guide on the page (presets or photo upload). The 12-preset draft (qa/aretoria/guide-creator-draft/) was dropped on 2026-10-07 because it fell short; family links (in Now) replace it. An AI portrait or free conversation would need a backend or key and cost per use.
+- 3D animated companion: the visitor's reflection guide (Irishnu for Cassidy) as a 3D animated character who hangs around the user's Captain's Log in various moods and character phases. Builds on the family guides (each person's own guide and name); cross-referenced in the Captain's Log roadmap.
 - Optional color quests inside realms, only if Cassidy approves. Realms themselves stay on the shared palette.
 
 ## Ideas
