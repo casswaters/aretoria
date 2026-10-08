@@ -2,8 +2,8 @@
  * Aretoria standalone boot — landing shrine, then full portal overlay.
  * Shares localStorage keys with Captain's Log (same github.io origin).
  */
-import { openAretoria } from './aretoria.js?v=48';
-import { guideLabel } from './aretoria-data.js?v=48';
+import { openAretoria } from './aretoria.js?v=49';
+import { guideLabel } from './aretoria-data.js?v=49';
 
 const landing = document.getElementById('landing');
 // Family links (?guide=<slug>): the landing names that person's guide (Irishnu by default).
@@ -34,7 +34,7 @@ window.addEventListener('aretoria:closed', () => {
 });
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js?v=48').then((reg) => {
+  navigator.serviceWorker.register('./sw.js?v=49').then((reg) => {
     reg.update().catch(() => {});
   }).catch(() => {});
 }

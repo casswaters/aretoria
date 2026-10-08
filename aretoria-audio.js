@@ -15,6 +15,12 @@ const RENDER_SR = 24000;     // soft ambient content; half the memory of 48 kHz
 const MUSIC_VOL = 0.55;      // modest master levels (loops are normalized to about -24 dBFS RMS before this)
 const UI_VOL = 0.5;
 const FADE_SEC = 2.4;        // room crossfade
+/* v74: UI sounds are scheduled a little ahead of currentTime. On iPhone, currentTime is only updated once per hardware
+   buffer (up to about 21 ms), so a bell scheduled "now" could start after its 6 ms attack had already elapsed and hit
+   at full level with no fade in: the occasional hard, jammed ping. 30 ms ahead is not noticeable and covers that. */
+export const UI_LEAD = 0.03;
+export const UI_COOLDOWN_MS = 100;           // at most one UI sound per 100 ms (double taps, stacked cues)
+export const UI_PRIORITY = { tap: 1, close: 2, open: 3, gate: 4 };
 
 /* ---------- small helpers ---------- */
 const hz = (m) => 440 * Math.pow(2, (m - 69) / 12);
@@ -69,14 +75,14 @@ function drone(B, L, f, { type = 'sine', gain = 0.05, k = 1, depth = 0.5, ph = 0
   fs.forEach((x) => { const o = ctx.createOscillator(); o.type = type; o.frequency.value = loopHz(x, L); o.connect(g); o.start(t0); o.stop(t0 + L); });
 }
 /** Gold bell: a few inharmonic partials, soft attack, natural decay. */
-function bell(B, t, f, { gain = 0.06, decay = 2.6, pan = 0, wet = 1, bright = 1, attack = 0.006 } = {}) {
+function bell(B, t, f, { gain = 0.06, decay = 2.6, pan = 0, wet = 1, bright = 1, attack = 0.006, tailK = 1.6 } = {}) {
   t += B.t0 || 0;
   const ctx = B.ctx, p = panNode(ctx, pan); send(B, p, wet);
   [[1, 1, 1], [2.0, 0.32 * bright, 0.6], [2.76, 0.16 * bright, 0.42], [5.4, 0.05 * bright, 0.22]].forEach(([r, a, dk]) => {
     const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = f * r; o.connect(g); g.connect(p);
     const d = decay * dk;
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain * a, t + attack); g.gain.setTargetAtTime(0, t + attack, d / 4);
-    o.start(t); o.stop(t + d * 1.6 + 0.1);
+    g.gain.value = 0; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain * a, t + attack); g.gain.setTargetAtTime(0, t + attack, d / 4);
+    o.start(t); o.stop(t + attack + d * tailK + 0.1);
   });
 }
 /** Soft swelling chord tone (pad events used for chord changes). */
@@ -262,17 +268,19 @@ export async function renderRoom(id, { sr = RENDER_SR, periods = 0, Offline = (t
 /* ---------- UI sounds (short, synthesized live) ---------- */
 export const UI_SOUNDS = ['tap', 'open', 'gate', 'close'];
 export const uiImpulse = (ctx) => impulse(ctx, 2.2, 9);
-export function playUi(ctx, dest, verbBus, name, t = ctx.currentTime) {
+export function playUi(ctx, dest, verbBus, name, t = ctx.currentTime + UI_LEAD) {
   const lift = (to) => { const g = ctx.createGain(); g.gain.value = 4; g.connect(to); return g; };   // sits just above the room loop
   const B = { ctx, dry: lift(dest), wet: lift(verbBus) };
+  // UI bells: at least an 8 ms fade in, and stopped only once the decay is below about -70 dB (no tail click)
+  const bellUi = (B2, t2, f, o = {}) => bell(B2, t2, f, { ...o, attack: Math.max(0.008, o.attack || 0), tailK: 2 });
   if (name === 'tap') {
-    bell(B, t, hz(N.A5), { gain: 0.05, decay: 0.5, bright: 0.5, wet: 0.4 });
+    bellUi(B, t, hz(N.A5), { gain: 0.05, decay: 0.5, bright: 0.5, wet: 0.4 });
   } else if (name === 'open') {
-    bell(B, t, hz(N.A5), { gain: 0.05, decay: 1.6, bright: 0.7, pan: -0.15 });
-    bell(B, t + 0.12, hz(N.D6), { gain: 0.045, decay: 2.0, bright: 0.7, pan: 0.15 });
+    bellUi(B, t, hz(N.A5), { gain: 0.05, decay: 1.6, bright: 0.7, pan: -0.15 });
+    bellUi(B, t + 0.12, hz(N.D6), { gain: 0.045, decay: 2.0, bright: 0.7, pan: 0.15 });
   } else if (name === 'close') {
-    bell(B, t, hz(N.D6), { gain: 0.04, decay: 1.0, bright: 0.6, pan: 0.15 });
-    bell(B, t + 0.1, hz(N.A5), { gain: 0.04, decay: 1.3, bright: 0.6, pan: -0.15 });
+    bellUi(B, t, hz(N.D6), { gain: 0.04, decay: 1.0, bright: 0.6, pan: 0.15 });
+    bellUi(B, t + 0.1, hz(N.A5), { gain: 0.04, decay: 1.3, bright: 0.6, pan: -0.15 });
   } else if (name === 'gate') {
     // a soft rising breath of air into a warm open chord
     const n = Math.floor(1.6 * ctx.sampleRate), buf = ctx.createBuffer(1, n, ctx.sampleRate), d = buf.getChannelData(0), r = rng(5);
@@ -280,10 +288,28 @@ export function playUi(ctx, dest, verbBus, name, t = ctx.currentTime) {
     const s = ctx.createBufferSource(); s.buffer = buf;
     const fl = ctx.createBiquadFilter(); fl.type = 'bandpass'; fl.Q.value = 0.9;
     fl.frequency.setValueAtTime(300, t); fl.frequency.exponentialRampToValueAtTime(2600, t + 1.1);
-    const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.05, t + 0.6); g.gain.linearRampToValueAtTime(0, t + 1.5);
+    const g = ctx.createGain(); g.gain.value = 0; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.05, t + 0.6); g.gain.linearRampToValueAtTime(0, t + 1.5);
     s.connect(fl); fl.connect(g); send(B, g, 0.9); s.start(t); s.stop(t + 1.6);
-    [N.D4, N.A4, N.D5, N.Fs5].forEach((m, i) => bell(B, t + 0.5 + i * 0.07, hz(m), { gain: 0.03, decay: 2.6, bright: 0.6, pan: (i - 1.5) * 0.3, attack: 0.03 }));
+    [N.D4, N.A4, N.D5, N.Fs5].forEach((m, i) => bellUi(B, t + 0.5 + i * 0.07, hz(m), { gain: 0.03, decay: 2.6, bright: 0.6, pan: (i - 1.5) * 0.3, attack: 0.03 }));
   }
+}
+
+/** v74: one UI sound per user action. Requests made while handling one action (same task) are merged and only the
+    highest priority plays (gate > open > close > tap); anything within UI_COOLDOWN_MS of the last sound is dropped. */
+export function makeUiArbiter(play, { now = () => performance.now(), defer = (f) => Promise.resolve().then(f), cooldownMs = UI_COOLDOWN_MS } = {}) {
+  let pending = null, lastAt = -Infinity;
+  const flush = () => {
+    const name = pending; pending = null;
+    if (!name) return;
+    const t = now();
+    if (t - lastAt < cooldownMs) return;
+    lastAt = t; play(name);
+  };
+  return function request(name) {
+    if (!(name in UI_PRIORITY)) return;
+    if (pending) { if (UI_PRIORITY[name] > UI_PRIORITY[pending]) pending = name; return; }
+    pending = name; defer(flush);
+  };
 }
 
 /* ---------- live engine ---------- */
@@ -301,7 +327,9 @@ function ensureCtx() {
   const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -18; comp.ratio.value = 3; comp.connect(ctx.destination);
   S.master = ctx.createGain(); S.master.gain.value = 1; S.master.connect(comp);
   S.music = ctx.createGain(); S.music.gain.value = MUSIC_VOL; S.music.connect(S.master);
-  S.ui = ctx.createGain(); S.ui.gain.value = UI_VOL; S.ui.connect(S.master);
+  // v74: a gentle limiter on the UI bus, so no cue can ever spike above the room loop
+  const uiLim = ctx.createDynamicsCompressor(); uiLim.threshold.value = -14; uiLim.knee.value = 4; uiLim.ratio.value = 12; uiLim.attack.value = 0.002; uiLim.release.value = 0.15; uiLim.connect(S.master);
+  S.ui = ctx.createGain(); S.ui.gain.value = UI_VOL; S.ui.connect(uiLim);
   S.uiVerb = ctx.createConvolver(); S.uiVerb.normalize = true; S.uiVerb.buffer = uiImpulse(ctx);
   const vg = ctx.createGain(); vg.gain.value = 0.35; S.uiVerb.connect(vg); vg.connect(S.ui);
   // iOS: a silent one-sample buffer played inside the tap unlocks output
@@ -362,6 +390,8 @@ async function applyRoom() {
   S.cur = { id, src, gain: g };
 }
 
+const uiRequest = makeUiArbiter((name) => { if (S.ctx && S.ctx.state === 'running') playUi(S.ctx, S.ui, S.uiVerb, name, S.ctx.currentTime + UI_LEAD); });
+
 export const sound = {
   get on() { return S.on; },
   /** Which loop should be heard: a ROOMS id, or null for silence (Aretoria closed). */
@@ -370,13 +400,13 @@ export const sound = {
   toggle() { return sound.set(!S.on); },
   set(v) {
     S.on = !!v; writePref(S.on);
-    if (S.on) { if (unlock()) { applyRoom(); playUi(S.ctx, S.ui, S.uiVerb, 'open'); } }
+    if (S.on) { if (unlock()) { applyRoom(); uiRequest('open'); } }
     else if (S.ctx) { S.job++; fadeOut(S.cur, 0.8); S.cur = null; }
     notify();
     return S.on;
   },
   /** Soft UI cue: 'tap' | 'open' | 'gate' | 'close'. Silent unless sound is on and running. */
-  ui(name) { if (S.on && S.ctx && S.ctx.state === 'running') playUi(S.ctx, S.ui, S.uiVerb, name); },
+  ui(name) { if (S.on && S.ctx && S.ctx.state === 'running') uiRequest(name); },   // never queued while suspended, so no burst on resume
   onChange(f) { S.listeners.add(f); return () => S.listeners.delete(f); },
   init() {
     S.on = readPref();

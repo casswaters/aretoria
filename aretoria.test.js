@@ -129,12 +129,12 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('apple-mobile-web-app-title is Aretoria', /apple-mobile-web-app-title" content="Aretoria"/.test(html));
   assert('no MEC calendar / CaptainLog UI on page', !/month-grid|captains-log|panel-calendar|Modern Era Calendar/.test(html));
   assert('Irishnu mentioned as the Guide on landing', /Irishnu the Guide/.test(html));
-  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=48/.test(boot));
-  assert('SW is aretoria-v48', /aretoria-v48/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
+  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=49/.test(boot));
+  assert('SW is aretoria-v49', /aretoria-v49/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
   assert('SW precaches Aretoria code + shell', ['aretoria.js', 'aretoria-data.js', 'aretoria-art.js', 'aretoria.css', 'boot.js', 'shell.css'].every((f) => sw.includes(`./${f}`)));
   assert('SW does not precache portraits/guardians/realms', !/assets\/aretoria\/[^']*\.jpg/.test(noComments(sw)) && !/guardians\//.test(noComments(sw)) && !/realms\//.test(noComments(sw)));
-  assert('aretoria.js VERSION = 48 and imports data/art ?v=48; boot imports aretoria.js?v=48', /const VERSION = 48;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=48'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=48'/.test(src('./aretoria.js')) && /aretoria\.js\?v=48'/.test(src('./boot.js')));
-  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=48', /shell\.css\?v=18/.test(html) && /boot\.js\?v=48/.test(html) && /sw\.js\?v=48/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
+  assert('aretoria.js VERSION = 49 and imports data/art ?v=49; boot imports aretoria.js?v=49', /const VERSION = 49;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=49'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=49'/.test(src('./aretoria.js')) && /aretoria\.js\?v=49'/.test(src('./boot.js')));
+  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=49', /shell\.css\?v=18/.test(html) && /boot\.js\?v=49/.test(html) && /sw\.js\?v=49/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
   assert('manifest name Aretoria, scope /aretoria/', /"name": "Aretoria"/.test(src('./manifest.webmanifest')) && /"scope": "\/aretoria\/"/.test(src('./manifest.webmanifest')));
   assert('link back to Captain’s Log present', /modern-era-calendar/.test(html));
 }
@@ -456,7 +456,7 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('the visitor name is prefilled only from a link and only when none is saved', /if \(r\.fromLink && v && !cleanName\(localStorage\.getItem\(NAME_KEY\) \|\| ''\)\)/.test(dj));
   assert('Hall offers "Use the default guide" only for a family guide; it forgets the guide and reloads the plain link', /isFamilyGuide\(\) \? `<span class="ar-hall-sep" aria-hidden="true">·<\/span><button type="button" class="ar-linkbtn" data-act="guide-default">Use the default guide<\/button>` : ''/.test(aj) && /act === 'guide-default'\) \{[\s\S]{0,200}?localStorage\.removeItem\(GUIDE_KEY\)[\s\S]{0,80}?location\.replace\(location\.pathname\)/.test(aj));
   assert('labels (card, aria, Hall, name plate, stage) use guideLabel(); long labels wrap on the card', /ar-host-name\$\{guideLabel\(\)\.length > 24 \? ' ar-host-name-long' : ''\}">\$\{esc\(guideLabel\(\)\)\}/.test(aj) && /aria-label="Speak with \$\{esc\(guideLabel\(\)\)\}/.test(aj) && /name: GUIDE\.label, title: GUIDE\.title/.test(aj) && /label: `\$\{GUIDE\.label\} \$\{GUIDE\.title\}`/.test(aj) && /\.ar-host-name\.ar-host-name-long \{ white-space: normal;/.test(src('./aretoria.css')) && !/ar-host-name-long[^}]*overflow-wrap: anywhere/.test(src('./aretoria.css')));
-  assert('the landing names the active guide', /querySelectorAll\('\.guide-name'\)\.forEach\(\(el\) => \{ el\.textContent = guideLabel\(\); \}\)/.test(bj) && /aretoria-data\.js\?v=48'/.test(bj));
+  assert('the landing names the active guide', /querySelectorAll\('\.guide-name'\)\.forEach\(\(el\) => \{ el\.textContent = guideLabel\(\); \}\)/.test(bj) && /aretoria-data\.js\?v=49'/.test(bj));
 
   console.log('\n--- v70: personal lines. Default link unchanged; family links get gentle invitations and the Creed of Aretoria ---');
   const sun = new Date(2026, 9, 4), sat1 = new Date(2026, 9, 3), last = new Date(2026, 9, 31), mon = new Date(2026, 9, 5);
@@ -491,7 +491,7 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('speaker toggle sits in the header with a 44px phone target', /class="ar-btn ar-snd" aria-pressed="false"/.test(aj2) && /\.ar \.ar-snd \{ width: 44px; height: 44px; min-width: 44px; \}/.test(css2));
   assert('the sound module is precached for offline use', /'\.\/aretoria-audio\.js'/.test(sw2));
   assert('sound copy has no em dashes or tildes', !/[\u2014~]/.test(au));
-  assert('v72: the sound module is imported with the current cache key', /import \{ sound \} from '\.\/aretoria-audio\.js\?v=48';/.test(aj2));
+  assert('v72: the sound module is imported with the current cache key', /import \{ sound \} from '\.\/aretoria-audio\.js\?v=49';/.test(aj2));
   assert('v72: phones get a round back button (label kept for screen readers); desktop keeps "Axial hub"', /aria-label="Back to the Axial hub">‹ <span>Axial hub<\/span><\/button>/.test(aj2) && /@media \(max-width: 699px\) \{\n  \.ar \.ar-back \{ width: 44px;[^}]*\}\n  \.ar \.ar-back\[hidden\] \{ display: none; \}\n  \.ar \.ar-back span \{ display: none; \}/.test(css2));
 }
 
@@ -505,6 +505,34 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('focus never parks on the Leave button', !/\$\('\.ar-x'\)\.focus/.test(aj3) && /: root; \/\/ v73/.test(aj3));
   assert('phones: two-line pill in the header; ivory and gold pill style', /\.ar-leave-t \{ flex-direction: column;/.test(css3) && /\.ar \.ar-leave \{ width: auto;[^}]*border-radius: 12px;/.test(css3));
   assert('Leave copy has no em dashes or tildes', !/Leave[^<]{0,30}[\u2014~]/.test(aj3));
+}
+
+
+{
+  console.log('\n--- v74: no hard pings. One UI sound per action, a cooldown, scheduled ahead, limited ---');
+  const A = await import('./aretoria-audio.js'), au4 = src('./aretoria-audio.js');
+  // a fake clock and a manual "end of this action" so the arbiter can be driven step by step
+  let clock = 0; const queue = []; const played = [];
+  const req = A.makeUiArbiter((n) => played.push([n, clock]), { now: () => clock, defer: (f) => queue.push(f) });
+  const endAction = () => { while (queue.length) queue.shift()(); };
+  req('tap'); req('open'); endAction();
+  assert('a choice that opens a new line plays only the open sound (tap + open in one action)', eq(played.map((p) => p[0]), ['open']));
+  clock = 1000; req('close'); req('open'); endAction();
+  assert('close + open in one action plays only open', eq(played.slice(1).map((p) => p[0]), ['open']));
+  clock = 2000; req('tap'); req('gate'); req('close'); endAction();
+  assert('gate wins over close and tap (priority gate > open > close > tap)', played[2][0] === 'gate' && played.length === 3);
+  clock = 3000; req('tap'); endAction(); clock = 3040; req('tap'); endAction(); clock = 3090; req('open'); endAction();
+  assert('a second sound within 100 ms is dropped (double tap, touchend plus click)', played.length === 4 && played[3][1] === 3000);
+  clock = 3200; req('tap'); endAction();
+  assert('after the cooldown the next sound plays', played.length === 5 && played[4][1] === 3200);
+  req('nonsense'); endAction();
+  assert('unknown names are ignored', played.length === 5);
+  assert('cooldown is about 100 ms and the priorities are fixed', A.UI_COOLDOWN_MS >= 80 && A.UI_COOLDOWN_MS <= 120 && eq(A.UI_PRIORITY, { tap: 1, close: 2, open: 3, gate: 4 }));
+  assert('UI sounds are scheduled ahead of currentTime (iPhone updates currentTime once per buffer)', A.UI_LEAD >= 0.02 && A.UI_LEAD <= 0.05 && /playUi\(S\.ctx, S\.ui, S\.uiVerb, name, S\.ctx\.currentTime \+ UI_LEAD\)/.test(au4) && /t = ctx\.currentTime \+ UI_LEAD\) \{/.test(au4));
+  assert('every UI sound goes through the arbiter (the toggle chime too)', !/playUi\(S\.ctx, S\.ui, S\.uiVerb, '/.test(au4) && /uiRequest\('open'\)/.test(au4) && /ui\(name\) \{ if \(S\.on && S\.ctx && S\.ctx\.state === 'running'\) uiRequest\(name\);/.test(au4));
+  assert('UI bells fade in over at least 8 ms from a gain of 0 and stop only after the decay', /attack: Math\.max\(0\.008, o\.attack \|\| 0\), tailK: 2/.test(au4) && /g\.gain\.value = 0; g\.gain\.setValueAtTime\(0, t\); g\.gain\.linearRampToValueAtTime\(gain \* a, t \+ attack\)/.test(au4) && !/exponentialRampToValueAtTime\(0[,)]/.test(au4));
+  assert('a gentle limiter sits on the UI bus', /const uiLim = ctx\.createDynamicsCompressor\(\);[^\n]*uiLim\.connect\(S\.master\)/.test(au4) && /S\.ui\.connect\(uiLim\)/.test(au4));
+  assert('sound stays on by default', /localStorage\.getItem\(SOUND_KEY\) !== 'off'/.test(au4));
 }
 
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`);
