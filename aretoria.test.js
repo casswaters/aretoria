@@ -129,12 +129,12 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('apple-mobile-web-app-title is Aretoria', /apple-mobile-web-app-title" content="Aretoria"/.test(html));
   assert('no MEC calendar / CaptainLog UI on page', !/month-grid|captains-log|panel-calendar|Modern Era Calendar/.test(html));
   assert('Irishnu mentioned as the Guide on landing', /Irishnu the Guide/.test(html));
-  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=43/.test(boot));
-  assert('SW is aretoria-v43', /aretoria-v43/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
+  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=44/.test(boot));
+  assert('SW is aretoria-v44', /aretoria-v44/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
   assert('SW precaches Aretoria code + shell', ['aretoria.js', 'aretoria-data.js', 'aretoria-art.js', 'aretoria.css', 'boot.js', 'shell.css'].every((f) => sw.includes(`./${f}`)));
   assert('SW does not precache portraits/guardians/realms', !/assets\/aretoria\/[^']*\.jpg/.test(noComments(sw)) && !/guardians\//.test(noComments(sw)) && !/realms\//.test(noComments(sw)));
-  assert('aretoria.js VERSION = 43 and imports data/art ?v=43; boot imports aretoria.js?v=43', /const VERSION = 43;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=43'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=43'/.test(src('./aretoria.js')) && /aretoria\.js\?v=43'/.test(src('./boot.js')));
-  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=43', /shell\.css\?v=18/.test(html) && /boot\.js\?v=43/.test(html) && /sw\.js\?v=43/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
+  assert('aretoria.js VERSION = 44 and imports data/art ?v=44; boot imports aretoria.js?v=44', /const VERSION = 44;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=44'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=44'/.test(src('./aretoria.js')) && /aretoria\.js\?v=44'/.test(src('./boot.js')));
+  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=44', /shell\.css\?v=18/.test(html) && /boot\.js\?v=44/.test(html) && /sw\.js\?v=44/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
   assert('manifest name Aretoria, scope /aretoria/', /"name": "Aretoria"/.test(src('./manifest.webmanifest')) && /"scope": "\/aretoria\/"/.test(src('./manifest.webmanifest')));
   assert('link back to Captain’s Log present', /modern-era-calendar/.test(html));
 }
@@ -362,7 +362,7 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
 {
   console.log('\n--- v66: "Meet the guide again" (Hall of Virtues) and ?firstvisit=1 ---');
   const aj = noComments(src('./aretoria.js')), css = src('./aretoria.css');
-  assert('Hall shows "Meet <guide> again" beside the name Change control, with a status line', /data-act="name">Change<\/button>` \+\s*`<span class="ar-hall-sep" aria-hidden="true">·<\/span><button type="button" class="ar-linkbtn" data-act="meet-again">Meet \$\{esc\(guideName\(\)\)\} again<\/button>` \+/.test(aj) && /<p class="ar-hall-replay" role="status" aria-live="polite"><\/p>/.test(aj));
+  assert('Hall shows "Meet <guide> again" beside the name Change control, with a status line', /data-act="name">Change<\/button>` \+\s*`<span class="ar-hall-sep" aria-hidden="true">·<\/span><button type="button" class="ar-linkbtn" data-act="meet-again">Meet \$\{esc\(guideLabel\(\)\)\} again<\/button>` \+/.test(aj) && /<p class="ar-hall-replay" role="status" aria-live="polite"><\/p>/.test(aj));
   assert('reset clears the first-visit flag, the session marker and the pre-v63 met marker; keeps the name', /function resetFirstVisit\(\) \{\s*S\.firstDoneHere = false;\s*try \{ localStorage\.removeItem\(FIRST_VISIT_KEY\); localStorage\.removeItem\(MET_KEY\); sessionStorage\.removeItem\(FIRST_SESSION_KEY\); \}/.test(aj) && !/function resetFirstVisit\(\) \{[^}]*NAME_KEY/.test(aj));
   assert('the control resets and confirms in one brief line (text, not HTML)', /act === 'meet-again'\) \{\s*resetFirstVisit\(\);\s*const n = \$\('\.ar-hall-replay'\); if \(n\) n\.textContent = `Done\. Your next talk with \$\{guideName\(\)\} starts from the beginning, as on a first visit\.`;/.test(aj));
   assert('?firstvisit=1 resets once before the migration runs, then leaves the address bar', /if \(u\.searchParams\.get\('firstvisit'\) !== '1'\) return;\s*resetFirstVisit\(\);\s*u\.searchParams\.delete\('firstvisit'\);\s*history\.replaceState/.test(aj) && /S\.open = true;\n\s*firstVisitParam\(\);\n\s*migrateFirstVisit\(\);/.test(aj));
@@ -451,10 +451,12 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('each family guide speaks its own reflection: own name via {guide}, own armor, the visitor via {name}; none of Irishnu\'s lore', fam.every(([, g]) => typeof g.who === 'string' && /^I am \{guide\}, your guide and your reflection/.test(g.who) && g.who.includes(g.look) && /\{name\}/.test(g.who) && !/Irishnu|ivory|sapphire|take me seriously|the reminder/i.test(g.who) && typeof g.whoGo === 'string' && !/remind/i.test(g.whoGo)));
   assert('family guide copy has no em dashes or tildes and no leftover tokens beyond {guide} / {name}', fam.every(([, g]) => ![g.who, g.whoGo, g.look, g.name].some((t) => /[\u2014~]/.test(t)) && (g.who.match(/\{(\w+)\}/g) || []).every((t) => t === '{guide}' || t === '{name}')));
   assert('Irishnu keeps his exact self-description and closing choice', D.GUIDES.irishnu.who === undefined && /^Your guide, and your reflection: the self you send ahead into Aretoria, in ivory and sapphire, so that someone at the center always remembers why you came\./.test(D.GUIDE.dialogue.nodes.who.text) && D.GUIDE.dialogue.nodes.who.choices[2].label === 'Then remind me: let me explore.');
+  assert('a long label is used where the guide is labeled; dialogue uses the short name', D.guideLabel() === 'Irishnu' && D.GUIDE.label === 'Irishnu' && Object.values(D.GUIDES).every((g) => !g.label || (g.label.startsWith(g.name + ' ') && !/[\u2014~]/.test(g.label) && !g.who.includes(g.label))));
   const dj = noComments(src('./aretoria-data.js')), aj = noComments(src('./aretoria.js')), bj = src('./boot.js');
   assert('the visitor name is prefilled only from a link and only when none is saved', /if \(r\.fromLink && v && !cleanName\(localStorage\.getItem\(NAME_KEY\) \|\| ''\)\)/.test(dj));
   assert('Hall offers "Use the default guide" only for a family guide; it forgets the guide and reloads the plain link', /isFamilyGuide\(\) \? `<span class="ar-hall-sep" aria-hidden="true">·<\/span><button type="button" class="ar-linkbtn" data-act="guide-default">Use the default guide<\/button>` : ''/.test(aj) && /act === 'guide-default'\) \{[\s\S]{0,200}?localStorage\.removeItem\(GUIDE_KEY\)[\s\S]{0,80}?location\.replace\(location\.pathname\)/.test(aj));
-  assert('the landing names the active guide', /querySelectorAll\('\.guide-name'\)\.forEach\(\(el\) => \{ el\.textContent = guideName\(\); \}\)/.test(bj) && /aretoria-data\.js\?v=43'/.test(bj));
+  assert('labels (card, aria, Hall, name plate, stage) use guideLabel(); long labels wrap on the card', /ar-host-name\$\{guideLabel\(\)\.length > 24 \? ' ar-host-name-long' : ''\}">\$\{esc\(guideLabel\(\)\)\}/.test(aj) && /aria-label="Speak with \$\{esc\(guideLabel\(\)\)\}/.test(aj) && /name: GUIDE\.label, title: GUIDE\.title/.test(aj) && /label: `\$\{GUIDE\.label\} \$\{GUIDE\.title\}`/.test(aj) && /\.ar-host-name\.ar-host-name-long \{ white-space: normal;/.test(src('./aretoria.css')) && !/ar-host-name-long[^}]*overflow-wrap: anywhere/.test(src('./aretoria.css')));
+  assert('the landing names the active guide', /querySelectorAll\('\.guide-name'\)\.forEach\(\(el\) => \{ el\.textContent = guideLabel\(\); \}\)/.test(bj) && /aretoria-data\.js\?v=44'/.test(bj));
 }
 
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`);

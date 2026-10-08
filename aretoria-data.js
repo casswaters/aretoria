@@ -154,7 +154,9 @@ export const GUIDE_NAME_DEFAULT = 'Irishnu';
    picks that person's guide and remembers it in this browser (GUIDE_KEY), so later visits without the param keep
    it; ?guide=default (or ?guide=irishnu) and the Hall's "Use the default guide" forget it. Each entry: the guide's
    name, the armor phrase in "Who are you, really?" (a family guide also carries its own self-description `who` and
-   matching closing choice `whoGo`, so it speaks as this visitor's reflection, not Irishnu's lore), the visitor's name to prefill (only when none is saved yet;
+   matching closing choice `whoGo`, so it speaks as this visitor's reflection, not Irishnu's lore; and may carry a longer
+   `label`: the full name shown wherever the guide is labeled (card, name plate, Hall, alt and aria text, landing),
+   while `name` is what the guide is called in spoken dialogue), the visitor's name to prefill (only when none is saved yet;
    still editable in the Hall), and the art (desktop hub card; its phone sibling comes from mobileArtPath; dialogue
    face; arrival layer). Family art lives in assets/aretoria/guides/<slug>/ and is built by
    qa/aretoria/family-guides/build/build_guide.py (the same scene-integration pass as Irishnu). Unknown slugs are
@@ -170,7 +172,10 @@ export const GUIDES = {
     whoGo: 'Then walk with me: let me explore.' },
   jaycee: { name: 'Elysia Starweaver', look: 'in gold and teal', visitor: 'Jaycee', art: familyArt('jaycee'),
     who: "I am {guide}, your guide and your reflection: the self you send ahead into Aretoria, in gold and teal, so that someone at the center holds the thread of why you came. Every realm out there is one face of the same whole, {name}, and so are you. Wherever you wander, follow the golden thread home; I will be at the center, keeping the way back lit.",
-    whoGo: 'Then light the way: let me explore.' }
+    whoGo: 'Then light the way: let me explore.' },
+  chaz: { name: 'Lucid', label: 'Lucid Leridian Zol Gottsbrakiyre son of Svordsythe Zol Gottsbrakiyre', look: 'in black and opal', visitor: 'Chaz', art: familyArt('chaz'),
+    who: "I am {guide}, your guide and your reflection: the self you send ahead into Aretoria, in black and opal, standing ready at the center so you always remember why you came. Every realm out there is one face of the same whole, {name}, and so are you. Choose any gate; I will hold this ground until you return.",
+    whoGo: 'Then hold the center: let me explore.' }
 };
 const hasGuide = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(GUIDES, id);
 /** Which guide a visit gets: { id, save: 'set' | 'clear' | null, fromLink }. Pure (no storage access). */
@@ -208,6 +213,7 @@ const GREET_TEXT = "Ah, {name}. Right on time, or time is right on you; from the
 export const GUIDE = {
   id: GUIDE_ID,
   name: ACTIVE_GUIDE.name,
+  label: ACTIVE_GUIDE.label || ACTIVE_GUIDE.name,
   title: 'the Guide',
   source: 'notes', // name/persona from notes; appearance per the author: ivory-and-sapphire armor
   look: 'ivory-and-sapphire armor',
@@ -1098,6 +1104,8 @@ export const IRISHNU_PORTRAIT = GUIDE_ART.portrait;
 GUIDE.portrait = GUIDE_ART.portrait;
 /** The guide's display name (today the default; later the visitor's chosen fantasy name). */
 export function guideName() { return (GUIDE && GUIDE.name) || GUIDE_NAME_DEFAULT; }
+/** The guide's full label (card, name plate, Hall, alt/aria text); same as guideName() unless the guide has a long `label`. */
+export function guideLabel() { return (GUIDE && GUIDE.label) || guideName(); }
 /** Irishnu is the author's own LARP persona (he/him); the guide is swappable via GUIDE_ART / GUIDE.name. Face crop for the round dialogue avatar. */
 export const IRISHNU_AVATAR = GUIDE_ART.avatar;
 /** Axial hub painted floating-island backdrop (entry cinematic still uses SHRINE_IMAGE). */

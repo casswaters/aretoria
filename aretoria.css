@@ -660,3 +660,10 @@ html:has(.ar:not([hidden])), html:has(.ar:not([hidden])) body { background: #050
 @media (max-width: 699px) and (max-height: 720px) {
   .ar .ar-host.ar-guide.ar-host-photo { width: min(26vw, 100px); }
 }
+/* v69: a family guide with a long full name (label over 24 characters) wraps on its card, breaking only between words,
+   in a smaller face so it sits under the figure's feet instead of over the figure */
+.ar-host-name.ar-host-name-long { white-space: normal; width: 94%; text-align: center; line-height: 1.2; letter-spacing: .04em; font-size: .66rem; padding: 4px 8px; border-radius: 12px; }
+.ar-host-name.ar-host-name-long::after { border-radius: 14px; }
+@media (max-width: 699px) {
+  .ar-guide .ar-host-name.ar-host-name-long { font-size: .5rem; letter-spacing: .02em; line-height: 1.15; padding: 3px 4px; bottom: 2%; border-radius: 9px; }
+}
