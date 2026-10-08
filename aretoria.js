@@ -29,11 +29,11 @@ import {
   guardianRole, guardianLine, guardianPortraitPath, irishnuPortraitPath, realmBackdropPath, HUB_ART, IRISHNU_AVATAR,
   mobileArtPath, pickArtPath, ART_MOBILE_MQ, ARRIVAL, arrivalWindow,
   NAME_KEY, NAME_ASKED_KEY, FIRST_VISIT_KEY, REALM_ORDER, NAME_MAX, NAME_FALLBACK, cleanName, nameForms, guideName, guideLabel, GUIDE_ART, GUIDE_KEY, isFamilyGuide
-} from './aretoria-data.js?v=49';
-import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=49';
-import { sound } from './aretoria-audio.js?v=49';
+} from './aretoria-data.js?v=50';
+import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=50';
+import { sound } from './aretoria-audio.js?v=50';
 
-const VERSION = 49;
+const VERSION = 50;
 const MET_KEY = 'mec-aretoria:met-irishnu';
 const FIRST_SESSION_KEY = 'mec-aretoria:first-visit-session'; // sessionStorage: this visit (browser session) began as the first
 
@@ -231,7 +231,6 @@ function build() {
       <p class="ar-intro-line" aria-live="polite"></p>
       <div class="ar-intro-flare"></div>
       <div class="ar-narr-hint" aria-hidden="true"></div>
-      <button type="button" class="ar-btn ar-narr-x ar-leave" aria-label="Leave Aretoria">${LEAVE_HTML}</button>
     </div>
     <section class="ar-name" hidden role="dialog" aria-modal="true" aria-labelledby="ar-name-h">
       <form class="ar-name-card" novalidate>
@@ -264,11 +263,9 @@ function build() {
     const t = $('.ar-dlg-text');
     t.scrollBy({ top: Math.max(24, t.clientHeight * 0.8), behavior: reduced() ? 'auto' : 'smooth' });
   });
-  // Narration lines: a tap/click anywhere advances; their own ✕ leaves at once.
-  $('.ar-intro').addEventListener('click', (e) => {
-    if (e.target.closest('.ar-narr-x')) { e.stopPropagation(); return exitNow(); }
-    advanceIntro();
-  });
+  // Narration lines: a tap/click anywhere advances. v75: the entry screen (opening line) has no Leave button;
+  // Leave Aretoria shows from the arrival onward and on the closing line (Esc still leaves from the entry screen).
+  $('.ar-intro').addEventListener('click', () => advanceIntro());
   $('.ar-arrive').addEventListener('click', () => skipArrival());
   $('.ar-outro').addEventListener('click', (e) => {
     if (e.target.closest('.ar-narr-x')) { e.stopPropagation(); return finishOutro(); }
@@ -1361,7 +1358,7 @@ function refreshHubArt() {
   if (im.decode) im.decode().then(done, done); else im.onload = done;
 }
 
-/** Esc / ✕ during the opening line: leave Aretoria straight away (no closing line). */
+/** Esc during the opening line: leave Aretoria straight away (no closing line). */
 function exitNow() {
   S.introTimer.forEach(clearTimeout); S.introTimer = [];
   $('.ar-intro').hidden = true;
