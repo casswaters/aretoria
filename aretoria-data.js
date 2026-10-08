@@ -149,14 +149,65 @@ export const HUB = {
 /* The reflection guide is swappable (ROADMAP: each visitor may later name their own guide and design its
    costume). Dialogue says {guide}, never the name; the portraits live in GUIDE_ART only. */
 export const GUIDE_NAME_DEFAULT = 'Irishnu';
+
+/* Family guides (v68): owner-made guides, one per person, chosen by link. ?guide=<slug> (a lowercase first name)
+   picks that person's guide and remembers it in this browser (GUIDE_KEY), so later visits without the param keep
+   it; ?guide=default (or ?guide=irishnu) and the Hall's "Use the default guide" forget it. Each entry: the guide's
+   name, the armor phrase in "Who are you, really?" (a family guide also carries its own self-description `who` and
+   matching closing choice `whoGo`, so it speaks as this visitor's reflection, not Irishnu's lore), the visitor's name to prefill (only when none is saved yet;
+   still editable in the Hall), and the art (desktop hub card; its phone sibling comes from mobileArtPath; dialogue
+   face; arrival layer). Family art lives in assets/aretoria/guides/<slug>/ and is built by
+   qa/aretoria/family-guides/build/build_guide.py (the same scene-integration pass as Irishnu). Unknown slugs are
+   ignored. The default link (no param, nothing saved) is always Irishnu. */
+export const GUIDE_KEY = 'mec-aretoria:guide';
+export const GUIDE_DEFAULT_ID = 'irishnu';
+const familyArt = (slug) => ({ portrait: `assets/aretoria/guides/${slug}/card.jpg`, avatar: `assets/aretoria/guides/${slug}/face.jpg`, arrival: `assets/aretoria/guides/${slug}/arrival.webp` });
+export const GUIDES = {
+  irishnu: { name: GUIDE_NAME_DEFAULT, look: 'in ivory and sapphire', visitor: '',
+    art: { portrait: 'assets/aretoria/guardians/irishnu.jpg', avatar: 'assets/aretoria/guardians/irishnu-face.jpg', arrival: 'assets/aretoria/arrival/irishnu.webp' } },
+  jill: { name: 'Luz Liath', look: 'in violet and emerald', visitor: 'Jill', art: familyArt('jill'),
+    who: "I am {guide}, your guide and your reflection: the self you send ahead into Aretoria, in violet and emerald, keeping watch at the center so you never forget why you came. Every realm out there is one face of the same whole, {name}, and so are you. Choose any gate and I will be beside you on the bridge, and here at the center when you return.",
+    whoGo: 'Then walk with me: let me explore.' },
+  jaycee: { name: 'Elysia Starweaver', look: 'in gold and teal', visitor: 'Jaycee', art: familyArt('jaycee'),
+    who: "I am {guide}, your guide and your reflection: the self you send ahead into Aretoria, in gold and teal, so that someone at the center holds the thread of why you came. Every realm out there is one face of the same whole, {name}, and so are you. Wherever you wander, follow the golden thread home; I will be at the center, keeping the way back lit.",
+    whoGo: 'Then light the way: let me explore.' }
+};
+const hasGuide = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(GUIDES, id);
+/** Which guide a visit gets: { id, save: 'set' | 'clear' | null, fromLink }. Pure (no storage access). */
+export function resolveGuide(search, stored) {
+  let q = null;
+  try { q = new URLSearchParams(search || '').get('guide'); } catch { q = null; }
+  q = q == null ? null : String(q).trim().toLowerCase();
+  if (q === 'default' || q === GUIDE_DEFAULT_ID) return { id: GUIDE_DEFAULT_ID, save: 'clear', fromLink: true };
+  if (q && hasGuide(q)) return { id: q, save: stored === q ? null : 'set', fromLink: true };
+  return { id: hasGuide(stored) ? stored : GUIDE_DEFAULT_ID, save: null, fromLink: false };
+}
+function bootGuide() {
+  if (typeof window === 'undefined' || typeof location === 'undefined') return GUIDE_DEFAULT_ID;
+  let stored = null;
+  try { stored = localStorage.getItem(GUIDE_KEY); } catch { stored = null; }
+  const r = resolveGuide(location.search, stored);
+  try {
+    if (r.save === 'set') localStorage.setItem(GUIDE_KEY, r.id);
+    if (r.save === 'clear') localStorage.removeItem(GUIDE_KEY);
+    const v = cleanName(GUIDES[r.id].visitor || '');
+    if (r.fromLink && v && !cleanName(localStorage.getItem(NAME_KEY) || '')) { localStorage.setItem(NAME_KEY, v); localStorage.setItem(NAME_ASKED_KEY, '1'); }
+  } catch { /* private mode: the link still works for this visit */ }
+  return r.id;
+}
+/** The guide for this visit (family link, remembered family guide, or Irishnu). */
+export const GUIDE_ID = bootGuide();
+export const ACTIVE_GUIDE = GUIDES[GUIDE_ID];
+export const isFamilyGuide = () => GUIDE_ID !== GUIDE_DEFAULT_ID;
 const ARRIVE_TEXT = "{Name}. Steady now; the portal sets everyone down a little dazzled. You are standing at the center of the Axial Realm, the shared realm of existence: one whole, with every realm held inside it. The golden thread runs through every bridge and portal. I hold the threshold, and, when it is needed, the traveler’s attention.";
-const WHO_TEXT = "Your guide, and your reflection: the self you send ahead into Aretoria, in ivory and sapphire, so that someone at the center always remembers why you came. I point at doors, and now and then at the one walking through them; you are the door that matters most and opens least. Every realm out there is one face of the same whole, {name}, and so are you. I am simply the reminder, armored so you will take me seriously.";
+const WHO_GO = ACTIVE_GUIDE.whoGo || 'Then remind me: let me explore.';
+const WHO_TEXT = ACTIVE_GUIDE.who || "Your guide, and your reflection: the self you send ahead into Aretoria, " + ACTIVE_GUIDE.look + ", so that someone at the center always remembers why you came. I point at doors, and now and then at the one walking through them; you are the door that matters most and opens least. Every realm out there is one face of the same whole, {name}, and so are you. I am simply the reminder, armored so you will take me seriously.";
 const REALMS_TEXT = "Six great temples, {name}, each holding one great virtue. From left to right around this hall: Courage in the Forge of Valor, Justice in the Scales of Equity, Humanity in the Hearth of Hearts, Temperance in the Veil of Balance, Wisdom in the Prism of Insight, and Transcendence in the Nebula of Awe. The eighty-one virtues are shared among those six temples, each with a single home. Every temple’s Guardian serves to protect that realm: Valorix, Justar, Amara, Moder, Sophia and Auria, in that order. The virtues housed in each temple are its advisors. Across its own bridge lies the Shadow Realm, watched by the Guardian of the Veil from the Veil of Shadows: where what is out of balance gets looked at honestly instead of hidden. And this is the Axial Realm, the shared hall that joins them all; the portal set you down in the middle of it. Every door opens from here. That is rather the point of a hall.";
 const GREET_TEXT = "Ah, {name}. Right on time, or time is right on you; from the center it is hard to tell which. This is the Axial Realm, the shared realm of existence: one whole, with every realm held inside it. The golden thread runs through every bridge and portal. I hold the threshold, and, when it is needed, the traveler’s attention.";
 
 export const GUIDE = {
-  id: 'irishnu',
-  name: GUIDE_NAME_DEFAULT,
+  id: GUIDE_ID,
+  name: ACTIVE_GUIDE.name,
   title: 'the Guide',
   source: 'notes', // name/persona from notes; appearance per the author: ivory-and-sapphire armor
   look: 'ivory-and-sapphire armor',
@@ -220,7 +271,7 @@ export const GUIDE = {
         choices: [
           { label: 'What are the realms?', next: 'realmsAfterWho' },
           { label: 'Where should I go today?', next: 'today' },
-          { label: 'Then remind me: let me explore.', next: 'go' }
+          { label: WHO_GO, next: 'go' }
         ]
       },
       whoAfterRealms: {
@@ -228,7 +279,7 @@ export const GUIDE = {
         choices: [
           { label: 'And the Shadow Realm?', next: 'shadow' },
           { label: 'Where should I go today?', next: 'today' },
-          { label: 'Then remind me: let me explore.', next: 'go' }
+          { label: WHO_GO, next: 'go' }
         ]
       },
       today: {
@@ -1039,9 +1090,9 @@ if (REALM_IDS.join() !== [...REALM_ORDER, SHADOW_ID].join()) throw new Error('RE
 /** Every picture of the guide in one place (desktop card; mobile sibling via mobileArtPath; dialogue face; the
     figure standing in the arrival scene). Swap these (and GUIDE.name) to give the visitor their own guide. */
 export const GUIDE_ART = {
-  portrait: GP('irishnu'),
-  avatar: GP('irishnu-face'),
-  arrival: 'assets/aretoria/arrival/irishnu.webp'
+  portrait: ACTIVE_GUIDE.art.portrait,
+  avatar: ACTIVE_GUIDE.art.avatar,
+  arrival: ACTIVE_GUIDE.art.arrival
 };
 export const IRISHNU_PORTRAIT = GUIDE_ART.portrait;
 GUIDE.portrait = GUIDE_ART.portrait;
@@ -1073,7 +1124,7 @@ export const HUB_ART = {
    garden arch (x0 130) to Irishnu at 60% across, 0.6 s hold then 4.5 s sine ease-in-out. */
 export const ARRIVAL = {
   image: 'assets/aretoria/arrival/arrival.jpg', w: 1280, h: 590,
-  irishnu: { src: GUIDE_ART.arrival, box: [671, 412, 799, 584], feet: [735, 566] },
+  irishnu: { src: GUIDE_ART.arrival, box: ACTIVE_GUIDE.art.arrivalBox || [671, 412, 799, 584], feet: [735, 566] },
   wisps: { desk: 'assets/aretoria/arrival/wisps-desk.webp', phone: 'assets/aretoria/arrival/wisps-phone.webp' },
   desk: { cx: 640 },
   phone: { x0: 130, irsAt: 0.6, holdMs: 600, panMs: 4500, ease: 'cubic-bezier(0.37, 0, 0.63, 1)' },

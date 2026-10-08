@@ -28,11 +28,11 @@ import {
   advisorsFor, advisorDialogue, advisorTitle, advisorKey, virtueBySlug,
   guardianRole, guardianLine, guardianPortraitPath, irishnuPortraitPath, realmBackdropPath, HUB_ART, IRISHNU_AVATAR,
   mobileArtPath, pickArtPath, ART_MOBILE_MQ, ARRIVAL, arrivalWindow,
-  NAME_KEY, NAME_ASKED_KEY, FIRST_VISIT_KEY, REALM_ORDER, NAME_MAX, NAME_FALLBACK, cleanName, nameForms, guideName, GUIDE_ART
-} from './aretoria-data.js?v=42';
-import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=42';
+  NAME_KEY, NAME_ASKED_KEY, FIRST_VISIT_KEY, REALM_ORDER, NAME_MAX, NAME_FALLBACK, cleanName, nameForms, guideName, GUIDE_ART, GUIDE_KEY, isFamilyGuide
+} from './aretoria-data.js?v=43';
+import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=43';
 
-const VERSION = 42;
+const VERSION = 43;
 const MET_KEY = 'mec-aretoria:met-irishnu';
 const FIRST_SESSION_KEY = 'mec-aretoria:first-visit-session'; // sessionStorage: this visit (browser session) began as the first
 
@@ -294,6 +294,11 @@ function action(act, el) {
   else if (act === 'meet-again') {
     resetFirstVisit();
     const n = $('.ar-hall-replay'); if (n) n.textContent = `Done. Your next talk with ${guideName()} starts from the beginning, as on a first visit.`;
+  }
+  else if (act === 'guide-default') {
+    // family link (?guide=<slug>): forget the remembered guide and reload on the plain link (Irishnu)
+    try { localStorage.removeItem(GUIDE_KEY); } catch { /* private mode */ }
+    location.replace(location.pathname);
   }
   else if (act === 'name') openNamePrompt({ edit: true, done: () => { if (!$('.ar-hall').hidden) renderHallName(); } });
 }
@@ -963,7 +968,8 @@ function renderHall(filter) {
     `<p class="ar-hall-lead">The virtues I seek to compound within myself:</p>` +
     `<p class="ar-hall-count">${VIRTUES.length} virtues · ${revealed} advisors revealed</p>` +
     `<p class="ar-hall-you"><span class="ar-hall-you-t"></span> <button type="button" class="ar-linkbtn" data-act="name">Change</button>` +
-    `<span class="ar-hall-sep" aria-hidden="true">·</span><button type="button" class="ar-linkbtn" data-act="meet-again">Meet ${esc(guideName())} again</button></p>` +
+    `<span class="ar-hall-sep" aria-hidden="true">·</span><button type="button" class="ar-linkbtn" data-act="meet-again">Meet ${esc(guideName())} again</button>` +
+    (isFamilyGuide() ? `<span class="ar-hall-sep" aria-hidden="true">·</span><button type="button" class="ar-linkbtn" data-act="guide-default">Use the default guide</button>` : '') + `</p>` +
     `<p class="ar-hall-replay" role="status" aria-live="polite"></p>` +
     `<div class="ar-filters"><button type="button" class="ar-filter${filter === 'all' ? ' on' : ''}" data-realm="all">All</button>` +
     realmsIn.map((r) => `<button type="button" class="ar-filter${filter === r.id ? ' on' : ''}" data-realm="${r.id}"><i></i>${esc(r.name)}</button>`).join('') + `</div>` +
