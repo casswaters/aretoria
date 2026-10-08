@@ -76,10 +76,21 @@ export function isoDate(d) {
  * (Humanity) · last day of the month → monthly review (Temperance) · otherwise the
  * daily reflection (Wisdom).
  */
-export function ritualFor(date) {
+export function ritualFor(date, gentle = false) {
   const dow = date.getDay();
   const dom = date.getDate();
   const last = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  // Family links (v70): the same days and realms, offered as gentle invitations, never as the visitor's fixed routine.
+  if (gentle) {
+    if (dow === 0) return { id: 'sunday-audit', name: 'a quiet look back on the week', realm: 'justice',
+      line: 'It is Sunday, a good evening to look back on your week, if you like: what went well, and what you would weigh differently.' };
+    if (dow === 6 && (dom <= 7 || (dom >= 15 && dom <= 21))) return { id: 'relationship', name: 'a thought for the people you love', realm: 'humanity',
+      line: 'It is Saturday, a gentle day to think of the people closest to you, perhaps with Empathy and Compassion in the Hearth of Hearts.' };
+    if (dom === last) return { id: 'monthly', name: 'a look back on the month', realm: 'temperance',
+      line: 'It is the last day of the month, a quiet moment to look back on it, if you wish.' };
+    return { id: 'daily', name: 'a small reflection', realm: 'wisdom',
+      line: 'Today is open; any small reflection will do.' };
+  }
   if (dow === 0) return { id: 'sunday-audit', name: 'the Sunday self-audit', realm: 'justice',
     line: 'It is Sunday: the evening of your weekly self-audit and 1–10 scorecard.' };
   if (dow === 6 && (dom <= 7 || (dom >= 15 && dom <= 21))) return { id: 'relationship', name: 'the relationship reflection', realm: 'humanity',
@@ -120,7 +131,7 @@ export function nameForms(raw) {
 }
 
 export function tokenContext(date, realms = REALMS, visitorName = '') {
-  const r = ritualFor(date);
+  const r = ritualFor(date, isFamilyGuide());
   const sug = realms.find((x) => x.id === r.realm) || realms[0];
   return {
     ...nameForms(visitorName),
@@ -204,6 +215,14 @@ function bootGuide() {
 export const GUIDE_ID = bootGuide();
 export const ACTIVE_GUIDE = GUIDES[GUIDE_ID];
 export const isFamilyGuide = () => GUIDE_ID !== GUIDE_DEFAULT_ID;
+/* Personal lines (v70, the author's plan): the default link keeps every line exactly as written. Family links soften the
+   author's own routines into gentle invitations, frame the Creed as the Creed of Aretoria and use a visitor-neutral
+   Hall lead; the opening and closing narration stay as an epigraph. */
+const FAMILY_GENTLE = isFamilyGuide();
+const CREED_REF = FAMILY_GENTLE ? 'the Creed of Aretoria' : 'your Creed';
+const CREED_CHOICE = FAMILY_GENTLE ? 'Read the Creed of Aretoria' : 'Read my Creed';
+export const HALL_LEAD = FAMILY_GENTLE ? 'The virtues to compound within yourself:' : 'The virtues I seek to compound within myself:';
+export const CREED_FRAME = FAMILY_GENTLE ? 'The Creed of Aretoria' : '';
 const ARRIVE_TEXT = "{Name}. Steady now; the portal sets everyone down a little dazzled. You are standing at the center of the Axial Realm, the shared realm of existence: one whole, with every realm held inside it. The golden thread runs through every bridge and portal. I hold the threshold, and, when it is needed, the traveler’s attention.";
 const WHO_GO = ACTIVE_GUIDE.whoGo || 'Then remind me: let me explore.';
 const WHO_TEXT = ACTIVE_GUIDE.who || "Your guide, and your reflection: the self you send ahead into Aretoria, " + ACTIVE_GUIDE.look + ", so that someone at the center always remembers why you came. I point at doors, and now and then at the one walking through them; you are the door that matters most and opens least. Every realm out there is one face of the same whole, {name}, and so are you. I am simply the reminder, armored so you will take me seriously.";
@@ -305,11 +324,11 @@ export const GUIDE = {
         ]
       },
       go: {
-        text: "Then choose a gate. Touch one and you will cross; I have yet to see one refuse. To come home, follow the golden thread back to the axis, the only road in Aretoria that grows shorter the farther you walk it. The Hall of Virtues keeps all eighty-one, and your Creed waits beside it. As for me, look to the corner of your eye: I will be there, pretending not to wait. Someone has to be at the center when you get back.",
+        text: "Then choose a gate. Touch one and you will cross; I have yet to see one refuse. To come home, follow the golden thread back to the axis, the only road in Aretoria that grows shorter the farther you walk it. The Hall of Virtues keeps all eighty-one, and " + CREED_REF + " waits beside it. As for me, look to the corner of your eye: I will be there, pretending not to wait. Someone has to be at the center when you get back.",
         choices: [
           { label: 'Walk the realms', next: '@close' },
           { label: 'Open the Hall of Virtues', next: '@hall' },
-          { label: 'Read my Creed', next: '@creed' }
+          { label: CREED_CHOICE, next: '@creed' }
         ]
       }
     }
@@ -499,7 +518,7 @@ export const REALMS = [
           ]
         },
         "audit": {
-          "text": "Weigh as your Sunday self-audit does. Separate what you could control from what you could not. Hold yourself to the first. Release the second without shame. A scale that only punishes is broken; that is this realm’s shadow.",
+          "text": FAMILY_GENTLE ? "Weigh the way a quiet look back on the week might, if you keep one. Separate what you could control from what you could not. Hold yourself to the first. Release the second without shame. A scale that only punishes is broken; that is this realm’s shadow." : "Weigh as your Sunday self-audit does. Separate what you could control from what you could not. Hold yourself to the first. Release the second without shame. A scale that only punishes is broken; that is this realm’s shadow.",
           "choices": [
             {
               "label": "I’m ready to weigh it.",
@@ -614,7 +633,7 @@ export const REALMS = [
           ]
         },
         "reflect": {
-          "text": "This is your relationship reflection, first and third Saturdays. Who should feel your love this week, and how will they know it?",
+          "text": FAMILY_GENTLE ? "Here is a gentle invitation, whenever it suits you: who should feel your love this week, and how will they know it?" : "This is your relationship reflection, first and third Saturdays. Who should feel your love this week, and how will they know it?",
           "input": {
             "placeholder": "Who, and how they’ll know…"
           },
@@ -716,7 +735,7 @@ export const REALMS = [
           ]
         },
         "reflect": {
-          "text": "Let your monthly review begin in the stillness. One thing. What will you set down: a habit, a grudge, a weight that was never yours?",
+          "text": FAMILY_GENTLE ? "Let any look back begin in the stillness. One thing. What will you set down: a habit, a grudge, a weight that was never yours?" : "Let your monthly review begin in the stillness. One thing. What will you set down: a habit, a grudge, a weight that was never yours?",
           "input": {
             "placeholder": "I will set down…"
           },

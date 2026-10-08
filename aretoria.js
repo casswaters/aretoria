@@ -23,16 +23,16 @@
  * into his card (now bottom-right). Reduced motion: a 300 ms cross-fade, no pan or zoom.
  */
 import {
-  REALMS, GUIDE, HUB, CREED, OPENING, CLOSING, VIRTUES, SHRINE_IMAGE,
+  REALMS, GUIDE, HUB, CREED, OPENING, CLOSING, VIRTUES, SHRINE_IMAGE, HALL_LEAD, CREED_FRAME,
   reflectionKey, isoDate, tokenContext, fillTokens, readMs,
   advisorsFor, advisorDialogue, advisorTitle, advisorKey, virtueBySlug,
   guardianRole, guardianLine, guardianPortraitPath, irishnuPortraitPath, realmBackdropPath, HUB_ART, IRISHNU_AVATAR,
   mobileArtPath, pickArtPath, ART_MOBILE_MQ, ARRIVAL, arrivalWindow,
   NAME_KEY, NAME_ASKED_KEY, FIRST_VISIT_KEY, REALM_ORDER, NAME_MAX, NAME_FALLBACK, cleanName, nameForms, guideName, guideLabel, GUIDE_ART, GUIDE_KEY, isFamilyGuide
-} from './aretoria-data.js?v=44';
-import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=44';
+} from './aretoria-data.js?v=45';
+import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=45';
 
-const VERSION = 44;
+const VERSION = 45;
 const MET_KEY = 'mec-aretoria:met-irishnu';
 const FIRST_SESSION_KEY = 'mec-aretoria:first-visit-session'; // sessionStorage: this visit (browser session) began as the first
 
@@ -252,7 +252,7 @@ function build() {
     S.ty = Math.max(-1, Math.min(1, (e.beta - 45) / 25));
   });
   if (window.ResizeObserver) new ResizeObserver(() => { if (S.open) placeStage(); }).observe($('.ar-dlg'));
-  window.addEventListener('resize', () => { if (S.open) { placeStage(); layoutHub(); fitHallNames(); S.fx && S.fx.resize(); refreshArtIfBreakpointChanged(); if (S.arrival && S.arrival.phase === 'frame') placeArrival(true); } });
+  window.addEventListener('resize', () => { if (S.open) { markTopHeight(); placeStage(); layoutHub(); fitHallNames(); S.fx && S.fx.resize(); refreshArtIfBreakpointChanged(); if (S.arrival && S.arrival.phase === 'frame') placeArrival(true); } });
   const onArtMq = () => { refreshArtIfBreakpointChanged(); };
   if (artMQ.addEventListener) artMQ.addEventListener('change', onArtMq);
   else if (artMQ.addListener) artMQ.addListener(onArtMq);
@@ -593,6 +593,7 @@ function showView(id) {
   } else {
     const r = realmById(id);
     setTitle(`The ${r.name} Realm`, `${r.temple} · ${guardianSub(r)}`);
+    markTopHeight();
     renderRealmUI(id);
     const n = advisorsFor(id).length;
     hint(`Tap ${r.guardian.source === 'notes' ? r.guardian.name : 'the Guardian'} to speak${n ? ` · ${n} advisor${n > 1 ? 's' : ''} wait here` : ''}`);
@@ -602,6 +603,11 @@ function showView(id) {
 }
 
 /** Header sub-line: "Valorix, Guardian of Courage" / "Guardian of the Veil, the Veiled Sentinel". */
+/** v70: the header's height as --ar-top-h, so a phone's realm Guardian card starts below a two-line title (never over the subtitle). */
+function markTopHeight() {
+  const t = root && $('.ar-top'); if (!t) return;
+  root.style.setProperty('--ar-top-h', `${Math.ceil(t.getBoundingClientRect().bottom)}px`);
+}
 function guardianSub(r) {
   return r.guardian.source === 'notes' ? `${r.guardian.name}, ${guardianRole(r)}` : `${r.guardian.name}, ${r.guardian.title}`;
 }
@@ -965,7 +971,7 @@ function renderHall(filter) {
   $('.ar-hall').innerHTML =
     `<button type="button" class="ar-btn ar-panel-close" data-act="panel-close" aria-label="Close the Hall of Virtues">✕</button>` +
     `<div class="ar-panel-inner"><h2>Hall of Virtues</h2>` +
-    `<p class="ar-hall-lead">The virtues I seek to compound within myself:</p>` +
+    `<p class="ar-hall-lead">${esc(HALL_LEAD)}</p>` +
     `<p class="ar-hall-count">${VIRTUES.length} virtues · ${revealed} advisors revealed</p>` +
     `<p class="ar-hall-you"><span class="ar-hall-you-t"></span> <button type="button" class="ar-linkbtn" data-act="name">Change</button>` +
     `<span class="ar-hall-sep" aria-hidden="true">·</span><button type="button" class="ar-linkbtn" data-act="meet-again">Meet ${esc(guideLabel())} again</button>` +
@@ -1024,7 +1030,7 @@ function openCreed() {
   const c = $('.ar-creed');
   c.innerHTML =
     `<button type="button" class="ar-btn ar-panel-close" data-act="panel-close" aria-label="Close the Creed">✕</button>` +
-    `<article class="ar-tablet"><div class="ar-tablet-orn" aria-hidden="true">✦</div><h2>${esc(CREED.title)}</h2>` +
+    `<article class="ar-tablet"><div class="ar-tablet-orn" aria-hidden="true">✦</div>${CREED_FRAME ? `<div class="ar-creed-frame">${esc(CREED_FRAME)}</div>` : ''}<h2>${esc(CREED.title)}</h2>` +
     CREED.paragraphs.map((p) => `<p>${esc(p)}</p>`).join('') +
     `<div class="ar-tablet-rule" aria-hidden="true"><span></span>❦<span></span></div>` +
     `<div class="ar-affirm">${CREED.affirmation.map((l) => `<p>${esc(l)}</p>`).join('')}</div>` +
