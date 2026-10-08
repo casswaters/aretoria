@@ -129,12 +129,12 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('apple-mobile-web-app-title is Aretoria', /apple-mobile-web-app-title" content="Aretoria"/.test(html));
   assert('no MEC calendar / CaptainLog UI on page', !/month-grid|captains-log|panel-calendar|Modern Era Calendar/.test(html));
   assert('Irishnu mentioned as the Guide on landing', /Irishnu the Guide/.test(html));
-  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=45/.test(boot));
-  assert('SW is aretoria-v45', /aretoria-v45/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
+  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=46/.test(boot));
+  assert('SW is aretoria-v46', /aretoria-v46/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
   assert('SW precaches Aretoria code + shell', ['aretoria.js', 'aretoria-data.js', 'aretoria-art.js', 'aretoria.css', 'boot.js', 'shell.css'].every((f) => sw.includes(`./${f}`)));
   assert('SW does not precache portraits/guardians/realms', !/assets\/aretoria\/[^']*\.jpg/.test(noComments(sw)) && !/guardians\//.test(noComments(sw)) && !/realms\//.test(noComments(sw)));
-  assert('aretoria.js VERSION = 45 and imports data/art ?v=45; boot imports aretoria.js?v=45', /const VERSION = 45;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=45'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=45'/.test(src('./aretoria.js')) && /aretoria\.js\?v=45'/.test(src('./boot.js')));
-  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=45', /shell\.css\?v=18/.test(html) && /boot\.js\?v=45/.test(html) && /sw\.js\?v=45/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
+  assert('aretoria.js VERSION = 46 and imports data/art ?v=46; boot imports aretoria.js?v=46', /const VERSION = 46;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=46'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=46'/.test(src('./aretoria.js')) && /aretoria\.js\?v=46'/.test(src('./boot.js')));
+  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=46', /shell\.css\?v=18/.test(html) && /boot\.js\?v=46/.test(html) && /sw\.js\?v=46/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
   assert('manifest name Aretoria, scope /aretoria/', /"name": "Aretoria"/.test(src('./manifest.webmanifest')) && /"scope": "\/aretoria\/"/.test(src('./manifest.webmanifest')));
   assert('link back to Captain’s Log present', /modern-era-calendar/.test(html));
 }
@@ -456,7 +456,7 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('the visitor name is prefilled only from a link and only when none is saved', /if \(r\.fromLink && v && !cleanName\(localStorage\.getItem\(NAME_KEY\) \|\| ''\)\)/.test(dj));
   assert('Hall offers "Use the default guide" only for a family guide; it forgets the guide and reloads the plain link', /isFamilyGuide\(\) \? `<span class="ar-hall-sep" aria-hidden="true">·<\/span><button type="button" class="ar-linkbtn" data-act="guide-default">Use the default guide<\/button>` : ''/.test(aj) && /act === 'guide-default'\) \{[\s\S]{0,200}?localStorage\.removeItem\(GUIDE_KEY\)[\s\S]{0,80}?location\.replace\(location\.pathname\)/.test(aj));
   assert('labels (card, aria, Hall, name plate, stage) use guideLabel(); long labels wrap on the card', /ar-host-name\$\{guideLabel\(\)\.length > 24 \? ' ar-host-name-long' : ''\}">\$\{esc\(guideLabel\(\)\)\}/.test(aj) && /aria-label="Speak with \$\{esc\(guideLabel\(\)\)\}/.test(aj) && /name: GUIDE\.label, title: GUIDE\.title/.test(aj) && /label: `\$\{GUIDE\.label\} \$\{GUIDE\.title\}`/.test(aj) && /\.ar-host-name\.ar-host-name-long \{ white-space: normal;/.test(src('./aretoria.css')) && !/ar-host-name-long[^}]*overflow-wrap: anywhere/.test(src('./aretoria.css')));
-  assert('the landing names the active guide', /querySelectorAll\('\.guide-name'\)\.forEach\(\(el\) => \{ el\.textContent = guideLabel\(\); \}\)/.test(bj) && /aretoria-data\.js\?v=45'/.test(bj));
+  assert('the landing names the active guide', /querySelectorAll\('\.guide-name'\)\.forEach\(\(el\) => \{ el\.textContent = guideLabel\(\); \}\)/.test(bj) && /aretoria-data\.js\?v=46'/.test(bj));
 
   console.log('\n--- v70: personal lines. Default link unchanged; family links get gentle invitations and the Creed of Aretoria ---');
   const sun = new Date(2026, 9, 4), sat1 = new Date(2026, 9, 3), last = new Date(2026, 9, 31), mon = new Date(2026, 9, 5);
@@ -468,6 +468,13 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('family variants exist for the routine lines, the Creed and the Hall lead (no em dashes)', /FAMILY_GENTLE \? "Weigh the way a quiet look back/.test(dj) && /FAMILY_GENTLE \? "Here is a gentle invitation/.test(dj) && /FAMILY_GENTLE \? "Let any look back/.test(dj) && /'the Creed of Aretoria' : 'your Creed'/.test(dj) && /'Read the Creed of Aretoria' : 'Read my Creed'/.test(dj) && /'The virtues to compound within yourself:'/.test(dj) && !/FAMILY_GENTLE \? "[^"]*\u2014/.test(dj));
   assert('tokenContext uses the gentle rituals only on a family link; opening and closing narration unchanged', /ritualFor\(date, isFamilyGuide\(\)\)/.test(dj) && D.CLOSING.startsWith('Thus, I stand\u2014') && D.OPENING.startsWith('Within me blooms Aretoria'));
   assert('Hall lead and Creed frame come from data; phone realm card starts below the header', /ar-hall-lead">\$\{esc\(HALL_LEAD\)\}/.test(aj) && /CREED_FRAME \? `<div class="ar-creed-frame">/.test(aj) && /--ar-top-h/.test(src('./aretoria.css')) && /function markTopHeight\(\)/.test(aj));
+
+  console.log('\n--- v71: armored fallback Irishnu, and the "Scroll for more" dialogue hint ---');
+  const artSrc = src('./aretoria-art.js'), cssSrc = src('./aretoria.css');
+  assert('fallback Irishnu wears ivory plate with sapphire gems (no robe), shared by all guides', /function figPlate\(/.test(artSrc) && /-sapph/.test(artSrc) && /-ivory/.test(artSrc) && /figureSvg\('irishnu', 'pirs', true\)/.test(aj));
+  assert('dialogue text sits in a wrap with a "Scroll for more" hint (no em dashes or tildes)', /<div class="ar-dlg-textwrap"><div class="ar-dlg-text"><\/div><div class="ar-dlg-more" aria-hidden="true">.*Scroll for more<\/div><\/div>/.test(aj) && !/Scroll for more[^<]*[\u2014~]/.test(aj));
+  assert('hint shows only while the text overflows and is not read to the end; reset per node; hidden on close', /function updateMoreHint\(fromScroll\)/.test(aj) && /t\.scrollHeight > t\.clientHeight \+ 4/.test(aj) && /S\.moreSeen = false; tEl\.scrollTop = 0;/.test(aj) && /classList\.remove\('more'\)/.test(aj));
+  assert('hint is hidden by default and calm under reduced motion', /\.ar-dlg-more \{[^}]*opacity: 0; visibility: hidden/.test(cssSrc) && /\.ar-dlg-textwrap\.more \.ar-dlg-more \{/.test(cssSrc) && /prefers-reduced-motion: reduce\) \{ \.ar-dlg-more svg \{ animation: none; \}/.test(cssSrc));
 }
 
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`);

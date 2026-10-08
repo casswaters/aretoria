@@ -560,7 +560,9 @@ const FIG = {
   moder: { aura: '#8fd8d0', robe: ['#8fd8d0', '#3f8f8c', '#0f3a40'], trim: '#e8fffb', face: '#f2e6d6', hair: '#2f4a52', head: 'veil', emblem: 'orbs', pattern: 'silk', pose: 'open', silks: true },
   auria: { aura: '#c9a7f0', robe: ['#4a2a86', '#22114a', '#08051a'], trim: '#f3d9ff', face: '#efe0f4', hair: '#2a1846', head: 'hair', crown: 'stars', emblem: 'galaxy', pattern: 'stars', pose: 'chest' },
   veil: { aura: '#8a7fa6', robe: ['#2e2540', '#161022', '#07050c'], trim: '#8a7fa6', face: '#120c1c', head: 'hood', emblem: 'flame', pattern: 'cracks', pose: 'chest', hidden: true },
-  irishnu: { aura: '#f1d58e', robe: ['#f6f2ea', '#cfc6e0', '#3e3766'], trim: '#d9b56a', face: '#efdcc6', head: 'hood', crown: 'circlet', emblem: 'staff', pattern: 'prism', pose: 'chest', glint: true }
+  // Irishnu (fallback drawing, shown only if his painted art fails): ivory plate armor with sapphire gems and gold trim,
+  // bare head, short hair and beard, hands at his sides; same halo, orbit and glint as before. No robe, hood or staff.
+  irishnu: { aura: '#f1d58e', robe: ['#f6f2ea', '#cfc6e0', '#3e3766'], trim: '#d9b56a', face: '#efdcc6', hair: '#8f6a45', head: 'bare', beard: true, plate: true, pose: 'sides', glint: true }
 };
 export const FIGURE_FOR = { wisdom: 'sophia', courage: 'valorix', humanity: 'amara', justice: 'justar', temperance: 'moder', transcendence: 'auria', shadow: 'veil', irishnu: 'irishnu' };
 
@@ -631,10 +633,48 @@ function figHead(c, p) {
       `<path d="M101 112 C96 76 108 64 120 64 C132 64 144 76 139 112" fill="none" stroke="${c.trim}" stroke-width="2" opacity=".85"/>` +
       (c.hidden ? `<ellipse cx="120" cy="84" rx="18" ry="14" fill="#07040c" opacity=".7"/>` : '');
   }
+  if (c.head === 'bare') {
+    const hair = `<path d="M102 92 C98 62 142 62 138 92 C136 78 128 70 120 70 C112 70 104 78 102 92 Z" fill="${c.hair}"/>`;
+    const beard = c.beard ? `<path d="M103 96 C103 116 111 126 120 126 C129 126 137 116 137 96 C134 106 127 110 120 110 C113 110 106 106 103 96 Z" fill="${c.hair}"/>` +
+      `<path d="M112 104 Q120 100 128 104 Q120 107 112 104 Z" fill="${c.hair}"/>` : '';
+    return neck + face + eyes + beard + hair;
+  }
   const hairBack = `<path d="M102 76 C98 58 142 58 138 76 C148 106 150 140 160 180 C142 170 130 150 120 150 C110 150 98 170 80 180 C90 140 92 106 102 76 Z" fill="${c.hair}"/>`;
   const hairFront = `<path d="M103 90 C100 64 140 64 137 90 C132 76 124 72 120 73 C112 73 106 80 103 90 Z" fill="${c.hair}"/>`;
   const veil = c.head === 'veil' ? `<path d="M96 100 C90 60 150 60 144 100 C150 150 166 200 176 250 C150 230 90 230 64 250 C74 200 90 150 96 100 Z" fill="#e8fffb" opacity=".22"/>` : '';
   return hairBack + neck + face + eyes + hairFront + veil;
+}
+
+/** Ivory plate armor with sapphire gems and gold trim (Irishnu's fallback drawing). Mirrored left/right. */
+function figPlate(c, p) {
+  const iv = `fill="url(#${p}-ivory)" stroke="#8f8371" stroke-width="1"`;
+  const gold = `fill="none" stroke="url(#${p}-gold)" stroke-width="2"`;
+  const gem = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#${p}-sapph)" stroke="#e8d79f" stroke-width=".8"/><circle cx="${f(x - r * .35)}" cy="${f(y - r * .35)}" r="${f(r * .3)}" fill="#fff" opacity=".7"/>`;
+  const side = (d) => d + mirrorPath(d);
+  const both = (fn) => fn(false) + fn(true);
+  const mx = (x, m) => (m ? 240 - x : x);
+  const legs = both((m) => {
+    const P = (pts) => 'M' + pts.map(([x, y]) => `${f(mx(x, m))} ${y}`).join(' L') + ' Z';
+    return `<path d="${P([[92, 300], [117, 300], [115, 372], [95, 372]])}" ${iv}/>` +
+      `<path d="${P([[95, 388], [115, 388], [113, 452], [97, 452]])}" ${iv}/>` +
+      `<path d="M${mx(97, m)} 452 L${mx(113, m)} 452 L${mx(118, m)} 470 L${mx(86, m)} 470 Z" ${iv}/>` +
+      `<ellipse cx="${mx(105, m)}" cy="380" rx="12" ry="10" ${iv}/>` + gem(mx(105, m), 380, 3.4) +
+      `<path d="M${mx(97, m)} 452 L${mx(113, m)} 452" ${gold}/>`;
+  });
+  const tassets = both((m) => `<path d="M${mx(87, m)} 246 L${mx(119, m)} 246 L${mx(116, m)} 318 L${mx(83, m)} 310 Z" ${iv}/>` +
+    `<path d="M${mx(85, m)} 306 L${mx(116, m)} 314" ${gold}/>` + gem(mx(101, m), 278, 3.6));
+  const arms = both((m) => `<path d="M${mx(71, m)} 156 L${mx(90, m)} 158 L${mx(88, m)} 210 L${mx(72, m)} 208 Z" ${iv}/>` +
+    `<path d="M${mx(72, m)} 212 L${mx(88, m)} 214 L${mx(90, m)} 262 L${mx(73, m)} 262 Z" ${iv}/>` + `<path d="M${mx(73, m)} 258 L${mx(90, m)} 258" ${gold}/>` +
+    `<ellipse cx="${mx(82, m)}" cy="273" rx="9" ry="11" ${iv}/>` + gem(mx(81, m), 236, 3));
+  const pauldrons = both((m) => `<path d="M${mx(68, m)} 152 C${mx(66, m)} 128 ${mx(90, m)} 118 ${mx(106, m)} 127 L${mx(102, m)} 157 C${mx(92, m)} 165 ${mx(77, m)} 164 ${mx(68, m)} 152 Z" ${iv}/>` +
+    `<path d="M${mx(70, m)} 150 C${mx(80, m)} 158 ${mx(94, m)} 158 ${mx(102, m)} 152" ${gold}/>` + gem(mx(87, m), 140, 4.2));
+  const torso = `<path d="M90 132 C94 127 146 127 150 132 L156 196 C150 226 136 240 120 245 C104 240 90 226 84 196 Z" ${iv}/>` +
+    `<path d="M120 134 L120 238" stroke="#b9ad97" stroke-width="1.2"/>` +
+    `<path d="M92 136 C104 146 136 146 148 136" ${gold}/><path d="M86 198 C96 222 108 234 120 238 C132 234 144 222 154 198" ${gold}/>` +
+    gem(120, 172, 6) + gem(103, 152, 3.6) + gem(137, 152, 3.6) + gem(110, 206, 3) + gem(130, 206, 3) +
+    `<rect x="85" y="236" width="70" height="12" rx="3" fill="url(#${p}-gold)" stroke="#8a6a2a" stroke-width=".8"/>` + gem(120, 242, 4) +
+    `<path d="M103 117 Q120 128 137 117 L141 133 Q120 143 99 133 Z" ${iv}/><path d="M100 132 Q120 141 140 132" ${gold}/>`;
+  return legs + tassets + torso + arms + pauldrons;
 }
 
 /** Build a host figure. `prefix` keeps gradient ids unique; `portrait` crops to head + shoulders. */
@@ -651,6 +691,8 @@ export function figureSvg(key, prefix, portrait = false) {
     ${lg(`${p}-goldH`, [[0, '#9c7330'], [0.5, '#fff1c1'], [1, '#a57b34']], 1, 0)}
     ${lg(`${p}-spec`, [[0, '#ff8fa3'], [0.2, '#ffd27a'], [0.4, '#9ef0c8'], [0.6, '#7fb8ff'], [0.8, '#c9a7f0'], [1, '#f2b8cf']])}
     ${rg(`${p}-flamegl`, [[0, '#ffe7b0', 0.8], [0.5, '#c98aff', 0.35], [1, '#7a4ab0', 0]])}
+    ${lg(`${p}-ivory`, [[0, '#fffdf6'], [0.55, '#efe6d4'], [1, '#b9ad97']], 1, 0)}
+    ${rg(`${p}-sapph`, [[0, '#cfe6ff'], [0.45, '#3a7bea'], [1, '#0b2a7a']])}
     <clipPath id="${p}-clip"><path d="${ROBE}"/></clipPath>
   </defs>`;
   const sleeve = c.pose === 'open' ? SLEEVE_OPEN : SLEEVE_CHEST;
@@ -669,7 +711,7 @@ export function figureSvg(key, prefix, portrait = false) {
     ? `<g class="fig-halo" fill="none" stroke="#8a7fa6" stroke-width="1.4" opacity=".55"><path d="M80 80 A42 42 0 0 1 150 56"/><path d="M160 90 A42 42 0 0 1 120 134"/><path d="M96 126 A42 42 0 0 1 78 96"/></g>`
     : `<g class="fig-halo" fill="none" stroke="${c.emblem === 'sword' ? '#ffcf8a' : '#f1d58e'}" stroke-width="1.2" opacity=".75"><circle cx="120" cy="92" r="46"/><circle cx="106" cy="92" r="30"/><circle cx="134" cy="92" r="30"/><circle cx="120" cy="78" r="30"/><circle cx="120" cy="106" r="30"/></g>`;
   const orbit = `<g transform="translate(120 260) scale(1 .28)"><circle r="96" fill="none" stroke="${c.trim}" stroke-width="2.4" opacity=".35"/><g class="fig-spin"><circle cx="96" cy="0" r="9" fill="#fff" opacity=".9"/></g></g>`;
-  const body = `<g class="fig-body">${cape}${silks}<path d="${ROBE}" fill="url(#${p}-robe)"/>` +
+  const body = c.plate ? `<g class="fig-body">${figPlate(c, p)}${figHead(c, p)}</g>` : `<g class="fig-body">${cape}${silks}<path d="${ROBE}" fill="url(#${p}-robe)"/>` +
     `<g clip-path="url(#${p}-clip)">${figPattern(c, p)}<path d="M100 200 C96 300 86 400 80 476 M140 200 C144 300 154 400 160 476 M120 240 L120 476" stroke="#000" stroke-opacity=".18" stroke-width="2" fill="none"/></g>` +
     `<path d="M98 120 Q120 150 142 120" stroke="${c.trim}" stroke-width="2.2" fill="none"/>` +
     (c.armor ? '' : `<path d="M66 236 Q120 250 174 236" stroke="${c.trim}" stroke-width="2.4" fill="none" opacity=".85"/>`) +
