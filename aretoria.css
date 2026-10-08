@@ -510,7 +510,7 @@ html.ar-lock, html.ar-lock body { overflow: hidden; }
 html:has(.ar:not([hidden])), html:has(.ar:not([hidden])) body { background: #05040e; }
 /* phones: every control is at least a 44px tap target (Apple HIG) without changing its look */
 @media (max-width: 699px) {
-  .ar .ar-x, .ar .ar-narr-x, .ar .ar-panel-close { width: 44px; height: 44px; min-width: 44px; }
+  .ar .ar-panel-close { width: 44px; height: 44px; min-width: 44px; }
   .ar .ar-back { min-height: 44px; }
   .ar .ar-dlg-close { width: 44px; height: 44px; top: 6px; right: 6px; }
   .ar .ar-pill, .ar .ar-filter, .ar .ar-choice { min-height: 44px; }
@@ -712,4 +712,25 @@ html:has(.ar:not([hidden])), html:has(.ar:not([hidden])) body { background: #050
   .ar .ar-back { width: 44px; min-width: 44px; padding: 0 2px 3px 0; font-family: inherit; font-size: 1.9rem; line-height: 1; letter-spacing: 0; display: inline-grid; place-items: center; }
   .ar .ar-back[hidden] { display: none; }
   .ar .ar-back span { display: none; }
+}
+
+/* ---------- v73: "Leave Aretoria" exit button (labeled, never a bare ✕) ----------
+   An ivory and gold rounded pill with a door glyph, unlike the round dark ✕ buttons that close a dialogue or panel. */
+.ar:focus { outline: none; }
+.ar .ar-leave { width: auto; min-width: 0; height: 40px; padding: 0 14px 0 11px; border-radius: 12px; display: inline-flex; align-items: center; gap: 7px;
+  border: 1px solid rgba(241,213,142,.75); color: #fff6dc;
+  background: linear-gradient(180deg, rgba(255,241,193,.24), rgba(227,191,108,.14)), rgba(14,11,30,.72);
+  box-shadow: 0 0 0 1px rgba(255,241,193,.08) inset, 0 0 16px rgba(0,0,0,.35);
+  font-family: var(--display); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; line-height: 1.1; white-space: nowrap; }
+.ar .ar-leave:hover { border-color: var(--gold-b); background: linear-gradient(180deg, rgba(255,241,193,.32), rgba(227,191,108,.2)), rgba(14,11,30,.72); }
+.ar-leave-ico { flex: none; color: var(--gold-b); }
+.ar-leave-t { display: inline-flex; gap: .45em; }
+.ar-narr-x.ar-leave { opacity: .86; }
+@media (max-width: 699px) {
+  /* phones: the header has a round back button, the speaker and this pill; words on two short lines keep realm titles at full width */
+  .ar-top { gap: 5px; padding-left: 8px; padding-right: 8px; }
+  .ar .ar-leave { height: 44px; min-width: 0; padding: 0 9px; border-radius: 12px; font-size: .58rem; letter-spacing: .07em; line-height: 1.15; }
+  .ar .ar-leave .ar-leave-ico { display: none; } /* the two-line words carry it; the realm title keeps its width */
+  .ar-leave-t { flex-direction: column; align-items: flex-start; gap: 1px; }
+  .ar .ar-narr-x.ar-leave { right: 8px; }
 }

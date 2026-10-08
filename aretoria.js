@@ -29,11 +29,11 @@ import {
   guardianRole, guardianLine, guardianPortraitPath, irishnuPortraitPath, realmBackdropPath, HUB_ART, IRISHNU_AVATAR,
   mobileArtPath, pickArtPath, ART_MOBILE_MQ, ARRIVAL, arrivalWindow,
   NAME_KEY, NAME_ASKED_KEY, FIRST_VISIT_KEY, REALM_ORDER, NAME_MAX, NAME_FALLBACK, cleanName, nameForms, guideName, guideLabel, GUIDE_ART, GUIDE_KEY, isFamilyGuide
-} from './aretoria-data.js?v=47';
-import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=47';
-import { sound } from './aretoria-audio.js?v=47';
+} from './aretoria-data.js?v=48';
+import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=48';
+import { sound } from './aretoria-audio.js?v=48';
 
-const VERSION = 47;
+const VERSION = 48;
 const MET_KEY = 'mec-aretoria:met-irishnu';
 const FIRST_SESSION_KEY = 'mec-aretoria:first-visit-session'; // sessionStorage: this visit (browser session) began as the first
 
@@ -116,12 +116,17 @@ const continueText = () => (coarse() ? 'Tap to continue' : 'Click or press Enter
 const HINT_DELAY_MS = 1200; // the "continue" hint fades in shortly after a narration line appears
 const $ = (sel) => root.querySelector(sel);
 
-/* ---------- sound (aretoria-audio.js): off by default, the header speaker toggles it ----------
+/* ---------- sound (aretoria-audio.js): on by default from v73 (starts on the first tap), the header speaker turns it off ----------
    One loop per room (arrival, the hub, each realm, the Hall of Virtues), crossfaded; soft UI cues. */
 const SND_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
   '<path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z" fill="currentColor" fill-opacity=".18"/>' +
   '<path class="ar-snd-on" d="M15.5 9.2a4 4 0 0 1 0 5.6M18 6.8a7.4 7.4 0 0 1 0 10.4"/>' +
   '<path class="ar-snd-off" d="M16 9.5l5 5M21 9.5l-5 5"/></svg>';
+/* v73: the exit is a labeled "Leave Aretoria" button (door glyph + words), never a bare ✕, so it is not mistaken for
+   the dialogue / panel close buttons. Phones show the words on two short lines. */
+const LEAVE_HTML = '<svg class="ar-leave-ico" viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
+  '<path d="M13.5 4.5H6.5v15h7"/><path d="M6.5 4.5l6 1.6v13.8l-6-0.4" fill="currentColor" fill-opacity=".16"/><path d="M15.5 12h6M19 9.2l2.6 2.8-2.6 2.8"/></svg>' +
+  '<span class="ar-leave-t"><span>Leave</span> <span>Aretoria</span></span>';
 function paintSoundBtn() {
   const b = root && $('.ar-snd'); if (!b) return;
   b.classList.toggle('on', sound.on);
@@ -180,6 +185,7 @@ function build() {
   root.setAttribute('role', 'dialog');
   root.setAttribute('aria-modal', 'true');
   root.setAttribute('aria-label', 'Aretoria');
+  root.tabIndex = -1; // focus home after the intro / a closed panel (instead of the Leave button)
   root.hidden = true;
   root.innerHTML = `
     <div class="ar-world" aria-hidden="true">
@@ -199,7 +205,7 @@ function build() {
       <button type="button" class="ar-btn ar-back" hidden aria-label="Back to the Axial hub">‹ <span>Axial hub</span></button>
       <div class="ar-title"><div class="ar-title-main"></div><div class="ar-title-sub"></div></div>
       <button type="button" class="ar-btn ar-snd" aria-pressed="false" aria-label="Sound off. Turn sound on">${SND_ICON}</button>
-      <button type="button" class="ar-btn ar-x" aria-label="Leave Aretoria">✕</button>
+      <button type="button" class="ar-btn ar-x ar-leave" aria-label="Leave Aretoria">${LEAVE_HTML}</button>
     </header>
     <div class="ar-lore" hidden></div>
     <div class="ar-hint" aria-live="polite"></div>
@@ -225,7 +231,7 @@ function build() {
       <p class="ar-intro-line" aria-live="polite"></p>
       <div class="ar-intro-flare"></div>
       <div class="ar-narr-hint" aria-hidden="true"></div>
-      <button type="button" class="ar-btn ar-narr-x" aria-label="Leave Aretoria">✕</button>
+      <button type="button" class="ar-btn ar-narr-x ar-leave" aria-label="Leave Aretoria">${LEAVE_HTML}</button>
     </div>
     <section class="ar-name" hidden role="dialog" aria-modal="true" aria-labelledby="ar-name-h">
       <form class="ar-name-card" novalidate>
@@ -241,7 +247,7 @@ function build() {
     <div class="ar-outro" hidden>
       <p aria-live="polite"></p>
       <div class="ar-narr-hint" aria-hidden="true"></div>
-      <button type="button" class="ar-btn ar-narr-x" aria-label="Leave Aretoria now">✕</button>
+      <button type="button" class="ar-btn ar-narr-x ar-leave" aria-label="Leave Aretoria">${LEAVE_HTML}</button>
     </div>`;
   document.body.appendChild(root);
 
@@ -1106,7 +1112,7 @@ function rememberFocus() {
 function restoreFocus() {
   const r = S.ret; S.ret = null;
   if (!S.open) return;
-  const t = r && r.isConnected && r.offsetParent !== null ? r : $('.ar-x');
+  const t = r && r.isConnected && r.offsetParent !== null ? r : root; // v73: never fall back onto the Leave button
   t.focus({ preventScroll: true });
 }
 
@@ -1189,7 +1195,7 @@ function finishIntro() {
   S.introTimer.forEach(clearTimeout); S.introTimer = [];
   intro.classList.add('done');
   setTimeout(() => { intro.hidden = true; intro.className = 'ar-intro'; }, reduced() ? 50 : 450);
-  if (document.activeElement === intro || !root.contains(document.activeElement)) $('.ar-x').focus({ preventScroll: true });
+  if (document.activeElement === intro || !root.contains(document.activeElement)) root.focus({ preventScroll: true });
   const t = S.introTarget; S.introTarget = null;
   syncSound();
   if (t && realmById(t)) { showView(t); return; }
