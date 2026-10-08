@@ -4,7 +4,7 @@ Repo-only planning file. It is excluded from GitHub Pages and never ships to the
 Deploy = push to main; `.github/workflows/pages.yml` publishes main to gh-pages without this file. Do not push main to gh-pages by hand.
 Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of Aretoria; it links to this standalone site. Aretoria changes ship here only.
 
-**Last updated:** 2026-10-07, 7:55 PM MT
+**Last updated:** 2026-10-08, 7:10 AM MT
 
 ## House rules
 - One palette for the whole world: ivory, gold and cosmic night. No realm color-coding.
@@ -12,6 +12,8 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 - Irishnu is Cassidy (he/him): armor, not robes.
 - 81 virtues, each housed once in the six great temples (14/14/14/13/13/13); none on the axis or in Shadow.
 - Guardians are warriors who protect their realms (they may offer advice now and then); the virtues are the advisors.
+- Personal lines (Cassidy, 2026-10-08): the default link keeps every line exactly as written. Family links soften the author's routines (Sunday self-audit, first/third Saturday relationship reflection, monthly review, and Justar's, Amara's and Moder's references to them) into gentle invitations, frame the Creed as "the Creed of Aretoria" ("Read the Creed of Aretoria"), and use a visitor-neutral Hall lead ("The virtues to compound within yourself:"). The opening and closing narration ("Within me blooms Aretoria", "Thus, I stand") stay as an epigraph on every link.
+- Tagline: "The Seven Realms" stays (Cassidy, 2026-10-08).
 - Lore rule (Cassidy, 2026-10-07): "The guide serves as the user's reflection. The reflection is the identity the guardians and advisors work with." So guardian and advisor lines that speak of {guide} (for example Sophia's "{guide} and I have argued since before the axis had a name") hold for every visitor's guide, the default and each family guide alike, and stay as written.
 - Realms, temples and Guardians are always listed in the order the temples sit in the Axial hub art, left to right: Courage, Justice, Humanity, Temperance, Wisdom, Transcendence (REALM_ORDER in aretoria-data.js). Shadow comes after the six (its gate is front-centre, below the plaza).
 - No em dashes or tildes in served copy, except the author's closing line "Thus, I stand—a testament…".
@@ -31,8 +33,7 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 
 ## Next
 - Lock Version 1 scope: the six virtue realms plus Shadow, complete and consistent (Guardians, advisors, Hall of Virtues, Creed).
-- Redraw the drawn fallback Irishnu figure in armor (it is still hooded/robed). Rough draft to Cassidy first.
-- Apply the landing "Seven Realms" wording once decided (landing, meta, manifest).
+- Redraw the drawn fallback Irishnu figure in armor (approved 2026-10-08). Rough draft (ivory plate, sapphire gems, gold trim, bare head and beard; not live) in qa/aretoria/irishnu-fallback-armor/, waiting on Cassidy's look.
 
 ## Later
 - In-browser guide creator (idea only, not planned): a visitor would build their own guide on the page (presets or photo upload). The 12-preset draft (qa/aretoria/guide-creator-draft/) was dropped on 2026-10-07 because it fell short; family links (in Now) replace it. An AI portrait or free conversation would need a backend or key and cost per use.
@@ -44,14 +45,12 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 - Short guided walk for first-time visitors (portal → hub → one realm → Hall).
 
 ## Open decisions (waiting on Cassidy)
-- v62 personal lines (flagged, unchanged; list in qa/aretoria/username-v37/flagged-lines.md): keep, generalise or make optional for visitors? Ritual days (Sunday self-audit with 1–10 scorecard, 1st/3rd Saturday relationship reflection, monthly review), "your Creed" / "Read my Creed" (the Creed is Cassidy's own), the Hall lead "The virtues I seek to compound within myself", Irishnu's "Who are you, really?" answer ("the self you send ahead…, in ivory and sapphire"): restored in v65; it fits once each visitor has their own reflection guide.
-- Landing "The Seven Realms": six realms plus Shadow, or six plus a shared realm?
-- The drawn fallback Irishnu is still hooded/robed: approve a redraw in armor?
 - The v35 hub painting fix: confirmed on your iPhone?
 - Optional color quests inside realms later: yes or no?
 - Version 1 = six virtue realms plus Shadow: confirm.
 
 ## Shipped (newest first, times MT)
+- 2026-10-08 07:15: v70 (SW v45): personal lines on family links (gentle invitations instead of the author's routines, the Creed of Aretoria, visitor-neutral Hall lead; default link unchanged). From the 2026-10-08 live audit: on phones the realm Guardian card now starts below a two-line realm title (it ran into the subtitle), and a guide name wider than its hub card ("Elysia Starweaver") wraps inside the card instead of running off the right edge. Decisions closed: personal lines, tagline "The Seven Realms" kept.
 - 2026-10-07 19:55: guardian relationship lines closed. Cassidy keeps them as is under the lore rule "The guide serves as the user's reflection. The reflection is the identity the guardians and advisors work with." (added to House rules). Guardian dialogue unchanged.
 - 2026-10-07 19:51: v69 (SW v44): family guide for Chaz (?guide=chaz), approved by Cassidy as is. Label "Lucid Leridian Zol Gottsbrakiyre son of Svordsythe Zol Gottsbrakiyre" on plates, hub card, Hall, aria, landing and meta; he speaks only as "Lucid"; own black and opal reflection. Long labels wrap between words only, in a smaller face on phones.
 - 2026-10-07 19:04: v68 (SW v43): family guides by link (?guide=<slug>, remembered, "Use the default guide" in the Hall, ?guide=default). First guides, approved by Cassidy: Jill (Luz Liath) and Jaycee (Elysia Starweaver), each with its own reflection answer. Default link unchanged (Irishnu).

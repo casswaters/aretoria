@@ -129,12 +129,12 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('apple-mobile-web-app-title is Aretoria', /apple-mobile-web-app-title" content="Aretoria"/.test(html));
   assert('no MEC calendar / CaptainLog UI on page', !/month-grid|captains-log|panel-calendar|Modern Era Calendar/.test(html));
   assert('Irishnu mentioned as the Guide on landing', /Irishnu the Guide/.test(html));
-  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=44/.test(boot));
-  assert('SW is aretoria-v44', /aretoria-v44/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
+  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=45/.test(boot));
+  assert('SW is aretoria-v45', /aretoria-v45/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
   assert('SW precaches Aretoria code + shell', ['aretoria.js', 'aretoria-data.js', 'aretoria-art.js', 'aretoria.css', 'boot.js', 'shell.css'].every((f) => sw.includes(`./${f}`)));
   assert('SW does not precache portraits/guardians/realms', !/assets\/aretoria\/[^']*\.jpg/.test(noComments(sw)) && !/guardians\//.test(noComments(sw)) && !/realms\//.test(noComments(sw)));
-  assert('aretoria.js VERSION = 44 and imports data/art ?v=44; boot imports aretoria.js?v=44', /const VERSION = 44;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=44'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=44'/.test(src('./aretoria.js')) && /aretoria\.js\?v=44'/.test(src('./boot.js')));
-  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=44', /shell\.css\?v=18/.test(html) && /boot\.js\?v=44/.test(html) && /sw\.js\?v=44/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
+  assert('aretoria.js VERSION = 45 and imports data/art ?v=45; boot imports aretoria.js?v=45', /const VERSION = 45;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=45'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=45'/.test(src('./aretoria.js')) && /aretoria\.js\?v=45'/.test(src('./boot.js')));
+  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=45', /shell\.css\?v=18/.test(html) && /boot\.js\?v=45/.test(html) && /sw\.js\?v=45/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
   assert('manifest name Aretoria, scope /aretoria/', /"name": "Aretoria"/.test(src('./manifest.webmanifest')) && /"scope": "\/aretoria\/"/.test(src('./manifest.webmanifest')));
   assert('link back to Captain’s Log present', /modern-era-calendar/.test(html));
 }
@@ -456,7 +456,18 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('the visitor name is prefilled only from a link and only when none is saved', /if \(r\.fromLink && v && !cleanName\(localStorage\.getItem\(NAME_KEY\) \|\| ''\)\)/.test(dj));
   assert('Hall offers "Use the default guide" only for a family guide; it forgets the guide and reloads the plain link', /isFamilyGuide\(\) \? `<span class="ar-hall-sep" aria-hidden="true">·<\/span><button type="button" class="ar-linkbtn" data-act="guide-default">Use the default guide<\/button>` : ''/.test(aj) && /act === 'guide-default'\) \{[\s\S]{0,200}?localStorage\.removeItem\(GUIDE_KEY\)[\s\S]{0,80}?location\.replace\(location\.pathname\)/.test(aj));
   assert('labels (card, aria, Hall, name plate, stage) use guideLabel(); long labels wrap on the card', /ar-host-name\$\{guideLabel\(\)\.length > 24 \? ' ar-host-name-long' : ''\}">\$\{esc\(guideLabel\(\)\)\}/.test(aj) && /aria-label="Speak with \$\{esc\(guideLabel\(\)\)\}/.test(aj) && /name: GUIDE\.label, title: GUIDE\.title/.test(aj) && /label: `\$\{GUIDE\.label\} \$\{GUIDE\.title\}`/.test(aj) && /\.ar-host-name\.ar-host-name-long \{ white-space: normal;/.test(src('./aretoria.css')) && !/ar-host-name-long[^}]*overflow-wrap: anywhere/.test(src('./aretoria.css')));
-  assert('the landing names the active guide', /querySelectorAll\('\.guide-name'\)\.forEach\(\(el\) => \{ el\.textContent = guideLabel\(\); \}\)/.test(bj) && /aretoria-data\.js\?v=44'/.test(bj));
+  assert('the landing names the active guide', /querySelectorAll\('\.guide-name'\)\.forEach\(\(el\) => \{ el\.textContent = guideLabel\(\); \}\)/.test(bj) && /aretoria-data\.js\?v=45'/.test(bj));
+
+  console.log('\n--- v70: personal lines. Default link unchanged; family links get gentle invitations and the Creed of Aretoria ---');
+  const sun = new Date(2026, 9, 4), sat1 = new Date(2026, 9, 3), last = new Date(2026, 9, 31), mon = new Date(2026, 9, 5);
+  assert('default ritual lines are exactly as before', D.ritualFor(sun).line === 'It is Sunday: the evening of your weekly self-audit and 1–10 scorecard.' && /your relationship reflection/.test(D.ritualFor(sat1).line) && /your monthly review/.test(D.ritualFor(last).line) && D.ritualFor(mon).line === 'Today is a day for your daily reflection.');
+  assert('gentle ritual lines keep the same days and realms but never say "your self-audit / relationship reflection / monthly review"', [sun, sat1, last, mon].every((d) => D.ritualFor(d, true).realm === D.ritualFor(d).realm && D.ritualFor(d, true).id === D.ritualFor(d).id && !/self-audit|scorecard|your relationship reflection|your monthly review|your daily reflection|[\u2014~]/.test(D.ritualFor(d, true).line + D.ritualFor(d, true).name)));
+  assert('default link keeps "your Creed", "Read my Creed", the first-person Hall lead and no Creed frame', /and your Creed waits beside it/.test(D.GUIDE.dialogue.nodes.go.text) && D.GUIDE.dialogue.nodes.go.choices.some((c) => c.label === 'Read my Creed') && D.HALL_LEAD === 'The virtues I seek to compound within myself:' && D.CREED_FRAME === '');
+  const jus = D.REALMS.find((r) => r.id === 'justice'), hum = D.REALMS.find((r) => r.id === 'humanity'), tem = D.REALMS.find((r) => r.id === 'temperance');
+  assert('default Guardians keep their routine lines (Justar, Amara, Moder)', JSON.stringify(jus.dialogue).includes('Weigh as your Sunday self-audit does') && JSON.stringify(hum.dialogue).includes('This is your relationship reflection, first and third Saturdays') && JSON.stringify(tem.dialogue).includes('Let your monthly review begin'));
+  assert('family variants exist for the routine lines, the Creed and the Hall lead (no em dashes)', /FAMILY_GENTLE \? "Weigh the way a quiet look back/.test(dj) && /FAMILY_GENTLE \? "Here is a gentle invitation/.test(dj) && /FAMILY_GENTLE \? "Let any look back/.test(dj) && /'the Creed of Aretoria' : 'your Creed'/.test(dj) && /'Read the Creed of Aretoria' : 'Read my Creed'/.test(dj) && /'The virtues to compound within yourself:'/.test(dj) && !/FAMILY_GENTLE \? "[^"]*\u2014/.test(dj));
+  assert('tokenContext uses the gentle rituals only on a family link; opening and closing narration unchanged', /ritualFor\(date, isFamilyGuide\(\)\)/.test(dj) && D.CLOSING.startsWith('Thus, I stand\u2014') && D.OPENING.startsWith('Within me blooms Aretoria'));
+  assert('Hall lead and Creed frame come from data; phone realm card starts below the header', /ar-hall-lead">\$\{esc\(HALL_LEAD\)\}/.test(aj) && /CREED_FRAME \? `<div class="ar-creed-frame">/.test(aj) && /--ar-top-h/.test(src('./aretoria.css')) && /function markTopHeight\(\)/.test(aj));
 }
 
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`);
