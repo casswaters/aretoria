@@ -2,13 +2,13 @@
  * Aretoria standalone boot — landing shrine, then full portal overlay.
  * Shares localStorage keys with Captain's Log (same github.io origin).
  */
-import { openAretoria } from './aretoria.js?v=43';
-import { guideName } from './aretoria-data.js?v=43';
+import { openAretoria } from './aretoria.js?v=44';
+import { guideLabel } from './aretoria-data.js?v=44';
 
 const landing = document.getElementById('landing');
 // Family links (?guide=<slug>): the landing names that person's guide (Irishnu by default).
-document.querySelectorAll('.guide-name').forEach((el) => { el.textContent = guideName(); });
-{ const m = document.querySelector('meta[name="description"]'); if (m) m.setAttribute('content', m.getAttribute('content').replace('Irishnu', guideName())); }
+document.querySelectorAll('.guide-name').forEach((el) => { el.textContent = guideLabel(); });
+{ const m = document.querySelector('meta[name="description"]'); if (m) m.setAttribute('content', m.getAttribute('content').replace('Irishnu', guideLabel())); }
 const enterBtn = document.getElementById('enter-btn');
 
 async function enter() {
@@ -34,7 +34,7 @@ window.addEventListener('aretoria:closed', () => {
 });
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js?v=43').then((reg) => {
+  navigator.serviceWorker.register('./sw.js?v=44').then((reg) => {
     reg.update().catch(() => {});
   }).catch(() => {});
 }

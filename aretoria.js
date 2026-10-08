@@ -28,11 +28,11 @@ import {
   advisorsFor, advisorDialogue, advisorTitle, advisorKey, virtueBySlug,
   guardianRole, guardianLine, guardianPortraitPath, irishnuPortraitPath, realmBackdropPath, HUB_ART, IRISHNU_AVATAR,
   mobileArtPath, pickArtPath, ART_MOBILE_MQ, ARRIVAL, arrivalWindow,
-  NAME_KEY, NAME_ASKED_KEY, FIRST_VISIT_KEY, REALM_ORDER, NAME_MAX, NAME_FALLBACK, cleanName, nameForms, guideName, GUIDE_ART, GUIDE_KEY, isFamilyGuide
-} from './aretoria-data.js?v=43';
-import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=43';
+  NAME_KEY, NAME_ASKED_KEY, FIRST_VISIT_KEY, REALM_ORDER, NAME_MAX, NAME_FALLBACK, cleanName, nameForms, guideName, guideLabel, GUIDE_ART, GUIDE_KEY, isFamilyGuide
+} from './aretoria-data.js?v=44';
+import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=44';
 
-const VERSION = 43;
+const VERSION = 44;
 const MET_KEY = 'mec-aretoria:met-irishnu';
 const FIRST_SESSION_KEY = 'mec-aretoria:first-visit-session'; // sessionStorage: this visit (browser session) began as the first
 
@@ -437,13 +437,13 @@ function runePortalHtml() {
 /** Hub Guide host: painted Irishnu when present, else the drawn Guide figure. */
 function guideHostHtml() {
   const photo = irishnuPhoto();
-  const fig = `${figureSvg('irishnu', 'irs')}<span class="ar-host-name">${esc(guideName())}</span>`;
+  const fig = `${figureSvg('irishnu', 'irs')}<span class="ar-host-name${guideLabel().length > 24 ? ' ar-host-name-long' : ''}">${esc(guideLabel())}</span>`;
   if (!photo) {
-    return `<button type="button" class="ar-host ar-guide" data-act="guide" aria-label="Speak with ${esc(guideName())}, ${esc(GUIDE.title)}">${fig}</button>`;
+    return `<button type="button" class="ar-host ar-guide" data-act="guide" aria-label="Speak with ${esc(guideLabel())}, ${esc(GUIDE.title)}">${fig}</button>`;
   }
   const desk = irishnuPortraitPath();
-  return `<button type="button" class="ar-host ar-guide ar-host-photo" data-act="guide" aria-label="Speak with ${esc(guideName())}, ${esc(GUIDE.title)}">` +
-    `<span class="ar-gframe" style="position:relative"><img src="${esc(photo)}" alt="" loading="lazy" decoding="async"${desk ? ` data-ar-desk="${esc(desk)}"` : ''}></span><span class="ar-host-name">${esc(guideName())}</span></button>`;
+  return `<button type="button" class="ar-host ar-guide ar-host-photo" data-act="guide" aria-label="Speak with ${esc(guideLabel())}, ${esc(GUIDE.title)}">` +
+    `<span class="ar-gframe" style="position:relative"><img src="${esc(photo)}" alt="" loading="lazy" decoding="async"${desk ? ` data-ar-desk="${esc(desk)}"` : ''}></span><span class="ar-host-name${guideLabel().length > 24 ? ' ar-host-name-long' : ''}">${esc(guideLabel())}</span></button>`;
 }
 function irishnuPhoto() {
   return resolveArt(irishnuPortraitPath());
@@ -463,7 +463,7 @@ function wireIrishnuPortraitFallback() {
     }
     const b = $('.ar-guide.ar-host-photo'); if (!b) return;
     b.classList.remove('ar-host-photo');
-    b.innerHTML = `${figureSvg('irishnu', 'irs')}<span class="ar-host-name">${esc(guideName())}</span>`;
+    b.innerHTML = `${figureSvg('irishnu', 'irs')}<span class="ar-host-name${guideLabel().length > 24 ? ' ar-host-name-long' : ''}">${esc(guideLabel())}</span>`;
   });
 }
 
@@ -782,9 +782,9 @@ function speakerFor(opts) {
     const photo = irishnuPhoto();
     const deskAttr = desk ? ` data-ar-desk="${esc(desk)}"` : '';
     return {
-      name: GUIDE.name, title: GUIDE.title, tree: GUIDE.dialogue, key: null, el: '.ar-guide',
+      name: GUIDE.label, title: GUIDE.title, tree: GUIDE.dialogue, key: null, el: '.ar-guide',
       portrait: photo ? `<img src="${esc(GUIDE_ART.avatar)}" alt="" class="ar-gport" style="object-position:50% 40%" onerror="this.onerror=null;this.src='${esc(photo)}'">` : figureSvg('irishnu', 'pirs', true),
-      stage: photo ? { src: photo, label: `${GUIDE.name} ${GUIDE.title}`, wide: true, desk } : null,
+      stage: photo ? { src: photo, label: `${GUIDE.label} ${GUIDE.title}`, wide: true, desk } : null,
       guide: true
     };
   }
@@ -968,7 +968,7 @@ function renderHall(filter) {
     `<p class="ar-hall-lead">The virtues I seek to compound within myself:</p>` +
     `<p class="ar-hall-count">${VIRTUES.length} virtues · ${revealed} advisors revealed</p>` +
     `<p class="ar-hall-you"><span class="ar-hall-you-t"></span> <button type="button" class="ar-linkbtn" data-act="name">Change</button>` +
-    `<span class="ar-hall-sep" aria-hidden="true">·</span><button type="button" class="ar-linkbtn" data-act="meet-again">Meet ${esc(guideName())} again</button>` +
+    `<span class="ar-hall-sep" aria-hidden="true">·</span><button type="button" class="ar-linkbtn" data-act="meet-again">Meet ${esc(guideLabel())} again</button>` +
     (isFamilyGuide() ? `<span class="ar-hall-sep" aria-hidden="true">·</span><button type="button" class="ar-linkbtn" data-act="guide-default">Use the default guide</button>` : '') + `</p>` +
     `<p class="ar-hall-replay" role="status" aria-live="polite"></p>` +
     `<div class="ar-filters"><button type="button" class="ar-filter${filter === 'all' ? ' on' : ''}" data-realm="all">All</button>` +
