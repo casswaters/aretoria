@@ -29,10 +29,10 @@ import {
   guardianRole, guardianLine, guardianPortraitPath, irishnuPortraitPath, realmBackdropPath, HUB_ART, IRISHNU_AVATAR,
   mobileArtPath, pickArtPath, ART_MOBILE_MQ, ARRIVAL, arrivalWindow,
   NAME_KEY, NAME_ASKED_KEY, FIRST_VISIT_KEY, REALM_ORDER, NAME_MAX, NAME_FALLBACK, cleanName, nameForms, guideName, guideLabel, GUIDE_ART, GUIDE_KEY, isFamilyGuide
-} from './aretoria-data.js?v=45';
-import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=45';
+} from './aretoria-data.js?v=46';
+import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=46';
 
-const VERSION = 45;
+const VERSION = 46;
 const MET_KEY = 'mec-aretoria:met-irishnu';
 const FIRST_SESSION_KEY = 'mec-aretoria:first-visit-session'; // sessionStorage: this visit (browser session) began as the first
 
@@ -178,7 +178,7 @@ function build() {
       <div class="ar-dlg-portrait"></div>
       <div class="ar-dlg-body">
         <div class="ar-dlg-name"></div>
-        <div class="ar-dlg-text"></div>
+        <div class="ar-dlg-textwrap"><div class="ar-dlg-text"></div><div class="ar-dlg-more" aria-hidden="true"><svg viewBox="0 0 10 10"><path d="M2 3.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Scroll for more</div></div>
         <textarea class="ar-dlg-input" rows="2" hidden></textarea>
         <div class="ar-dlg-status"></div>
         <div class="ar-dlg-choices"></div>
@@ -221,6 +221,12 @@ function build() {
   $('.ar-back').addEventListener('click', () => travel('axial'));
   $('.ar-dlg-close').addEventListener('click', () => closeDialogue());
   $('.ar-dlg-text').addEventListener('click', () => finishTyping());
+  $('.ar-dlg-text').addEventListener('scroll', () => updateMoreHint(true), { passive: true });
+  $('.ar-dlg-more').addEventListener('click', () => {
+    finishTyping();
+    const t = $('.ar-dlg-text');
+    t.scrollBy({ top: Math.max(24, t.clientHeight * 0.8), behavior: reduced() ? 'auto' : 'smooth' });
+  });
   // Narration lines: a tap/click anywhere advances; their own ✕ leaves at once.
   $('.ar-intro').addEventListener('click', (e) => {
     if (e.target.closest('.ar-narr-x')) { e.stopPropagation(); return exitNow(); }
@@ -251,7 +257,7 @@ function build() {
     S.tx = Math.max(-1, Math.min(1, e.gamma / 25));
     S.ty = Math.max(-1, Math.min(1, (e.beta - 45) / 25));
   });
-  if (window.ResizeObserver) new ResizeObserver(() => { if (S.open) placeStage(); }).observe($('.ar-dlg'));
+  if (window.ResizeObserver) new ResizeObserver(() => { if (S.open) { placeStage(); updateMoreHint(); } }).observe($('.ar-dlg'));
   window.addEventListener('resize', () => { if (S.open) { markTopHeight(); placeStage(); layoutHub(); fitHallNames(); S.fx && S.fx.resize(); refreshArtIfBreakpointChanged(); if (S.arrival && S.arrival.phase === 'frame') placeArrival(true); } });
   const onArtMq = () => { refreshArtIfBreakpointChanged(); };
   if (artMQ.addEventListener) artMQ.addEventListener('change', onArtMq);
@@ -882,6 +888,7 @@ function closeDialogue(silent) {
   clearInterval(S.typing); S.typing = null;
   if (!root) return;
   $('.ar-dlg').hidden = true;
+  $('.ar-dlg-textwrap').classList.remove('more');
   root.classList.remove('ar-talking');
   root.querySelectorAll('.speaking').forEach((e) => e.classList.remove('speaking'));
   const st = $('.ar-stage'); st.classList.remove('show'); st.hidden = true; st.innerHTML = '';
@@ -909,9 +916,11 @@ function renderNode(id) {
     input.value = readKey(D.key);
   } else input.hidden = true;
   clearInterval(S.typing);
+  S.moreSeen = false; tEl.scrollTop = 0;
   const done = () => {
     clearInterval(S.typing); S.typing = null;
     tEl.textContent = text; choices.classList.remove('pending');
+    requestAnimationFrame(() => updateMoreHint());
     if (!input.hidden && !matchMedia('(pointer: coarse)').matches) input.focus({ preventScroll: true });
     else { const b = choices.querySelector('.ar-choice'); if (b && !matchMedia('(pointer: coarse)').matches) b.focus({ preventScroll: true }); }
   };
@@ -920,10 +929,22 @@ function renderNode(id) {
   let i = 0; tEl.textContent = '';
   S.typing = setInterval(() => {
     i += 2; tEl.textContent = text.slice(0, i);
-    if (i >= text.length) done();
+    if (i >= text.length) done(); else if (i % 16 === 0) updateMoreHint();
   }, 18);
 }
 function finishTyping() { if (S.typing && S.finishTyping) S.finishTyping(); }
+
+/** v71: a calm "Scroll for more" hint under the dialogue text, only while the text actually
+    overflows its box and the visitor has not yet scrolled to the end (short phones mostly). */
+function updateMoreHint(fromScroll) {
+  const t = root && $('.ar-dlg-text');
+  const w = t && t.parentElement;
+  if (!w || !S.dlg) { if (w) w.classList.remove('more'); return; }
+  const over = t.scrollHeight > t.clientHeight + 4; // a few px is line-height rounding, not hidden text
+  const atEnd = t.scrollTop + t.clientHeight >= t.scrollHeight - 4;
+  if (fromScroll && over && atEnd) S.moreSeen = true;
+  w.classList.toggle('more', over && !atEnd && !S.moreSeen);
+}
 
 function choose(i) {
   const D = S.dlg; if (!D) return;
