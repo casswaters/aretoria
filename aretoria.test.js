@@ -477,5 +477,20 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('hint is hidden by default and calm under reduced motion', /\.ar-dlg-more \{[^}]*opacity: 0; visibility: hidden/.test(cssSrc) && /\.ar-dlg-textwrap\.more \.ar-dlg-more \{/.test(cssSrc) && /prefers-reduced-motion: reduce\) \{ \.ar-dlg-more svg \{ animation: none; \}/.test(cssSrc));
 }
 
+
+{
+  console.log('\n--- Sound: code-generated room loops + soft UI sounds, off by default ---');
+  const A = await import('./aretoria-audio.js');
+  const au = src('./aretoria-audio.js'), aj2 = src('./aretoria.js'), css2 = src('./aretoria.css'), sw2 = src('./sw.js');
+  assert('one loop for the arrival, the hub, every realm and the Hall of Virtues', eq([...A.ROOMS].sort(), ['arrival', 'axial', 'hall', ...REALM_IDS].sort()));
+  assert('loops are synthesized in code: no audio files, no network', !/\.(mp3|ogg|wav|m4a|opus|webm)\b/i.test(noComments(au)) && !/fetch\(|XMLHttpRequest/.test(au));
+  assert('sound is off unless the visitor turned it on (stored choice)', /localStorage\.getItem\(SOUND_KEY\) === 'on'/.test(au) && A.SOUND_KEY === 'mec-aretoria:sound');
+  assert('audio starts only from a tap or key (iOS autoplay rule)', /\['pointerdown', 'touchend', 'keydown', 'click'\]/.test(au) && /\$\('\.ar-snd'\)\.addEventListener\('click'/.test(aj2));
+  assert('four soft UI sounds: tap, open, gate, close', eq(A.UI_SOUNDS, ['tap', 'open', 'gate', 'close']));
+  assert('speaker toggle sits in the header with a 44px phone target', /class="ar-btn ar-snd" aria-pressed="false"/.test(aj2) && /\.ar \.ar-snd \{ width: 44px; height: 44px; min-width: 44px; \}/.test(css2));
+  assert('the sound module is precached for offline use', /'\.\/aretoria-audio\.js'/.test(sw2));
+  assert('sound copy has no em dashes or tildes', !/[\u2014~]/.test(au));
+}
+
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`);
 if (failed > 0) process.exit(1);

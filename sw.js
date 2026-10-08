@@ -10,6 +10,7 @@ const ASSETS = [
   './aretoria.js',
   './aretoria-data.js',
   './aretoria-art.js',
+  './aretoria-audio.js',
   './aretoria.css',
   './manifest.webmanifest',
   './icons/icon-192.png',
