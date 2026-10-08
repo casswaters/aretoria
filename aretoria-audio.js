@@ -1,7 +1,7 @@
 /**
  * Aretoria sound: code-generated room loops and soft UI sounds (Web Audio, no audio files).
- * Off by default. The speaker toggle stores its choice in localStorage (SOUND_KEY). Audio starts only after a tap
- * (iOS autoplay rule). Each room's loop is synthesized once into a LOOP_SEC buffer with an OfflineAudioContext:
+ * v73: on by default. The speaker toggle stores the visitor's choice in localStorage (SOUND_KEY); a saved 'off' always
+ * wins. Audio starts only on the first tap or key (browser and iOS autoplay rules; the intro tap counts). Each room's loop is synthesized once into a LOOP_SEC buffer with an OfflineAudioContext:
  * every voice is periodic over LOOP_SEC and the reverb tail past the end is folded back onto the start, so the
  * buffer loops with no seam. Rooms crossfade; the last two rendered loops stay in memory.
  * Every room shares one tonal centre (D), one gold bell timbre, one high ivory halo and one cosmic reverb, so the
@@ -288,7 +288,7 @@ export function playUi(ctx, dest, verbBus, name, t = ctx.currentTime) {
 
 /* ---------- live engine ---------- */
 const S = { on: false, ctx: null, master: null, music: null, ui: null, uiVerb: null, room: null, cur: null, cache: new Map(), job: 0, listeners: new Set(), unlockArmed: false };
-function readPref() { try { return localStorage.getItem(SOUND_KEY) === 'on'; } catch { return false; } }
+function readPref() { try { return localStorage.getItem(SOUND_KEY) !== 'off'; } catch { return true; } }   // v73: on unless turned off
 function writePref(v) { try { localStorage.setItem(SOUND_KEY, v ? 'on' : 'off'); } catch { /* private mode: this visit only */ } }
 const notify = () => S.listeners.forEach((f) => { try { f(S.on); } catch { /* ignore */ } });
 
@@ -315,15 +315,19 @@ function unlock() {
   if (ctx.state !== 'running') ctx.resume().catch(() => {});
   return true;
 }
-/** Remembered "on" from a past visit: wait for the first tap / key anywhere, then start. */
+/** Sound on (the default, or a saved choice): wait for the first tap / key anywhere, then start. Keeps listening until
+    the context really runs (iOS may only honour touchend / click, not pointerdown). */
+const GESTURES = ['pointerdown', 'touchend', 'keydown', 'click'];
 function armUnlock() {
   if (S.unlockArmed) return; S.unlockArmed = true;
-  const go = () => {
-    ['pointerdown', 'touchend', 'keydown', 'click'].forEach((e) => document.removeEventListener(e, go, true));
-    S.unlockArmed = false;
-    if (S.on && unlock()) applyRoom();
-  };
-  ['pointerdown', 'touchend', 'keydown', 'click'].forEach((e) => document.addEventListener(e, go, true));
+  const disarm = () => { GESTURES.forEach((e) => document.removeEventListener(e, go, true)); S.unlockArmed = false; };
+  const started = () => { if (S.ctx && S.ctx.state === 'running') { disarm(); applyRoom(); return true; } return false; };
+  function go() {
+    if (!S.on) return disarm();
+    if (!unlock() || started()) return;
+    S.ctx.resume().then(started, () => {});
+  }
+  GESTURES.forEach((e) => document.addEventListener(e, go, true));
 }
 
 async function loopBuffer(id) {
@@ -383,6 +387,6 @@ export const sound = {
       else if (S.on) S.ctx.resume().catch(() => {});
     });
     // iOS can leave the context "interrupted" after a call or app switch; the next tap brings it back
-    document.addEventListener('pointerdown', () => { if (S.on && S.ctx && S.ctx.state !== 'running') S.ctx.resume().then(applyRoom, () => {}); }, true);
+    ['pointerdown', 'touchend', 'click'].forEach((e) => document.addEventListener(e, () => { if (S.on && S.ctx && S.ctx.state !== 'running') S.ctx.resume().then(applyRoom, () => {}); }, true));
   }
 };
