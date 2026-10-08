@@ -4,7 +4,7 @@ Repo-only planning file. It is excluded from GitHub Pages and never ships to the
 Deploy = push to main; `.github/workflows/pages.yml` publishes main to gh-pages without this file. Do not push main to gh-pages by hand.
 Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of Aretoria; it links to this standalone site. Aretoria changes ship here only.
 
-**Last updated:** 2026-10-08, 6:52 AM MT
+**Last updated:** 2026-10-08, 6:51 AM MT
 
 ## House rules
 - One palette for the whole world: ivory, gold and cosmic night. No realm color-coding.
@@ -49,7 +49,7 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 - The v35 hub painting fix: confirmed on your iPhone?
 
 ## Shipped (newest first, times MT)
-- 2026-10-08 06:42: v70 (SW v45): personal lines on family links (gentle invitations instead of the author's routines, the Creed of Aretoria, visitor-neutral Hall lead; default link unchanged). From the 2026-10-08 live audit: on phones the realm Guardian card now starts below a two-line realm title (it ran into the subtitle), and a guide name wider than its hub card ("Elysia Starweaver") wraps inside the card instead of running off the right edge. Decisions closed: personal lines, tagline "The Seven Realms" kept. Verified live 06:55 MT on the default link (unchanged lines, "Read my Creed") and on Jaycee and Chaz links (gentle lines, "Read the Creed of Aretoria", visitor-neutral Hall lead) at 390x844, 393x659 and 1440x900: no console errors or failed requests.
+- 2026-10-08 06:42: v70 (SW v45): personal lines on family links (gentle invitations instead of the author's routines, the Creed of Aretoria, visitor-neutral Hall lead; default link unchanged). From the 2026-10-08 live audit: on phones the realm Guardian card now starts below a two-line realm title (it ran into the subtitle), and a guide name wider than its hub card ("Elysia Starweaver") wraps inside the card instead of running off the right edge. Decisions closed: personal lines, tagline "The Seven Realms" kept. Verified live 06:47 MT on the default link (unchanged lines, "Read my Creed") and on Jaycee and Chaz links (gentle lines, "Read the Creed of Aretoria", visitor-neutral Hall lead) at 390x844, 393x659 and 1440x900: no console errors or failed requests.
 - 2026-10-07 19:55: guardian relationship lines closed. Cassidy keeps them as is under the lore rule "The guide serves as the user's reflection. The reflection is the identity the guardians and advisors work with." (added to House rules). Guardian dialogue unchanged.
 - 2026-10-07 19:51: v69 (SW v44): family guide for Chaz (?guide=chaz), approved by Cassidy as is. Label "Lucid Leridian Zol Gottsbrakiyre son of Svordsythe Zol Gottsbrakiyre" on plates, hub card, Hall, aria, landing and meta; he speaks only as "Lucid"; own black and opal reflection. Long labels wrap between words only, in a smaller face on phones.
 - 2026-10-07 19:04: v68 (SW v43): family guides by link (?guide=<slug>, remembered, "Use the default guide" in the Hall, ?guide=default). First guides, approved by Cassidy: Jill (Luz Liath) and Jaycee (Elysia Starweaver), each with its own reflection answer. Default link unchanged (Irishnu).
