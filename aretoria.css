@@ -695,3 +695,21 @@ html:has(.ar:not([hidden])), html:has(.ar:not([hidden])) body { background: #050
 .ar-dlg-textwrap.more .ar-dlg-text { -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 2.6em), rgba(0,0,0,.28)); mask-image: linear-gradient(180deg, #000 calc(100% - 2.6em), rgba(0,0,0,.28)); }
 @keyframes ar-more-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(2px); } }
 @media (prefers-reduced-motion: reduce) { .ar-dlg-more svg { animation: none; } .ar-dlg-more, .ar-dlg-textwrap.more .ar-dlg-more { transition: none; } }
+
+/* ---------- sound toggle (aretoria-audio.js): a small speaker left of the ✕, off by default ---------- */
+.ar-top { grid-template-columns: auto 1fr auto auto; }
+.ar-snd { grid-column: 3; padding: 0; width: 40px; display: inline-grid; place-items: center; opacity: .78; transition: opacity .3s, box-shadow .3s; }
+.ar-snd svg { display: block; }
+.ar-x { grid-column: 4; }
+.ar-snd .ar-snd-on { display: none; }
+.ar-snd.on { opacity: 1; box-shadow: 0 0 16px rgba(255,220,150,.28); }
+.ar-snd.on .ar-snd-on { display: inline; }
+.ar-snd.on .ar-snd-off { display: none; }
+@media (max-width: 699px) { .ar .ar-snd { width: 44px; height: 44px; min-width: 44px; } }
+/* phones: with the speaker in the header, the back button becomes a round "‹" (its label stays in aria-label),
+   so realm titles keep the same width they had before */
+@media (max-width: 699px) {
+  .ar .ar-back { width: 44px; min-width: 44px; padding: 0 2px 3px 0; font-family: inherit; font-size: 1.9rem; line-height: 1; letter-spacing: 0; display: inline-grid; place-items: center; }
+  .ar .ar-back[hidden] { display: none; }
+  .ar .ar-back span { display: none; }
+}

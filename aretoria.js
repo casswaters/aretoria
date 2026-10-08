@@ -29,10 +29,11 @@ import {
   guardianRole, guardianLine, guardianPortraitPath, irishnuPortraitPath, realmBackdropPath, HUB_ART, IRISHNU_AVATAR,
   mobileArtPath, pickArtPath, ART_MOBILE_MQ, ARRIVAL, arrivalWindow,
   NAME_KEY, NAME_ASKED_KEY, FIRST_VISIT_KEY, REALM_ORDER, NAME_MAX, NAME_FALLBACK, cleanName, nameForms, guideName, guideLabel, GUIDE_ART, GUIDE_KEY, isFamilyGuide
-} from './aretoria-data.js?v=46';
-import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=46';
+} from './aretoria-data.js?v=47';
+import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=47';
+import { sound } from './aretoria-audio.js?v=47';
 
-const VERSION = 46;
+const VERSION = 47;
 const MET_KEY = 'mec-aretoria:met-irishnu';
 const FIRST_SESSION_KEY = 'mec-aretoria:first-visit-session'; // sessionStorage: this visit (browser session) began as the first
 
@@ -115,6 +116,33 @@ const continueText = () => (coarse() ? 'Tap to continue' : 'Click or press Enter
 const HINT_DELAY_MS = 1200; // the "continue" hint fades in shortly after a narration line appears
 const $ = (sel) => root.querySelector(sel);
 
+/* ---------- sound (aretoria-audio.js): off by default, the header speaker toggles it ----------
+   One loop per room (arrival, the hub, each realm, the Hall of Virtues), crossfaded; soft UI cues. */
+const SND_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
+  '<path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z" fill="currentColor" fill-opacity=".18"/>' +
+  '<path class="ar-snd-on" d="M15.5 9.2a4 4 0 0 1 0 5.6M18 6.8a7.4 7.4 0 0 1 0 10.4"/>' +
+  '<path class="ar-snd-off" d="M16 9.5l5 5M21 9.5l-5 5"/></svg>';
+function paintSoundBtn() {
+  const b = root && $('.ar-snd'); if (!b) return;
+  b.classList.toggle('on', sound.on);
+  b.setAttribute('aria-pressed', sound.on ? 'true' : 'false');
+  b.setAttribute('aria-label', sound.on ? 'Sound on. Turn sound off' : 'Sound off. Turn sound on');
+  b.title = sound.on ? 'Sound on' : 'Sound off';
+}
+/** Which room loop should play now (coalesced to one call per frame). */
+function syncSound() {
+  if (S.sndQueued) return; S.sndQueued = true;
+  const run = () => {
+    S.sndQueued = false;
+    if (!S.open || !root) return sound.room(null);
+    const intro = $('.ar-intro');
+    if ((intro && !intro.hidden && !intro.classList.contains('done')) || S.arrival) return sound.room('arrival');
+    if (!$('.ar-hall').hidden) return sound.room('hall');
+    sound.room(S.view);
+  };
+  if (window.requestAnimationFrame && !document.hidden) requestAnimationFrame(run); else setTimeout(run, 0);
+}
+
 /* ---------- CSS (lazy) ---------- */
 function ensureCss() {
   if (document.getElementById('aretoria-css')) return Promise.resolve();
@@ -170,6 +198,7 @@ function build() {
     <header class="ar-top">
       <button type="button" class="ar-btn ar-back" hidden aria-label="Back to the Axial hub">‹ <span>Axial hub</span></button>
       <div class="ar-title"><div class="ar-title-main"></div><div class="ar-title-sub"></div></div>
+      <button type="button" class="ar-btn ar-snd" aria-pressed="false" aria-label="Sound off. Turn sound on">${SND_ICON}</button>
       <button type="button" class="ar-btn ar-x" aria-label="Leave Aretoria">✕</button>
     </header>
     <div class="ar-lore" hidden></div>
@@ -217,6 +246,8 @@ function build() {
   document.body.appendChild(root);
 
   $('.ar-x').addEventListener('click', () => close());
+  $('.ar-snd').addEventListener('click', (e) => { e.stopPropagation(); sound.toggle(); syncSound(); });
+  sound.init(); sound.onChange(paintSoundBtn); paintSoundBtn();
   wireNamePrompt();
   $('.ar-back').addEventListener('click', () => travel('axial'));
   $('.ar-dlg-close').addEventListener('click', () => closeDialogue());
@@ -287,7 +318,7 @@ function build() {
     const vcard = e.target.closest('.ar-vcard');
     if (vcard) return hallPick(vcard.dataset.slug);
     const filt = e.target.closest('.ar-filter');
-    if (filt) return renderHall(filt.dataset.realm);
+    if (filt) { sound.ui('tap'); return renderHall(filt.dataset.realm); }
   });
 }
 
@@ -606,6 +637,7 @@ function showView(id) {
   }
   S.px = S.tx; S.py = S.ty;
   applyParallax(true);
+  syncSound();
 }
 
 /** Header sub-line: "Valorix, Guardian of Courage" / "Guardian of the Veil, the Veiled Sentinel". */
@@ -627,7 +659,8 @@ function portraitDesk(r) {
 
 function travel(id, fromEl) {
   if (id === S.view) return;
-  closePanels();
+  sound.ui('gate');
+  closePanels(true);
   const r = realmById(id);
   const flash = $('.ar-flash');
   flash.style.setProperty('--fc', SHARED_ACCENT);
@@ -842,6 +875,7 @@ function openDialogue(opts) {
   if (sp.virtue) showStage({ src: sp.virtue.portrait, label: advisorTitle(sp.virtue), wide: !!sp.virtue.wide });
   else if (sp.stage && !opts.arrival) showStage(sp.stage);
   hint('');
+  sound.ui('open');
   renderNode(S.dlg.node);
 }
 
@@ -896,7 +930,7 @@ function closeDialogue(silent) {
   if (wasOpen && S.dlg.firstVisit) markFirstVisitDone(); // the first conversation has been had
   S.dlg = null;
   if (wasOpen) restoreFocus();
-  if (wasOpen && !silent) hint(S.view === 'axial' ? hubHint() : 'Tap the Guardian or an advisor to speak');
+  if (wasOpen && !silent) { hint(S.view === 'axial' ? hubHint() : 'Tap the Guardian or an advisor to speak'); sound.ui('close'); }
   if (wasOpen && S.arrival && S.arrival.phase === 'frame') endArrival(!silent);
 }
 
@@ -964,6 +998,7 @@ function choose(i) {
   if (next === '@hall') { closeDialogue(true); return openHall(); }
   if (next === '@creed') { closeDialogue(true); return openCreed(); }
   if (next.startsWith('@realm:')) { closeDialogue(true); return travel(next.slice(7)); }
+  sound.ui('tap');
   renderNode(next);
 }
 
@@ -983,6 +1018,7 @@ function openHall() {
   fitHallNames();
   requestAnimationFrame(() => h.classList.add('show'));
   const c = h.querySelector('.ar-panel-close'); if (c) c.focus({ preventScroll: true });
+  sound.ui('open'); syncSound();
 }
 
 function renderHall(filter) {
@@ -1036,9 +1072,10 @@ function hallPick(slug) {
   if (!v.portrait) {
     const card = root.querySelector(`.ar-vcard[data-slug="${slug}"]`);
     if (card) card.classList.toggle('open');
+    sound.ui('tap');
     return;
   }
-  closePanels();
+  closePanels(true);
   const go = S.view === v.realm ? Promise.resolve() : travel(v.realm);
   Promise.resolve(go).then(() => openAdvisor(slug));
 }
@@ -1059,6 +1096,7 @@ function openCreed() {
   c.hidden = false; c.scrollTop = 0;
   requestAnimationFrame(() => c.classList.add('show'));
   c.querySelector('.ar-panel-close').focus({ preventScroll: true });
+  sound.ui('open'); syncSound();
 }
 
 function rememberFocus() {
@@ -1072,11 +1110,11 @@ function restoreFocus() {
   t.focus({ preventScroll: true });
 }
 
-function closePanels() {
+function closePanels(quiet) {
   if (!root) return;
   let was = false;
   ['.ar-hall', '.ar-creed'].forEach((s) => { const p = $(s); if (!p.hidden) was = true; p.classList.remove('show'); p.hidden = true; });
-  if (was) restoreFocus();
+  if (was) { restoreFocus(); if (!quiet) sound.ui('close'); syncSound(); }
 }
 
 /* ---------- entry + exit ---------- */
@@ -1114,6 +1152,7 @@ function startIntro(target) {
   intro.style.setProperty('--ox', `${ox}px`); intro.style.setProperty('--oy', `${oy}px`);
   intro.style.setProperty('--as', `${(0.24 * ih * s) / 170}`);
   $('.ar-intro-line').textContent = OPENING;
+  syncSound();
   S.introTimer.forEach(clearTimeout); S.introTimer = [];
   S.introTimer.push(showNarrHint(intro));
   const hold = readMs(OPENING);
@@ -1152,6 +1191,7 @@ function finishIntro() {
   setTimeout(() => { intro.hidden = true; intro.className = 'ar-intro'; }, reduced() ? 50 : 450);
   if (document.activeElement === intro || !root.contains(document.activeElement)) $('.ar-x').focus({ preventScroll: true });
   const t = S.introTarget; S.introTarget = null;
+  syncSound();
   if (t && realmById(t)) { showView(t); return; }
   if (arrivalDue()) { startArrival(); return; }
   let met = false; try { met = !!localStorage.getItem(MET_KEY); } catch { /* ignore */ }
@@ -1195,6 +1235,7 @@ function startArrival() {
   irs.src = ARRIVAL.irishnu.src;
   irs.style.cssText = `left:${(bx0 / ARRIVAL.w * 100).toFixed(3)}%;top:${(by0 / ARRIVAL.h * 100).toFixed(3)}%;width:${((bx1 - bx0) / ARRIVAL.w * 100).toFixed(3)}%`;
   S.arrival = { phase: 'frame', timers: [], anim: null, win: null };
+  syncSound();
   root.classList.add('ar-arriving');
   el.className = 'ar-arrive'; el.hidden = false;
   const still = reduced();
@@ -1269,6 +1310,7 @@ function endArrival(animate) {
 function finishArrival() {
   const A = S.arrival; if (!A) return;
   S.arrival = null;
+  syncSound();
   A.timers.forEach(clearTimeout);
   if (A.anim) A.anim.cancel();
   (A.anims || []).forEach((a) => { try { a.cancel(); } catch { /* ignore */ } });
@@ -1389,6 +1431,7 @@ export function close(o = {}) {
   S.introTimer.forEach(clearTimeout); S.introTimer = [];
   $('.ar-intro').hidden = true;
   S.closeOpts = o;
+  sound.ui('close');
   if (o.immediate) return finishOutro();
   out.querySelector('p').textContent = CLOSING;
   out.hidden = false; out.className = 'ar-outro';
@@ -1416,6 +1459,7 @@ function finishOutro() {
   clearTimeout(S.outroTimer); clearTimeout(S.outroHintTimer);
   if (!S.open) return;
   S.open = false;
+  sound.room(null);
   cancelAnimationFrame(S.raf);
   root.hidden = true;
   $('.ar-outro').hidden = true; $('.ar-outro').className = 'ar-outro';
