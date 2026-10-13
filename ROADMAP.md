@@ -4,7 +4,7 @@ Repo-only planning file. It is excluded from GitHub Pages and never ships to the
 Deploy = push to main; `.github/workflows/pages.yml` publishes main to gh-pages without this file. Do not push main to gh-pages by hand.
 Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of Aretoria; it links to this standalone site. Aretoria changes ship here only.
 
-**Last updated:** 2026-10-13, 6:23 AM MT
+**Last updated:** 2026-10-13, ~3:14 PM MT
 
 ## House rules
 - One palette for the whole world: ivory, gold and cosmic night. No realm color-coding.
@@ -22,6 +22,7 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 - No hard-coded visitor name anywhere served: the visitor is {name}/{Name} (fallback "traveler"), the guide is {guide} (default Irishnu, config in GUIDE_NAME_DEFAULT / GUIDE_ART).
 
 ## Now
+- Live: SW aretoria-v52 (v77) at https://casswaters.github.io/aretoria/, matching main.
 - Family guides by link (plan 2026-10-07, replaces the guide-creator presets). Cassidy makes each family member's guide himself (up to 5 people) and each person gets their own link where their guide replaces Irishnu: https://casswaters.github.io/aretoria/?guide=<slug>, slug = a simple lowercase first name (not secret; accepted).
   - The link loads that person's guide config: guide name, armor phrase in "Who are you, really?", art, and their visitor name prefilled (only if none is saved; still editable in the Hall of Virtues).
   - Remembered in localStorage (mec-aretoria:guide), so later visits without the param keep their guide. Way back to the default: "Use the default guide" in the Hall, or ?guide=default. The plain link (nothing saved) is always Irishnu.
@@ -49,6 +50,8 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 - The v35 hub painting fix: confirmed on your iPhone?
 
 ## Shipped (newest first, times MT)
+- 2026-10-13 08:18: v77 (SW v52): restored the Irishnu welcome (the v76 viewport snap-back was cancelling the arrival pan). Live https://casswaters.github.io/aretoria/ matches main.
+- 2026-10-13 07:36: v76 (SW v51): iPhone scene fill; viewport snap-back; dark lock background.
 - 2026-10-08 09:32: v75 (SW v50): no Leave Aretoria button on the entry screen (the portal and opening line you tap to enter), at Cassidy's request. It shows from the arrival onward exactly as before (arrival view, hub, realms, dialogue, Hall) and stays on the closing line. Esc still leaves from the entry screen. The header button was always laid out under the entry screen, so nothing moves when it appears: header positions match before and after, and the opening line and hint keep their positions. Sound on by default and the v74 ping fix are unchanged.
 - 2026-10-08 08:18: v74 (SW v49): fixed the occasional hard, jammed ping when choosing an answer (Cassidy's iPhone report). Root cause: UI bells were scheduled at exactly currentTime with a 6 ms fade in. The audio clock (currentTime) only moves once per audio buffer (much longer on iPhone), so now and then the bell started after its fade in had already passed and hit at full level with a click. Measured in Safari's and Chrome's engines: on-time taps put about 13% of their peak in the first millisecond, late ones (6 to 12 ms) put 93% there. Fix: UI sounds are scheduled 30 ms ahead, fade in over at least 8 ms from zero and stop only after their decay; one UI sound per action (gate over open over close over tap) with a 100 ms cooldown, so double touches and stacked cues never pile up; a gentle limiter on the UI bus. The sounds themselves and the room loops are unchanged. Sound stays on by default. Before and after clips: qa/aretoria/v74-ping/.
 - 2026-10-08 07:54: v73 (SW v48): the exit is now a labeled "Leave Aretoria" button (Cassidy kept tapping the round ✕ by accident, taking it for a close button). An ivory and gold rounded pill with a door glyph on desktop; on phones the words sit on two short lines in the header beside the round back button and the speaker, so realm titles keep the same width and line count as before (checked at 390x844 and 393x659). The opening and closing lines use the same pill. Dialogue and Hall/Creed close buttons stay ✕ and close only their own panel. Focus no longer lands on the exit after the intro or a closed panel. Sound is now on by default (Cassidy's request): with no saved choice the room loop and UI sounds start on the first tap (browsers and iOS block audio before one); the speaker still turns it off, and a saved off is remembered and wins. Verified live 07:56 to 08:00 MT (SW aretoria-v48) on the default and Jill links at 1440x900, 390x844 and 393x659: hub, Transcendence realm and an open Guardian dialogue; no button overlaps the title, realm titles keep their line count, Leave Aretoria exits, the dialogue ✕ and the Hall ✕ close only their own panel; a fresh visit shows the speaker on and the loop starts on the first tap, and turning it off survives a reload; no console errors.
