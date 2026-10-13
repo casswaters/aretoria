@@ -29,9 +29,9 @@ import {
   guardianRole, guardianLine, guardianPortraitPath, irishnuPortraitPath, realmBackdropPath, HUB_ART, IRISHNU_AVATAR,
   mobileArtPath, pickArtPath, ART_MOBILE_MQ, ARRIVAL, arrivalWindow,
   NAME_KEY, NAME_ASKED_KEY, FIRST_VISIT_KEY, REALM_ORDER, NAME_MAX, NAME_FALLBACK, cleanName, nameForms, guideName, guideLabel, GUIDE_ART, GUIDE_KEY, isFamilyGuide
-} from './aretoria-data.js?v=50';
-import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=50';
-import { sound } from './aretoria-audio.js?v=50';
+} from './aretoria-data.js?v=51';
+import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=51';
+import { sound } from './aretoria-audio.js?v=51';
 
 const VERSION = 50;
 const MET_KEY = 'mec-aretoria:met-irishnu';
@@ -306,6 +306,21 @@ function build() {
   });
   window.addEventListener('pagehide', () => { if (S.open && S.arrival && S.arrival.phase === 'pull') finishArrival(); });
   window.addEventListener('pageshow', (e) => { if (S.open && e.persisted) { finishArrival(); refreshHubArt(); } });
+  // v76: iOS Safari can leave the page scrolled (visual viewport offset) after the keyboard closes or the toolbar
+  // changes, which lifts the fixed stage and leaves a dark band under the scene. Snap back and re-lay out.
+  const typing = () => { const a = document.activeElement; return !!a && /^(INPUT|TEXTAREA)$/.test(a.tagName); };
+  const resettle = () => {
+    if (!S.open) return;
+    if (!typing() && (window.scrollY || window.scrollX || (window.visualViewport && window.visualViewport.offsetTop))) window.scrollTo(0, 0);
+    markTopHeight(); placeStage(); layoutHub(); S.fx && S.fx.resize();
+    if (S.arrival && S.arrival.phase === 'frame') placeArrival(true);
+  };
+  const resettleSoon = () => { resettle(); requestAnimationFrame(resettle); setTimeout(resettle, 350); };
+  if (window.visualViewport) { visualViewport.addEventListener('resize', resettleSoon); visualViewport.addEventListener('scroll', resettle); }
+  window.addEventListener('orientationchange', resettleSoon);
+  window.addEventListener('scroll', resettle, { passive: true });
+  document.addEventListener('focusout', () => setTimeout(resettleSoon, 60));
+  window.addEventListener('pageshow', () => resettleSoon());
 
   root.addEventListener('click', (e) => {
     // a fresh tap during the pull-back jumps to the hub (not the very click that started it, still bubbling up)
@@ -512,7 +527,7 @@ const HUB_GRID_ORDER = REALM_ORDER; // hub painting order, left to right (v67)
 
 function layoutHub() {
   if (!root || S.view !== 'axial') return;
-  const w = window.innerWidth, h = window.innerHeight;
+  const w = root.clientWidth || window.innerWidth, h = root.clientHeight || window.innerHeight;
   const mobile = w < 700; // same breakpoint as ART_MOBILE_MQ, so the layout matches the art actually shown
   const art = mobile ? HUB_ART.mob : HUB_ART.desk;
   // background-size: cover + background-position posX/posY, then the .ar-layer scale(1.06) about the centre

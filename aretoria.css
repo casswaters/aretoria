@@ -1,5 +1,5 @@
 /* Aretoria v1 — full-screen portal overlay (lazy-loaded with aretoria.js) */
-html.ar-lock, html.ar-lock body { overflow: hidden; }
+html.ar-lock, html.ar-lock body { overflow: hidden; background: #05040e; overscroll-behavior: none; }
 .ar {
   --gold: #e3bf6c; --gold-b: #fff1c1; --gold-d: #9c7330; --ivory: #f6efdf; --rc: #f1d58e;
   --display: "Cinzel", "Trajan Pro", "Cormorant Garamond", Georgia, serif;
