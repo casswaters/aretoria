@@ -29,9 +29,9 @@ import {
   guardianRole, guardianLine, guardianPortraitPath, irishnuPortraitPath, realmBackdropPath, HUB_ART, IRISHNU_AVATAR,
   mobileArtPath, pickArtPath, ART_MOBILE_MQ, ARRIVAL, arrivalWindow,
   NAME_KEY, NAME_ASKED_KEY, FIRST_VISIT_KEY, REALM_ORDER, NAME_MAX, NAME_FALLBACK, cleanName, nameForms, guideName, guideLabel, GUIDE_ART, GUIDE_KEY, isFamilyGuide
-} from './aretoria-data.js?v=51';
-import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=51';
-import { sound } from './aretoria-audio.js?v=51';
+} from './aretoria-data.js?v=52';
+import { SCENES, figureSvg, FIGURE_FOR, gateGlyph } from './aretoria-art.js?v=52';
+import { sound } from './aretoria-audio.js?v=52';
 
 const VERSION = 50;
 const MET_KEY = 'mec-aretoria:met-irishnu';
@@ -309,11 +309,16 @@ function build() {
   // v76: iOS Safari can leave the page scrolled (visual viewport offset) after the keyboard closes or the toolbar
   // changes, which lifts the fixed stage and leaves a dark band under the scene. Snap back and re-lay out.
   const typing = () => { const a = document.activeElement; return !!a && /^(INPUT|TEXTAREA)$/.test(a.tagName); };
+  // Only snap the scroll back and re-lay out when the stage size really changed; never during the intro or the
+  // arrival (re-placing the arrival cancels its pan, which is what opens the welcome), never re-trigger anything.
+  let lastSize = '';
   const resettle = () => {
-    if (!S.open) return;
+    const intro = $('.ar-intro');
+    if (!S.open || S.arrival || (intro && !intro.hidden) || !$('.ar-name').hidden) return;
     if (!typing() && (window.scrollY || window.scrollX || (window.visualViewport && window.visualViewport.offsetTop))) window.scrollTo(0, 0);
+    const size = `${root.clientWidth}x${root.clientHeight}`;
+    if (size === lastSize) return; lastSize = size;
     markTopHeight(); placeStage(); layoutHub(); S.fx && S.fx.resize();
-    if (S.arrival && S.arrival.phase === 'frame') placeArrival(true);
   };
   const resettleSoon = () => { resettle(); requestAnimationFrame(resettle); setTimeout(resettle, 350); };
   if (window.visualViewport) { visualViewport.addEventListener('resize', resettleSoon); visualViewport.addEventListener('scroll', resettle); }
