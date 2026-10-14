@@ -31,7 +31,7 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
   - Each person's art is a draft until Cassidy approves the previews; nothing goes live before that. Live: Jill (?guide=jill, guide "Luz Liath", v68), Jaycee (?guide=jaycee, guide "Elysia Starweaver", v68), Chaz (?guide=chaz, guide "Lucid", full label "Lucid Leridian Zol Gottsbrakiyre son of Svordsythe Zol Gottsbrakiyre", v69).
   - Each family guide has its own "Who are you, really?" reflection and closing choice, and never says Irishnu. A guide may carry a longer label (plates, card, Hall, landing, meta) while speaking only its short name.
 - **Aretoria trailer upgrade (Cassidy, Oct 12).** Full creative freedom to beat Grok's 50-second cut; rough cut goes to Cassidy for approval before anything is published on the site. Partial work lives off-repo under `/workspace/qa/aretoria/trailer/` (storyboard, rough cut, shot folders). Not live.
-- Confirm the hub painting fix from SW aretoria-v35 (Aretoria v60) on a real iPhone: the painting must come back after the Axial arrival pull-back.
+- Done: hub painting fix from SW aretoria-v35 (Aretoria v60) confirmed on a real iPhone by Cassidy on Oct 14, 2026.
 - Settle the open wording and lore decisions below.
 
 ## Next
@@ -47,7 +47,6 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 - Short guided walk for first-time visitors (portal → hub → one realm → Hall).
 
 ## Open decisions (waiting on Cassidy)
-- The v35 hub painting fix: confirmed on your iPhone?
 
 ## Shipped (newest first, times MT)
 - 2026-10-13 08:18: v77 (SW v52): restored the Irishnu welcome (the v76 viewport snap-back was cancelling the arrival pan). Live https://casswaters.github.io/aretoria/ matches main.
