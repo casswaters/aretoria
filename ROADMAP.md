@@ -4,7 +4,7 @@ Repo-only planning file. It is excluded from GitHub Pages and never ships to the
 Deploy = push to main; `.github/workflows/pages.yml` publishes main to gh-pages without this file. Do not push main to gh-pages by hand.
 Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of Aretoria; it links to this standalone site. Aretoria changes ship here only.
 
-**Last updated:** 2026-10-15, ~3:20 PM MT (afternoon report, no changes since morning)
+**Last updated:** 2026-10-15, ~6:57 PM MT (trailer confirmed done and stored)
 
 ## House rules
 - One palette for the whole world: ivory, gold and cosmic night. No realm color-coding.
@@ -30,7 +30,6 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
   - Owner-made avatars, same pipeline as Irishnu: local background removal (rembg birefnet-portrait + pymatting edge cleanup), then the approved "subtle" scene-integration pass (qa/aretoria/irishnu-integration/integrate.py) at Irishnu's exact spot and scale. Likeness is never repainted or beautified. Outputs per person in assets/aretoria/guides/<slug>/: card.jpg (1024x576), mobile/card.jpg (576x1024), face.jpg (256x256), arrival.webp (384x516). Build: qa/aretoria/family-guides/build/.
   - Each person's art is a draft until Cassidy approves the previews; nothing goes live before that. Live: Jill (?guide=jill, guide "Luz Liath", v68), Jaycee (?guide=jaycee, guide "Elysia Starweaver", v68), Chaz (?guide=chaz, guide "Lucid", full label "Lucid Leridian Zol Gottsbrakiyre son of Svordsythe Zol Gottsbrakiyre", v69).
   - Each family guide has its own "Who are you, really?" reflection and closing choice, and never says Irishnu. A guide may carry a longer label (plates, card, Hall, landing, meta) while speaking only its short name.
-- **Aretoria trailer upgrade (Cassidy, Oct 12).** Full creative freedom to beat Grok's 50-second cut; nothing is published on the site until Cassidy approves a cut. Drafts so far, off-repo under `/workspace/qa/aretoria/trailer/`: rough cut `aretoria-trailer-rough.mp4` (46.5 s, storyboard in STORYBOARD.md), `v2/aretoria-trailer-v2.mp4` (64.5 s) and `v3/aretoria-trailer-v3.mp4` (66 s). Waiting on Cassidy's review. Not live.
 
 ## Next
 - Keep Version 1 (confirmed 2026-10-08: the six virtue realms plus Shadow, "The Seven Realms") complete and consistent: Guardians, advisors, Hall of Virtues, Creed.
@@ -45,9 +44,10 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 - Short guided walk for first-time visitors (portal → hub → one realm → Hall).
 
 ## Open decisions (waiting on Cassidy)
-- None open right now. (The trailer review is in Now.)
+- None open right now.
 
 ## Shipped (newest first, times MT)
+- 2026-10-15 ~6:57 PM: trailer confirmed done and stored (Cassidy). Cuts remain off-repo under `/workspace/qa/aretoria/trailer/`; not live on the site. Removed from open decisions / waiting-on-Cassidy.
 - 2026-10-14: confirmed, no code change: the iOS hub painting fix (v60, SW aretoria-v35) works on Cassidy's real iPhone.
 - 2026-10-13 08:18: v77 (SW v52): restored the Irishnu welcome (the v76 viewport snap-back was cancelling the arrival pan). Live https://casswaters.github.io/aretoria/ matches main.
 - 2026-10-13 07:36: v76 (SW v51): iPhone scene fill; viewport snap-back; dark lock background.
