@@ -4,7 +4,7 @@ Repo-only planning file. It is excluded from GitHub Pages and never ships to the
 Deploy = push to main; `.github/workflows/pages.yml` publishes main to gh-pages without this file. Do not push main to gh-pages by hand.
 Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of Aretoria; it links to this standalone site. Aretoria changes ship here only.
 
-**Last updated:** 2026-10-19, ~6:25 AM MT (morning report: no changes since Oct 18; live matches main)
+**Last updated:** 2026-10-19, ~3:20 PM MT (afternoon report: no changes since Oct 18; live matches main)
 
 ## House rules
 - One palette for the whole world: ivory, gold and cosmic night. No realm color-coding.
