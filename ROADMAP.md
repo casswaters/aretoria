@@ -4,7 +4,7 @@ Repo-only planning file. It is excluded from GitHub Pages and never ships to the
 Deploy = push to main; `.github/workflows/pages.yml` publishes main to gh-pages without this file. Do not push main to gh-pages by hand.
 Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of Aretoria; it links to this standalone site. Aretoria changes ship here only.
 
-**Last updated:** 2026-10-22, about 3:15 PM MT (afternoon report: no changes since morning; live site returns 200, Pages publishing green)
+**Last updated:** 2026-10-22, about 5:12 PM MT (v78 shipped and checked live)
 
 ## House rules
 - The default link (Irishnu, Cassidy's own) is the template and continued testing site; new work is built and tested there first (Cassidy, 2026-10-22).
@@ -24,7 +24,7 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 - No hard-coded visitor name anywhere served: the visitor is {name}/{Name} (fallback "traveler"), the guide is {guide} (default Irishnu, config in GUIDE_NAME_DEFAULT / GUIDE_ART).
 
 ## Now
-- Live: SW aretoria-v52 (v77) at https://casswaters.github.io/aretoria/, matching main.
+- Live: SW aretoria-v53 (v78) at https://casswaters.github.io/aretoria/, matching main.
 - Family guides by link (plan 2026-10-07, replaces the guide-creator presets). Four guides built so far: Irishnu (default), Jill, Jaycee and Chaz. Up to two more family avatars may come when Cassidy sends them (Cassidy, 2026-10-22); none are started until he does. Each person gets their own link where their guide replaces Irishnu: https://casswaters.github.io/aretoria/?guide=<slug>, slug = a simple lowercase first name (not secret; accepted).
   - The link loads that person's guide config: guide name, armor phrase in "Who are you, really?", art, and their visitor name prefilled (only if none is saved; still editable in the Hall of Virtues).
   - Remembered in localStorage (mec-aretoria:guide), so later visits without the param keep their guide. Way back to the default: "Use the default guide" in the Hall, or ?guide=default. The plain link (nothing saved) is always Irishnu.
@@ -49,6 +49,7 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 - None open right now.
 
 ## Shipped (newest first, times MT)
+- 2026-10-22 5:06 PM: v78 (SW v53): on phones the realm Guardian card no longer drifts sideways, so it always stays inside the right edge of the screen (before it ended a few pixels past the edge at 375, 390 and 393 widths). The realm subtitle now wraps to a second line instead of cutting off on narrow phones; the card still sits below the title. Checked live at 375x667, 393x659 and 390x844 in all seven realms on the default link, plus Courage on the Jill link: card inside the screen, card below the title, no title overlap, SW aretoria-v53 active, no console errors or failed requests.
 - 2026-10-15 ~6:57 PM: trailer confirmed done and stored (Cassidy). Cuts remain off-repo under `/workspace/qa/aretoria/trailer/`; not live on the site. Removed from open decisions / waiting-on-Cassidy.
 - 2026-10-14: confirmed, no code change: the iOS hub painting fix (v60, SW aretoria-v35) works on Cassidy's real iPhone.
 - 2026-10-13 08:18: v77 (SW v52): restored the Irishnu welcome (the v76 viewport snap-back was cancelling the arrival pan). Live https://casswaters.github.io/aretoria/ matches main.
