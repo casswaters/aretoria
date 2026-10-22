@@ -7,6 +7,7 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 **Last updated:** 2026-10-22, about 3:15 PM MT (afternoon report: no changes since morning; live site returns 200, Pages publishing green)
 
 ## House rules
+- The default link (Irishnu, Cassidy's own) is the template and continued testing site; new work is built and tested there first (Cassidy, 2026-10-22).
 - One palette for the whole world: ivory, gold and cosmic night. No realm color-coding.
 - Rough art drafts go to Cassidy for approval before anything is published.
 - Irishnu is Cassidy (he/him): armor, not robes.
