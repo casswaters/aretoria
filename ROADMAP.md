@@ -42,7 +42,8 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 - Optional color quests inside realms (open idea, no answer from Cassidy yet; nothing planned until he approves). Realms themselves stay on the shared palette.
 
 ## Ideas
-- Guide as an AI/SI chat companion, inspired by https://www.arcarae.com/ (Cassidy, 2026-10-22): the visitor talks freely with their guide inside the world. Idea only; would need a backend or key and cost per use, so nothing starts until Cassidy says go.
+- Guide as an AI/SI chat companion (Cassidy, 2026-10-22): the visitor talks freely with their guide inside the world. Idea only; would need a backend or key and cost per use, so nothing starts until Cassidy says go.
+- Motivation, not a model to copy: https://www.arcarae.com/ (Cassidy, 2026-10-22). Aretoria has been forming in him since 2023 and came together around when Arcarae released; it showed him a guide world like this can be done.
 - A light link with Captain's Log entries (for example, the virtue you reflected on today).
 - Short guided walk for first-time visitors (portal → hub → one realm → Hall).
 
