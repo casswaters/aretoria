@@ -734,3 +734,7 @@ html:has(.ar:not([hidden])), html:has(.ar:not([hidden])) body { background: #050
   .ar-leave-t { flex-direction: column; align-items: flex-start; gap: 1px; }
   .ar .ar-narr-x.ar-leave { right: 8px; }
 }
+@media (max-width: 699px) {
+  .ar .ar-host.ar-host-photo:not(.ar-guide) { translate: none !important; }
+  .ar-title-sub { white-space: normal; text-wrap: balance; }
+}
