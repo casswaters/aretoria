@@ -8,6 +8,7 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 
 ## House rules
 - The default link (Irishnu, Cassidy's own) is the template and continued testing site; new work is built and tested there first (Cassidy, 2026-10-22).
+- The family links (Jill, Jaycee, Chaz) are a soft beta launch, shared to see how Aretoria is received; keep them working, but they are not where new work is built (Cassidy, 2026-10-22).
 - One palette for the whole world: ivory, gold and cosmic night. No realm color-coding.
 - Rough art drafts go to Cassidy for approval before anything is published.
 - Irishnu is Cassidy (he/him): armor, not robes.
