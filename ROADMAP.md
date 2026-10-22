@@ -42,6 +42,7 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 - Optional color quests inside realms (open idea, no answer from Cassidy yet; nothing planned until he approves). Realms themselves stay on the shared palette.
 
 ## Ideas
+- Vision (Cassidy, 2026-10-22): Aretoria as a world, not a psychologist friend. People keep their journal and calendar (Captain's Log), and Aretoria is a world they enter and leave as they like. Quests that help with the real problems they are working on, and building something of their own in a virtual realm: more game-like. Direction only; nothing starts until Cassidy picks a first piece.
 - Guide as an AI/SI chat companion (Cassidy, 2026-10-22): the visitor talks freely with their guide inside the world. Idea only; would need a backend or key and cost per use, so nothing starts until Cassidy says go.
 - Motivation, not a model to copy: https://www.arcarae.com/ (Cassidy, 2026-10-22). Aretoria has been forming in him since 2023 and came together around when Arcarae released; it showed him a guide world like this can be done.
 - A light link with Captain's Log entries (for example, the virtue you reflected on today).
