@@ -129,12 +129,12 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('apple-mobile-web-app-title is Aretoria', /apple-mobile-web-app-title" content="Aretoria"/.test(html));
   assert('no MEC calendar / CaptainLog UI on page', !/month-grid|captains-log|panel-calendar|Modern Era Calendar/.test(html));
   assert('Irishnu mentioned as the Guide on landing', /Irishnu the Guide/.test(html));
-  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=52/.test(boot));
-  assert('SW is aretoria-v52', /aretoria-v52/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
+  assert('boot imports openAretoria and registers SW', /openAretoria/.test(boot) && /sw\.js\?v=53/.test(boot));
+  assert('SW is aretoria-v53', /aretoria-v53/.test(sw) && !/aretoria-v17/.test(sw) && !/mec-v/.test(sw) && !/captains-log/.test(sw));
   assert('SW precaches Aretoria code + shell', ['aretoria.js', 'aretoria-data.js', 'aretoria-art.js', 'aretoria.css', 'boot.js', 'shell.css'].every((f) => sw.includes(`./${f}`)));
   assert('SW does not precache portraits/guardians/realms', !/assets\/aretoria\/[^']*\.jpg/.test(noComments(sw)) && !/guardians\//.test(noComments(sw)) && !/realms\//.test(noComments(sw)));
-  assert('aretoria.js VERSION = 50 and imports data/art ?v=52; boot imports aretoria.js?v=52', /const VERSION = 50;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=52'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=52'/.test(src('./aretoria.js')) && /aretoria\.js\?v=52'/.test(src('./boot.js')));
-  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=52', /shell\.css\?v=18/.test(html) && /boot\.js\?v=52/.test(html) && /sw\.js\?v=52/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
+  assert('aretoria.js VERSION = 50 and imports data/art ?v=53; boot imports aretoria.js?v=53', /const VERSION = 50;/.test(src('./aretoria.js')) && /aretoria-data\.js\?v=53'/.test(src('./aretoria.js')) && /aretoria-art\.js\?v=53'/.test(src('./aretoria.js')) && /aretoria\.js\?v=53'/.test(src('./boot.js')));
+  assert('asset queries: shell.css ?v=18, boot.js + sw.js ?v=53', /shell\.css\?v=18/.test(html) && /boot\.js\?v=53/.test(html) && /sw\.js\?v=53/.test(boot) && !/\?v=27/.test(src('./aretoria.js')));
   assert('manifest name Aretoria, scope /aretoria/', /"name": "Aretoria"/.test(src('./manifest.webmanifest')) && /"scope": "\/aretoria\/"/.test(src('./manifest.webmanifest')));
   assert('link back to Captain’s Log present', /modern-era-calendar/.test(html));
 }
@@ -456,7 +456,7 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('the visitor name is prefilled only from a link and only when none is saved', /if \(r\.fromLink && v && !cleanName\(localStorage\.getItem\(NAME_KEY\) \|\| ''\)\)/.test(dj));
   assert('Hall offers "Use the default guide" only for a family guide; it forgets the guide and reloads the plain link', /isFamilyGuide\(\) \? `<span class="ar-hall-sep" aria-hidden="true">·<\/span><button type="button" class="ar-linkbtn" data-act="guide-default">Use the default guide<\/button>` : ''/.test(aj) && /act === 'guide-default'\) \{[\s\S]{0,200}?localStorage\.removeItem\(GUIDE_KEY\)[\s\S]{0,80}?location\.replace\(location\.pathname\)/.test(aj));
   assert('labels (card, aria, Hall, name plate, stage) use guideLabel(); long labels wrap on the card', /ar-host-name\$\{guideLabel\(\)\.length > 24 \? ' ar-host-name-long' : ''\}">\$\{esc\(guideLabel\(\)\)\}/.test(aj) && /aria-label="Speak with \$\{esc\(guideLabel\(\)\)\}/.test(aj) && /name: GUIDE\.label, title: GUIDE\.title/.test(aj) && /label: `\$\{GUIDE\.label\} \$\{GUIDE\.title\}`/.test(aj) && /\.ar-host-name\.ar-host-name-long \{ white-space: normal;/.test(src('./aretoria.css')) && !/ar-host-name-long[^}]*overflow-wrap: anywhere/.test(src('./aretoria.css')));
-  assert('the landing names the active guide', /querySelectorAll\('\.guide-name'\)\.forEach\(\(el\) => \{ el\.textContent = guideLabel\(\); \}\)/.test(bj) && /aretoria-data\.js\?v=52'/.test(bj));
+  assert('the landing names the active guide', /querySelectorAll\('\.guide-name'\)\.forEach\(\(el\) => \{ el\.textContent = guideLabel\(\); \}\)/.test(bj) && /aretoria-data\.js\?v=53'/.test(bj));
 
   console.log('\n--- v70: personal lines. Default link unchanged; family links get gentle invitations and the Creed of Aretoria ---');
   const sun = new Date(2026, 9, 4), sat1 = new Date(2026, 9, 3), last = new Date(2026, 9, 31), mon = new Date(2026, 9, 5);
@@ -491,7 +491,7 @@ const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*
   assert('speaker toggle sits in the header with a 44px phone target', /class="ar-btn ar-snd" aria-pressed="false"/.test(aj2) && /\.ar \.ar-snd \{ width: 44px; height: 44px; min-width: 44px; \}/.test(css2));
   assert('the sound module is precached for offline use', /'\.\/aretoria-audio\.js'/.test(sw2));
   assert('sound copy has no em dashes or tildes', !/[\u2014~]/.test(au));
-  assert('v72: the sound module is imported with the current cache key', /import \{ sound \} from '\.\/aretoria-audio\.js\?v=52';/.test(aj2));
+  assert('v72: the sound module is imported with the current cache key', /import \{ sound \} from '\.\/aretoria-audio\.js\?v=53';/.test(aj2));
   assert('v72: phones get a round back button (label kept for screen readers); desktop keeps "Axial hub"', /aria-label="Back to the Axial hub">‹ <span>Axial hub<\/span><\/button>/.test(aj2) && /@media \(max-width: 699px\) \{\n  \.ar \.ar-back \{ width: 44px;[^}]*\}\n  \.ar \.ar-back\[hidden\] \{ display: none; \}\n  \.ar \.ar-back span \{ display: none; \}/.test(css2));
 }
 
