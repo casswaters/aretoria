@@ -25,7 +25,7 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 
 ## Now
 - Live: SW aretoria-v53 (v78) at https://casswaters.github.io/aretoria/, matching main.
-- Family guides by link (plan 2026-10-07, replaces the guide-creator presets). Four guides built so far: Irishnu (default), Jill, Jaycee and Chaz. Up to two more family avatars may come when Cassidy sends them (Cassidy, 2026-10-22); none are started until he does. Each person gets their own link where their guide replaces Irishnu: https://casswaters.github.io/aretoria/?guide=<slug>, slug = a simple lowercase first name (not secret; accepted).
+- Family guides by link (plan 2026-10-07, replaces the guide-creator presets). Four guides, all live: Irishnu (default), Jill, Jaycee and Chaz. No more family avatars are on the list (Cassidy, 2026-10-25). Each person gets their own link where their guide replaces Irishnu: https://casswaters.github.io/aretoria/?guide=<slug>, slug = a simple lowercase first name (not secret; accepted).
   - The link loads that person's guide config: guide name, armor phrase in "Who are you, really?", art, and their visitor name prefilled (only if none is saved; still editable in the Hall of Virtues).
   - Remembered in localStorage (mec-aretoria:guide), so later visits without the param keep their guide. Way back to the default: "Use the default guide" in the Hall, or ?guide=default. The plain link (nothing saved) is always Irishnu.
   - The guide's name and art replace Irishnu everywhere: landing line, arrival intro, hub card and its label, dialogue name and avatar, "Meet <guide> again" in the Hall.
