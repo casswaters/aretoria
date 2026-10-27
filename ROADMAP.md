@@ -7,6 +7,7 @@ Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of
 **Last updated:** 2026-10-27, about 6:25 AM MT (Oct 27 morning report)
 
 ## House rules
+- Aim (Cassidy, 2026-10-27): a spiritual playground that is as grounded as possible, where people feel comfortable and at home, that steps on as few toes as possible and invites as many people in as it can. Borrow from traditions like Dante as familiar echoes, never as one faith's doctrine.
 - The default link (Irishnu, Cassidy's own) is the template and continued testing site; new work is built and tested there first (Cassidy, 2026-10-22).
 - The family links (Jill, Jaycee, Chaz) are a soft beta launch, shared to see how Aretoria is received; keep them working, but they are not where new work is built (Cassidy, 2026-10-22).
 - One palette for the whole world: ivory, gold and cosmic night. No realm color-coding.
