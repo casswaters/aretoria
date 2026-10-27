@@ -4,7 +4,7 @@ Repo-only planning file. It is excluded from GitHub Pages and never ships to the
 Deploy = push to main; `.github/workflows/pages.yml` publishes main to gh-pages without this file. Do not push main to gh-pages by hand.
 Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of Aretoria; it links to this standalone site. Aretoria changes ship here only.
 
-**Last updated:** 2026-10-26, about 6:20 AM MT (morning report)
+**Last updated:** 2026-10-27, about 6:25 AM MT (Oct 27 morning report)
 
 ## House rules
 - The default link (Irishnu, Cassidy's own) is the template and continued testing site; new work is built and tested there first (Cassidy, 2026-10-22).
