@@ -4,7 +4,7 @@ Repo-only planning file. It is excluded from GitHub Pages and never ships to the
 Deploy = push to main; `.github/workflows/pages.yml` publishes main to gh-pages without this file. Do not push main to gh-pages by hand.
 Captain's Log (casswaters/modern-era-calendar) no longer carries its own copy of Aretoria; it links to this standalone site. Aretoria changes ship here only.
 
-**Last updated:** Nov 8, 2026, 6:07 AM MT (morning roadmap report); no product changes since Nov 7 afternoon
+**Last updated:** Nov 9, 2026, 6:07 AM MT (morning roadmap report); no product changes since Nov 7 afternoon; Pages deploys green
 
 ## House rules
 - Aim (Cassidy, 2026-10-27): a spiritual playground that is as grounded as possible, where people feel comfortable and at home, that steps on as few toes as possible and invites as many people in as it can. Borrow from traditions like Dante as familiar echoes, never as one faith's doctrine. Welcoming never means watered down: Aretoria still has to say something important.
